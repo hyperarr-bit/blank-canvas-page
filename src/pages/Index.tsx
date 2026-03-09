@@ -13,6 +13,10 @@ import { WishlistItems } from "@/components/WishlistItems";
 import { InvestmentsTracker } from "@/components/InvestmentsTracker";
 import { FinancialHealth } from "@/components/FinancialHealth";
 import { TravelPlanner } from "@/components/TravelPlanner";
+import { Dashboard } from "@/components/Dashboard";
+import { Simulators } from "@/components/Simulators";
+import { Gamification } from "@/components/Gamification";
+import { Reports } from "@/components/Reports";
 
 const months = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 
@@ -26,7 +30,7 @@ const usePersistedState = <T,>(key: string, initial: T): [T, (v: T) => void] => 
 };
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState("financeiro");
+  const [activeTab, setActiveTab] = useState("dashboard");
 
   const [incomes, setIncomes] = usePersistedState("finance-incomes", [
     { id: "1", description: "Salário", value: 3000, date: "2025-03-06" },
@@ -109,6 +113,11 @@ const Index = () => {
     },
   ]);
 
+  // Gamification state
+  const [streakDays, setStreakDays] = usePersistedState("finance-streak", 0);
+  const [challenge52Weeks, setChallenge52Weeks] = usePersistedState<number[]>("finance-52weeks", []);
+
+  // Computed values
   const totalIncome = incomes.reduce((sum: number, i: any) => sum + i.value, 0);
   const totalExpenses = expenses.reduce((sum: number, e: any) => sum + e.value, 0);
   const totalDebts = installments.reduce((sum: number, i: any) => sum + (i.totalInstallments - i.paidInstallments) * i.installmentValue, 0);
@@ -116,34 +125,48 @@ const Index = () => {
   const monthlyInstallments = installments.reduce((sum: number, i: any) => i.paidInstallments < i.totalInstallments ? sum + i.installmentValue : sum, 0);
   const emergencyFund = goals.find((g: any) => g.name.toLowerCase().includes("emergência"))?.currentValue || 0;
   const emergencyFundGoal = goals.find((g: any) => g.name.toLowerCase().includes("emergência"))?.targetValue || totalExpenses * 6;
+  const savingsRate = totalIncome > 0 ? ((totalIncome - totalExpenses) / totalIncome) * 100 : 0;
+
+  // Bills paid rate
+  const allBills = dueDays.flatMap((d: any) => d.bills);
+  const billsPaidRate = allBills.length > 0 ? (allBills.filter((b: any) => b.paid).length / allBills.length) * 100 : 100;
+
+  // Goals progress
+  const goalsProgress = goals.length > 0
+    ? goals.reduce((sum: number, g: any) => sum + Math.min((g.currentValue / g.targetValue) * 100, 100), 0) / goals.length
+    : 0;
 
   const currentMonth = new Date().toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
 
   const tabs = [
-    { id: "financeiro", label: "MEU FINANCEIRO" },
-    { id: "investimentos", label: "INVESTIMENTOS" },
-    { id: "metas", label: "METAS FINANCEIRAS" },
-    { id: "itens", label: "ITENS DE DESEJO" },
-    { id: "viagem", label: "VIAGEM - CUSTOS" },
-    { id: "saude", label: "SAÚDE FINANCEIRA" },
+    { id: "dashboard", label: "📊 DASHBOARD" },
+    { id: "financeiro", label: "💰 MEU FINANCEIRO" },
+    { id: "investimentos", label: "📈 INVESTIMENTOS" },
+    { id: "metas", label: "🎯 METAS" },
+    { id: "itens", label: "❤️ DESEJOS" },
+    { id: "viagem", label: "✈️ VIAGEM" },
+    { id: "simuladores", label: "🧮 SIMULADORES" },
+    { id: "desafios", label: "🏆 DESAFIOS" },
+    { id: "relatorios", label: "📋 RELATÓRIOS" },
+    { id: "saude", label: "💚 SAÚDE FINANCEIRA" },
   ];
 
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border bg-card">
+      <header className="border-b border-border bg-card sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
           <span className="text-lg">≡</span>
           <h1 className="text-base font-bold tracking-tight">FINANÇAS EM ORDEM</h1>
           <span className="text-muted-foreground text-xs ml-auto capitalize">{currentMonth}</span>
         </div>
         {/* Tabs */}
-        <div className="max-w-7xl mx-auto px-4 pb-3 flex gap-1 overflow-x-auto">
+        <div className="max-w-7xl mx-auto px-4 pb-2 flex gap-1 overflow-x-auto scrollbar-hide">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`notion-tab whitespace-nowrap text-xs ${activeTab === tab.id ? "notion-tab-active" : "hover:bg-muted"}`}
+              className={`notion-tab whitespace-nowrap text-[11px] ${activeTab === tab.id ? "notion-tab-active" : "hover:bg-muted"}`}
             >
               {tab.label}
             </button>
@@ -152,7 +175,7 @@ const Index = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-5 space-y-5">
-        {/* 4 Summary Cards - always visible and editable */}
+        {/* 4 Summary Cards - always visible */}
         <FinancialSummary
           totalIncome={totalIncome}
           totalExpenses={totalExpenses}
@@ -161,15 +184,13 @@ const Index = () => {
           onUpdateIncome={(value) => {
             if (incomes.length > 0) {
               const othersSum = incomes.slice(1).reduce((s: number, i: any) => s + i.value, 0);
-              const newFirst = Math.max(0, value - othersSum);
-              setIncomes(incomes.map((inc: any, idx: number) => idx === 0 ? { ...inc, value: newFirst } : inc));
+              setIncomes(incomes.map((inc: any, idx: number) => idx === 0 ? { ...inc, value: Math.max(0, value - othersSum) } : inc));
             }
           }}
           onUpdateExpenses={(value) => {
             if (expenses.length > 0) {
               const othersSum = expenses.slice(1).reduce((s: number, e: any) => s + e.value, 0);
-              const newFirst = Math.max(0, value - othersSum);
-              setExpenses(expenses.map((exp: any, idx: number) => idx === 0 ? { ...exp, value: newFirst } : exp));
+              setExpenses(expenses.map((exp: any, idx: number) => idx === 0 ? { ...exp, value: Math.max(0, value - othersSum) } : exp));
             }
           }}
           onUpdateDebts={(value) => {
@@ -177,43 +198,42 @@ const Index = () => {
               const othersDebt = installments.slice(1).reduce((s: number, i: any) => s + (i.totalInstallments - i.paidInstallments) * i.installmentValue, 0);
               const firstRemaining = installments[0].totalInstallments - installments[0].paidInstallments;
               const newInstallmentValue = firstRemaining > 0 ? Math.max(0, value - othersDebt) / firstRemaining : 0;
-              setInstallments(installments.map((inst: any, idx: number) => 
-                idx === 0 ? { ...inst, installmentValue: newInstallmentValue } : inst
-              ));
+              setInstallments(installments.map((inst: any, idx: number) => idx === 0 ? { ...inst, installmentValue: newInstallmentValue } : inst));
             }
           }}
           onUpdateInvestments={(value) => {
             if (investments.length > 0) {
               const othersSum = investments.slice(1).reduce((s: number, i: any) => s + i.currentValue, 0);
-              const newFirst = Math.max(0, value - othersSum);
-              setInvestments(investments.map((inv: any, idx: number) => 
-                idx === 0 ? { ...inv, currentValue: newFirst } : inv
-              ));
+              setInvestments(investments.map((inv: any, idx: number) => idx === 0 ? { ...inv, currentValue: Math.max(0, value - othersSum) } : inv));
             }
           }}
         />
 
+        {activeTab === "dashboard" && (
+          <Dashboard
+            totalIncome={totalIncome}
+            totalExpenses={totalExpenses}
+            totalDebts={totalDebts}
+            totalInvestments={totalInvestments}
+            expenses={expenses}
+            dueDays={dueDays}
+            annualData={annualData}
+            savingsRate={savingsRate}
+          />
+        )}
+
         {activeTab === "financeiro" && (
           <>
-            {/* Income table + Calculator */}
             <div className="grid lg:grid-cols-[1fr_280px] gap-4">
               <IncomeTable incomes={incomes} setIncomes={setIncomes} />
               <Calculator />
             </div>
-
-            {/* Expenses + Notes */}
             <div className="grid lg:grid-cols-[1fr_280px] gap-4">
               <ExpenseTable expenses={expenses} setExpenses={setExpenses} />
               <Notes notes={notes} setNotes={setNotes} />
             </div>
-
-            {/* Bills Due */}
             <BillsDueCards dueDays={dueDays} setDueDays={setDueDays} />
-
-            {/* Installments */}
             <InstallmentTracker installments={installments} setInstallments={setInstallments} />
-
-            {/* Annual Budget + Monthly Budget */}
             <div className="grid lg:grid-cols-[1fr_200px] gap-4">
               <AnnualBudget data={annualData} setData={setAnnualData} />
               <MonthlyBudget budgets={monthlyBudgets} setBudgets={setMonthlyBudgets} />
@@ -248,6 +268,37 @@ const Index = () => {
 
         {activeTab === "viagem" && (
           <TravelPlanner trips={trips} setTrips={setTrips} />
+        )}
+
+        {activeTab === "simuladores" && (
+          <Simulators />
+        )}
+
+        {activeTab === "desafios" && (
+          <Gamification
+            savingsRate={savingsRate}
+            billsPaidRate={billsPaidRate}
+            goalsProgress={goalsProgress}
+            totalInvestments={totalInvestments}
+            totalDebts={totalDebts}
+            streakDays={streakDays}
+            setStreakDays={setStreakDays}
+            challenge52Weeks={challenge52Weeks}
+            setChallenge52Weeks={setChallenge52Weeks}
+          />
+        )}
+
+        {activeTab === "relatorios" && (
+          <Reports
+            incomes={incomes}
+            expenses={expenses}
+            totalIncome={totalIncome}
+            totalExpenses={totalExpenses}
+            totalDebts={totalDebts}
+            totalInvestments={totalInvestments}
+            setIncomes={setIncomes}
+            setExpenses={setExpenses}
+          />
         )}
 
         {activeTab === "saude" && (
