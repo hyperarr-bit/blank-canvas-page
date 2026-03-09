@@ -151,12 +151,39 @@ const Index = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-5 space-y-5">
-        {/* 4 Summary Cards - always visible */}
+        {/* 4 Summary Cards - always visible and editable */}
         <FinancialSummary
           totalIncome={totalIncome}
           totalExpenses={totalExpenses}
           totalDebts={totalDebts}
           totalInvestments={totalInvestments}
+          onUpdateIncome={(value) => {
+            // Update first income entry or create new one
+            if (incomes.length > 0) {
+              setIncomes(incomes.map((inc: any, idx: number) => idx === 0 ? { ...inc, value } : inc));
+            }
+          }}
+          onUpdateExpenses={(value) => {
+            if (expenses.length > 0) {
+              setExpenses(expenses.map((exp: any, idx: number) => idx === 0 ? { ...exp, value } : exp));
+            }
+          }}
+          onUpdateDebts={(value) => {
+            if (installments.length > 0) {
+              const remaining = installments[0].totalInstallments - installments[0].paidInstallments;
+              const newInstallmentValue = remaining > 0 ? value / remaining : value;
+              setInstallments(installments.map((inst: any, idx: number) => 
+                idx === 0 ? { ...inst, installmentValue: newInstallmentValue } : inst
+              ));
+            }
+          }}
+          onUpdateInvestments={(value) => {
+            if (investments.length > 0) {
+              setInvestments(investments.map((inv: any, idx: number) => 
+                idx === 0 ? { ...inv, currentValue: value } : inv
+              ));
+            }
+          }}
         />
 
         {activeTab === "financeiro" && (
