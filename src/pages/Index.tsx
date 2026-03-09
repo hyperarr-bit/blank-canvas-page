@@ -113,6 +113,7 @@ const Index = () => {
   const totalExpenses = expenses.reduce((sum: number, e: any) => sum + e.value, 0);
   const totalDebts = installments.reduce((sum: number, i: any) => sum + (i.totalInstallments - i.paidInstallments) * i.installmentValue, 0);
   const totalInvestments = investments.reduce((sum: number, i: any) => sum + i.currentValue, 0);
+  const monthlyInstallments = installments.reduce((sum: number, i: any) => i.paidInstallments < i.totalInstallments ? sum + i.installmentValue : sum, 0);
   const emergencyFund = goals.find((g: any) => g.name.toLowerCase().includes("emergência"))?.currentValue || 0;
   const emergencyFundGoal = goals.find((g: any) => g.name.toLowerCase().includes("emergência"))?.targetValue || totalExpenses * 6;
 
@@ -239,6 +240,9 @@ const Index = () => {
             items={wishlistItems} 
             setItems={setWishlistItems} 
             monthlyBudget={totalIncome}
+            totalExpenses={totalExpenses}
+            totalDebts={totalDebts}
+            monthlyInstallments={monthlyInstallments}
           />
         )}
 
@@ -254,6 +258,12 @@ const Index = () => {
             totalInvestments={totalInvestments}
             emergencyFund={emergencyFund}
             emergencyFundGoal={emergencyFundGoal}
+            goals={goals}
+            dueDays={dueDays}
+            installments={installments}
+            wishlistItems={wishlistItems}
+            trips={trips}
+            investments={investments}
           />
         )}
       </main>
