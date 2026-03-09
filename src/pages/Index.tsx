@@ -158,20 +158,24 @@ const Index = () => {
           totalDebts={totalDebts}
           totalInvestments={totalInvestments}
           onUpdateIncome={(value) => {
-            // Update first income entry or create new one
             if (incomes.length > 0) {
-              setIncomes(incomes.map((inc: any, idx: number) => idx === 0 ? { ...inc, value } : inc));
+              const othersSum = incomes.slice(1).reduce((s: number, i: any) => s + i.value, 0);
+              const newFirst = Math.max(0, value - othersSum);
+              setIncomes(incomes.map((inc: any, idx: number) => idx === 0 ? { ...inc, value: newFirst } : inc));
             }
           }}
           onUpdateExpenses={(value) => {
             if (expenses.length > 0) {
-              setExpenses(expenses.map((exp: any, idx: number) => idx === 0 ? { ...exp, value } : exp));
+              const othersSum = expenses.slice(1).reduce((s: number, e: any) => s + e.value, 0);
+              const newFirst = Math.max(0, value - othersSum);
+              setExpenses(expenses.map((exp: any, idx: number) => idx === 0 ? { ...exp, value: newFirst } : exp));
             }
           }}
           onUpdateDebts={(value) => {
             if (installments.length > 0) {
-              const remaining = installments[0].totalInstallments - installments[0].paidInstallments;
-              const newInstallmentValue = remaining > 0 ? value / remaining : value;
+              const othersDebt = installments.slice(1).reduce((s: number, i: any) => s + (i.totalInstallments - i.paidInstallments) * i.installmentValue, 0);
+              const firstRemaining = installments[0].totalInstallments - installments[0].paidInstallments;
+              const newInstallmentValue = firstRemaining > 0 ? Math.max(0, value - othersDebt) / firstRemaining : 0;
               setInstallments(installments.map((inst: any, idx: number) => 
                 idx === 0 ? { ...inst, installmentValue: newInstallmentValue } : inst
               ));
@@ -179,8 +183,10 @@ const Index = () => {
           }}
           onUpdateInvestments={(value) => {
             if (investments.length > 0) {
+              const othersSum = investments.slice(1).reduce((s: number, i: any) => s + i.currentValue, 0);
+              const newFirst = Math.max(0, value - othersSum);
               setInvestments(investments.map((inv: any, idx: number) => 
-                idx === 0 ? { ...inv, currentValue: value } : inv
+                idx === 0 ? { ...inv, currentValue: newFirst } : inv
               ));
             }
           }}
@@ -188,29 +194,29 @@ const Index = () => {
 
         {activeTab === "financeiro" && (
           <>
-            {/* Annual Budget + Monthly Budget + Calculator row */}
-            <div className="grid lg:grid-cols-[1fr_200px_auto] gap-4">
-              <AnnualBudget data={annualData} setData={setAnnualData} />
-              <MonthlyBudget budgets={monthlyBudgets} setBudgets={setMonthlyBudgets} />
-              <div className="space-y-4">
-                <Calculator />
-              </div>
-            </div>
-
-            {/* Income table + Notes */}
+            {/* Income table + Calculator */}
             <div className="grid lg:grid-cols-[1fr_280px] gap-4">
               <IncomeTable incomes={incomes} setIncomes={setIncomes} />
-              <Notes notes={notes} setNotes={setNotes} />
+              <Calculator />
             </div>
 
-            {/* Expenses */}
-            <ExpenseTable expenses={expenses} setExpenses={setExpenses} />
+            {/* Expenses + Notes */}
+            <div className="grid lg:grid-cols-[1fr_280px] gap-4">
+              <ExpenseTable expenses={expenses} setExpenses={setExpenses} />
+              <Notes notes={notes} setNotes={setNotes} />
+            </div>
 
             {/* Bills Due */}
             <BillsDueCards dueDays={dueDays} setDueDays={setDueDays} />
 
             {/* Installments */}
             <InstallmentTracker installments={installments} setInstallments={setInstallments} />
+
+            {/* Annual Budget + Monthly Budget */}
+            <div className="grid lg:grid-cols-[1fr_200px] gap-4">
+              <AnnualBudget data={annualData} setData={setAnnualData} />
+              <MonthlyBudget budgets={monthlyBudgets} setBudgets={setMonthlyBudgets} />
+            </div>
           </>
         )}
 
