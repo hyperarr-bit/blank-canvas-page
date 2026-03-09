@@ -32,6 +32,7 @@ const usePersistedState = <T,>(key: string, initial: T): [T, (v: T) => void] => 
 };
 
 const Index = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("dashboard");
 
   const [incomes, setIncomes] = usePersistedState("finance-incomes", [
