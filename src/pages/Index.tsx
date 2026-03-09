@@ -240,6 +240,9 @@ const Index = () => {
             items={wishlistItems} 
             setItems={setWishlistItems} 
             monthlyBudget={totalIncome}
+            totalExpenses={totalExpenses}
+            totalDebts={totalDebts}
+            monthlyInstallments={monthlyInstallments}
           />
         )}
 
