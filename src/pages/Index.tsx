@@ -194,29 +194,29 @@ const Index = () => {
 
         {activeTab === "financeiro" && (
           <>
-            {/* Annual Budget + Monthly Budget + Calculator row */}
-            <div className="grid lg:grid-cols-[1fr_200px_auto] gap-4">
-              <AnnualBudget data={annualData} setData={setAnnualData} />
-              <MonthlyBudget budgets={monthlyBudgets} setBudgets={setMonthlyBudgets} />
-              <div className="space-y-4">
-                <Calculator />
-              </div>
-            </div>
-
-            {/* Income table + Notes */}
+            {/* Income table + Calculator */}
             <div className="grid lg:grid-cols-[1fr_280px] gap-4">
               <IncomeTable incomes={incomes} setIncomes={setIncomes} />
-              <Notes notes={notes} setNotes={setNotes} />
+              <Calculator />
             </div>
 
-            {/* Expenses */}
-            <ExpenseTable expenses={expenses} setExpenses={setExpenses} />
+            {/* Expenses + Notes */}
+            <div className="grid lg:grid-cols-[1fr_280px] gap-4">
+              <ExpenseTable expenses={expenses} setExpenses={setExpenses} />
+              <Notes notes={notes} setNotes={setNotes} />
+            </div>
 
             {/* Bills Due */}
             <BillsDueCards dueDays={dueDays} setDueDays={setDueDays} />
 
             {/* Installments */}
             <InstallmentTracker installments={installments} setInstallments={setInstallments} />
+
+            {/* Annual Budget + Monthly Budget */}
+            <div className="grid lg:grid-cols-[1fr_200px] gap-4">
+              <AnnualBudget data={annualData} setData={setAnnualData} />
+              <MonthlyBudget budgets={monthlyBudgets} setBudgets={setMonthlyBudgets} />
+            </div>
           </>
         )}
 
