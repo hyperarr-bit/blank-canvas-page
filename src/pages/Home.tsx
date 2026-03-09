@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { DollarSign, CalendarCheck, ArrowRight } from "lucide-react";
+import { DollarSign, CalendarCheck, ArrowRight, Sparkles, Heart } from "lucide-react";
 
 const Home = () => {
   const navigate = useNavigate();
