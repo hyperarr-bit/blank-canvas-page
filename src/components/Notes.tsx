@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Plus, Trash2, StickyNote } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Plus, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 interface Note {
@@ -23,47 +22,35 @@ export const Notes = ({ notes, setNotes }: NotesProps) => {
     }
   };
 
-  const deleteNote = (id: string) => {
-    setNotes(notes.filter((n) => n.id !== id));
-  };
+  const deleteNote = (id: string) => setNotes(notes.filter((n) => n.id !== id));
 
   return (
-    <div className="bg-card rounded-xl overflow-hidden shadow-lg border border-border animate-fade-in">
-      <div className="table-header flex items-center justify-center gap-2">
-        <StickyNote className="w-5 h-5" />
-        ANOTAÇÕES
+    <div className="bg-card-dividas rounded-lg border border-card-dividas-border overflow-hidden animate-fade-in">
+      <div className="bg-accent text-accent-foreground px-4 py-2 flex items-center gap-2">
+        <span className="font-bold text-xs tracking-wide">ANOTAÇÕES</span>
+        <span>📝</span>
       </div>
-
-      <div className="p-4 space-y-2 max-h-64 overflow-y-auto">
+      <div className="p-3 space-y-1.5">
         {notes.map((note) => (
-          <div
-            key={note.id}
-            className="flex items-start gap-2 p-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors group"
-          >
-            <span className="text-primary mt-1">•</span>
-            <span className="flex-1 text-sm">{note.text}</span>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => deleteNote(note.id)}
-              className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-destructive"
-            >
+          <div key={note.id} className="flex items-start gap-2 group text-sm">
+            <span className="text-accent mt-0.5">•</span>
+            <span className="flex-1 text-xs">{note.text}</span>
+            <button onClick={() => deleteNote(note.id)} className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive">
               <Trash2 className="w-3 h-3" />
-            </Button>
+            </button>
           </div>
         ))}
-
-        <div className="flex gap-2 pt-2">
+        <div className="flex gap-1 pt-1">
           <Input
             placeholder="Nova anotação..."
             value={newNote}
             onChange={(e) => setNewNote(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addNote()}
-            className="bg-background"
+            className="h-7 text-xs border-0 bg-transparent shadow-none px-0 focus-visible:ring-0"
           />
-          <Button size="icon" onClick={addNote}>
-            <Plus className="w-4 h-4" />
-          </Button>
+          <button onClick={addNote} className="text-muted-foreground hover:text-foreground transition-colors">
+            <Plus className="w-3.5 h-3.5" />
+          </button>
         </div>
       </div>
     </div>
