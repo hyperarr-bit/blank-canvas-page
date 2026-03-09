@@ -2,99 +2,133 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @layer base {
   :root {
-    --background: 30 30% 98%;
-    --foreground: 240 10% 15%;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 15%;
 
-    --card: 40 40% 97%;
-    --card-foreground: 240 10% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 15%;
+    --popover-foreground: 0 0% 15%;
 
-    --primary: 330 70% 55%;
+    --primary: 0 0% 20%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 45 60% 94%;
-    --secondary-foreground: 240 10% 15%;
+    --secondary: 40 20% 96%;
+    --secondary-foreground: 0 0% 15%;
 
-    --muted: 40 20% 94%;
-    --muted-foreground: 240 5% 45%;
+    --muted: 40 15% 95%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 330 70% 55%;
+    --accent: 330 65% 50%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 142 60% 45%;
+    --success: 142 55% 42%;
     --success-foreground: 0 0% 100%;
 
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
 
-    --income: 142 60% 92%;
-    --income-foreground: 142 60% 25%;
+    /* Summary card colors matching the reference */
+    --card-receitas: 45 80% 90%;
+    --card-receitas-border: 45 70% 75%;
+    --card-receitas-text: 45 60% 30%;
 
-    --expense: 330 60% 94%;
-    --expense-foreground: 330 70% 35%;
+    --card-despesas: 250 60% 90%;
+    --card-despesas-border: 250 50% 78%;
+    --card-despesas-text: 250 50% 35%;
 
-    --border: 40 20% 88%;
-    --input: 40 20% 88%;
-    --ring: 330 70% 55%;
+    --card-dividas: 330 65% 90%;
+    --card-dividas-border: 330 55% 78%;
+    --card-dividas-text: 330 55% 35%;
 
-    --radius: 0.75rem;
+    --card-investimentos: 142 50% 88%;
+    --card-investimentos-border: 142 45% 72%;
+    --card-investimentos-text: 142 45% 28%;
 
-    --chart-1: 330 70% 55%;
-    --chart-2: 142 60% 45%;
+    --income: 45 60% 94%;
+    --income-foreground: 45 50% 25%;
+
+    --expense: 330 50% 94%;
+    --expense-foreground: 330 50% 35%;
+
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 0% 20%;
+
+    --radius: 0.5rem;
+
+    --chart-1: 330 65% 50%;
+    --chart-2: 142 55% 42%;
     --chart-3: 38 92% 50%;
-    --chart-4: 217 91% 60%;
-    --chart-5: 270 60% 55%;
+    --chart-4: 250 60% 55%;
+    --chart-5: 45 80% 50%;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
-    --background: 240 10% 8%;
-    --foreground: 40 20% 95%;
-
-    --card: 240 10% 12%;
-    --card-foreground: 40 20% 95%;
-
-    --popover: 240 10% 12%;
-    --popover-foreground: 40 20% 95%;
-
-    --primary: 330 70% 60%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 240 10% 18%;
-    --secondary-foreground: 40 20% 95%;
-
-    --muted: 240 10% 18%;
-    --muted-foreground: 40 10% 60%;
-
-    --accent: 330 70% 60%;
+    --background: 0 0% 7%;
+    --foreground: 0 0% 92%;
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 92%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 92%;
+    --primary: 0 0% 90%;
+    --primary-foreground: 0 0% 10%;
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 92%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 330 65% 55%;
     --accent-foreground: 0 0% 100%;
-
     --destructive: 0 72% 50%;
     --destructive-foreground: 0 0% 100%;
-
-    --success: 142 60% 50%;
+    --success: 142 55% 45%;
     --success-foreground: 0 0% 100%;
-
     --warning: 38 92% 55%;
     --warning-foreground: 0 0% 100%;
-
-    --income: 142 40% 20%;
-    --income-foreground: 142 60% 70%;
-
-    --expense: 330 40% 20%;
-    --expense-foreground: 330 60% 70%;
-
-    --border: 240 10% 20%;
-    --input: 240 10% 20%;
-    --ring: 330 70% 60%;
+    --card-receitas: 45 40% 18%;
+    --card-receitas-border: 45 40% 30%;
+    --card-receitas-text: 45 60% 70%;
+    --card-despesas: 250 30% 18%;
+    --card-despesas-border: 250 30% 30%;
+    --card-despesas-text: 250 50% 70%;
+    --card-dividas: 330 30% 18%;
+    --card-dividas-border: 330 30% 30%;
+    --card-dividas-text: 330 50% 70%;
+    --card-investimentos: 142 30% 16%;
+    --card-investimentos-border: 142 30% 28%;
+    --card-investimentos-text: 142 45% 65%;
+    --income: 45 30% 15%;
+    --income-foreground: 45 50% 70%;
+    --expense: 330 30% 15%;
+    --expense-foreground: 330 50% 70%;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 0 0% 80%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
 
@@ -104,33 +138,42 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', sans-serif;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 14px;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   }
 }
 
 @layer components {
-  .table-header {
-    @apply bg-primary text-primary-foreground font-semibold text-center py-3 text-sm uppercase tracking-wide;
+  .table-header-dark {
+    @apply bg-foreground text-background font-semibold text-center py-2.5 text-xs uppercase tracking-widest;
+  }
+
+  .table-header-pink {
+    @apply bg-accent text-accent-foreground font-semibold text-center py-2.5 text-xs uppercase tracking-widest;
   }
 
   .table-cell {
-    @apply px-4 py-3 border-b border-border text-sm;
+    @apply px-3 py-2 border-b border-border text-sm;
   }
 
   .category-badge {
-    @apply px-3 py-1 rounded-full text-xs font-medium;
+    @apply px-2.5 py-0.5 rounded-full text-xs font-medium;
   }
 
   .due-card {
-    @apply rounded-xl p-4 shadow-sm border border-border;
+    @apply rounded-lg p-3 border border-border;
   }
 
-  .calculator-btn {
-    @apply w-12 h-12 rounded-lg font-semibold text-lg transition-all hover:scale-105 active:scale-95;
+  .notion-tab {
+    @apply px-4 py-1.5 text-sm border border-border rounded-sm cursor-pointer transition-colors;
+  }
+
+  .notion-tab-active {
+    @apply bg-foreground text-background;
   }
 }
