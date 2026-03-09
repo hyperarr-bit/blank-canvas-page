@@ -258,6 +258,12 @@ const Index = () => {
             totalInvestments={totalInvestments}
             emergencyFund={emergencyFund}
             emergencyFundGoal={emergencyFundGoal}
+            goals={goals}
+            dueDays={dueDays}
+            installments={installments}
+            wishlistItems={wishlistItems}
+            trips={trips}
+            investments={investments}
           />
         )}
       </main>
