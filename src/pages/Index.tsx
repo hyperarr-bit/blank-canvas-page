@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { IncomeTable } from "@/components/IncomeTable";
 import { ExpenseTable } from "@/components/ExpenseTable";
 import { BillsDueCards } from "@/components/BillsDueCards";
@@ -30,6 +32,7 @@ const usePersistedState = <T,>(key: string, initial: T): [T, (v: T) => void] => 
 };
 
 const Index = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("dashboard");
 
   const [incomes, setIncomes] = usePersistedState("finance-incomes", [
@@ -156,8 +159,11 @@ const Index = () => {
       {/* Header */}
       <header className="border-b border-border bg-card sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
+          <button onClick={() => navigate("/")} className="hover:bg-muted rounded-md p-1 transition-colors">
+            <ArrowLeft className="w-5 h-5" />
+          </button>
           <span className="text-lg">≡</span>
-          <h1 className="text-base font-bold tracking-tight">FINANÇAS EM ORDEM</h1>
+          <h1 className="text-base font-bold tracking-tight">CORE — FINANÇAS</h1>
           <span className="text-muted-foreground text-xs ml-auto capitalize">{currentMonth}</span>
         </div>
         {/* Tabs */}
