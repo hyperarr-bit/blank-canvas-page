@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, Plus, X, Trash2, Heart, Dumbbell, Ruler, Sparkles,
   ChevronDown, ChevronUp, Check, Star, TrendingUp, Droplets,
-  Timer, Utensils, Stethoscope, Clock, Play, Pause, RotateCcw
+  Timer, Utensils, Stethoscope, Clock, Play, Pause, RotateCcw,
+  Trophy, Flame, Target, Zap, Activity
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +28,12 @@ const dayColors: Record<string, string> = {
 };
 const meals = ["Café da Manhã", "Almoço", "Lanche", "Janta"];
 const mealEmojis: Record<string, string> = { "Café da Manhã": "🌅", "Almoço": "🍽️", "Lanche": "🍎", "Janta": "🌙" };
+const mealColors: Record<string, string> = {
+  "Café da Manhã": "bg-amber-100 dark:bg-amber-500/10 border-amber-300 dark:border-amber-500/30",
+  "Almoço": "bg-green-100 dark:bg-green-500/10 border-green-300 dark:border-green-500/30",
+  "Lanche": "bg-blue-100 dark:bg-blue-500/10 border-blue-300 dark:border-blue-500/30",
+  "Janta": "bg-purple-100 dark:bg-purple-500/10 border-purple-300 dark:border-purple-500/30"
+};
 
 const presetMealPlan: Record<string, Record<string, string>> = {
   SEGUNDA: { "Café da Manhã": "Omelete de 3 claras + 1 ovo inteiro, com espinafre e tomate; 1 fatia de pão integral; café ou chá sem açúcar.", "Almoço": "Filé de frango grelhado (150g), arroz integral (1/2 xícara), brócolis no vapor e salada de folhas verdes com azeite e limão.", "Lanche": "1 iogurte natural + 1 colher de chia + 1 maçã.", "Janta": "Crepioca com 2 ovos, queijo e 100g de frango desfiado." },
@@ -38,28 +45,56 @@ const presetMealPlan: Record<string, Record<string, string>> = {
   DOMINGO: { "Café da Manhã": "Açaí com granola e frutas (porção controlada).", "Almoço": "Churrasco em família — priorize carnes magras e saladas 🥗", "Lanche": "Chá + biscoito integral.", "Janta": "Caldo verde com torradinha." },
 };
 
-const defaultWorkoutPlan: Record<string, { muscle: string; exercises: { name: string; sets: string; reps: string; done: boolean }[] }> = {
-  SEGUNDA: { muscle: "Peito + Tríceps", exercises: [
-    { name: "Supino reto", sets: "4", reps: "12", done: false }, { name: "Supino inclinado", sets: "3", reps: "12", done: false },
-    { name: "Crucifixo", sets: "3", reps: "15", done: false }, { name: "Tríceps corda", sets: "3", reps: "15", done: false }, { name: "Tríceps francês", sets: "3", reps: "12", done: false }
+const exerciseColors: string[] = [
+  "bg-blue-200 dark:bg-blue-500/20 text-blue-800 dark:text-blue-300",
+  "bg-green-200 dark:bg-green-500/20 text-green-800 dark:text-green-300",
+  "bg-purple-200 dark:bg-purple-500/20 text-purple-800 dark:text-purple-300",
+  "bg-red-200 dark:bg-red-500/20 text-red-800 dark:text-red-300",
+  "bg-amber-200 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300",
+  "bg-cyan-200 dark:bg-cyan-500/20 text-cyan-800 dark:text-cyan-300",
+  "bg-pink-200 dark:bg-pink-500/20 text-pink-800 dark:text-pink-300",
+];
+
+const defaultWorkoutPlan: Record<string, { muscle: string; exercises: { name: string; sets: string; reps: string; carga: string; done: boolean }[] }> = {
+  SEGUNDA: { muscle: "Quadríceps e Posterior", exercises: [
+    { name: "Leg Press", sets: "4", reps: "10", carga: "200Kg", done: false },
+    { name: "Extensora", sets: "4", reps: "10", carga: "10Kg", done: false },
+    { name: "Passada", sets: "2", reps: "15", carga: "60Kg", done: false },
+    { name: "Flexora", sets: "4", reps: "10", carga: "30Kg", done: false },
+    { name: "Abdutora", sets: "4", reps: "10", carga: "30Kg", done: false },
   ]},
-  TERÇA: { muscle: "Costas + Bíceps", exercises: [
-    { name: "Puxada frontal", sets: "4", reps: "12", done: false }, { name: "Remada curvada", sets: "3", reps: "12", done: false },
-    { name: "Remada unilateral", sets: "3", reps: "12", done: false }, { name: "Rosca direta", sets: "3", reps: "12", done: false }, { name: "Rosca martelo", sets: "3", reps: "12", done: false }
+  TERÇA: { muscle: "Costas e Bíceps", exercises: [
+    { name: "Puxada Frontal", sets: "4", reps: "10", carga: "30Kg", done: false },
+    { name: "Remada Baixa", sets: "4", reps: "12", carga: "35Kg", done: false },
+    { name: "Remada com Halter", sets: "4", reps: "12", carga: "10Kg", done: false },
+    { name: "Rosca Direta", sets: "3", reps: "12", carga: "5Kg", done: false },
+    { name: "Rosca Concentrada", sets: "3", reps: "12", carga: "5Kg", done: false },
   ]},
-  QUARTA: { muscle: "Perna + Glúteo", exercises: [
-    { name: "Agachamento", sets: "4", reps: "12", done: false }, { name: "Leg press", sets: "4", reps: "15", done: false },
-    { name: "Cadeira extensora", sets: "3", reps: "15", done: false }, { name: "Stiff", sets: "3", reps: "12", done: false }, { name: "Elevação pélvica", sets: "4", reps: "15", done: false }
+  QUARTA: { muscle: "Ombros e Tríceps", exercises: [
+    { name: "Desenvolvimento", sets: "4", reps: "12", carga: "10Kg", done: false },
+    { name: "Elevação lateral", sets: "3", reps: "15", carga: "5Kg", done: false },
+    { name: "Elevação frontal", sets: "3", reps: "12", carga: "5Kg", done: false },
+    { name: "Tríceps corda", sets: "3", reps: "15", carga: "15Kg", done: false },
+    { name: "Tríceps francês", sets: "3", reps: "12", carga: "8Kg", done: false },
   ]},
-  QUINTA: { muscle: "Ombro + Abdômen", exercises: [
-    { name: "Desenvolvimento", sets: "4", reps: "12", done: false }, { name: "Elevação lateral", sets: "3", reps: "15", done: false },
-    { name: "Elevação frontal", sets: "3", reps: "12", done: false }, { name: "Abdominal infra", sets: "3", reps: "20", done: false }, { name: "Prancha", sets: "3", reps: "45s", done: false }
+  QUINTA: { muscle: "Glúteos", exercises: [
+    { name: "Hip Thrust", sets: "4", reps: "12", carga: "80Kg", done: false },
+    { name: "Agachamento Sumô", sets: "4", reps: "15", carga: "40Kg", done: false },
+    { name: "Elevação pélvica", sets: "4", reps: "15", carga: "20Kg", done: false },
+    { name: "Cadeira abdutora", sets: "3", reps: "15", carga: "30Kg", done: false },
+    { name: "Stiff", sets: "3", reps: "12", carga: "30Kg", done: false },
   ]},
-  SEXTA: { muscle: "Cardio + Full Body", exercises: [
-    { name: "Corrida / Bike", sets: "1", reps: "30min", done: false }, { name: "Burpees", sets: "3", reps: "15", done: false },
-    { name: "Jumping jacks", sets: "3", reps: "30", done: false }, { name: "Mountain climber", sets: "3", reps: "20", done: false }
+  SEXTA: { muscle: "Peito e Abdômen", exercises: [
+    { name: "Supino reto", sets: "4", reps: "12", carga: "20Kg", done: false },
+    { name: "Supino inclinado", sets: "3", reps: "12", carga: "15Kg", done: false },
+    { name: "Crucifixo", sets: "3", reps: "15", carga: "8Kg", done: false },
+    { name: "Abdominal infra", sets: "3", reps: "20", carga: "—", done: false },
+    { name: "Prancha", sets: "3", reps: "45s", carga: "—", done: false },
   ]},
-  SÁBADO: { muscle: "Descanso ativo", exercises: [{ name: "Caminhada / Yoga / Alongamento", sets: "1", reps: "40min", done: false }] },
+  SÁBADO: { muscle: "Cardio + Full Body", exercises: [
+    { name: "Corrida / Bike", sets: "1", reps: "30min", carga: "—", done: false },
+    { name: "Burpees", sets: "3", reps: "15", carga: "—", done: false },
+  ]},
   DOMINGO: { muscle: "Descanso", exercises: [] },
 };
 
@@ -74,8 +109,7 @@ const Saude = () => {
   const [expandedDay, setExpandedDay] = useState<string | null>("SEGUNDA");
 
   // TREINOS
-  const [workoutPlan, setWorkoutPlan] = usePersistedState("saude-workouts", defaultWorkoutPlan);
-  const [expandedWorkout, setExpandedWorkout] = useState<string | null>("SEGUNDA");
+  const [workoutPlan, setWorkoutPlan] = usePersistedState("saude-workouts-v2", defaultWorkoutPlan);
   const [newExName, setNewExName] = useState("");
 
   // MEDIDAS
@@ -106,7 +140,7 @@ const Saude = () => {
   const [hairCare, setHairCare] = usePersistedState<string[]>("saude-hair", ["Cronograma capilar", "Hidratação semanal", "Corte a cada 3 meses"]);
   const [newHair, setNewHair] = useState("");
 
-  // === NEW: CALORIAS & MACROS ===
+  // CALORIAS & MACROS
   const [calorieGoal, setCalorieGoal] = usePersistedState("saude-cal-goal", 2000);
   const [dailyMeals, setDailyMeals] = usePersistedState<Record<string, {name: string; cal: number; prot: number; carb: number; fat: number}[]>>("saude-daily-meals", {});
   const todayMeals = dailyMeals[today] || [];
@@ -116,22 +150,22 @@ const Saude = () => {
   const [newMealCarb, setNewMealCarb] = useState("");
   const [newMealFat, setNewMealFat] = useState("");
 
-  // === NEW: REST TIMER ===
+  // REST TIMER
   const [restTime, setRestTime] = useState(60);
   const [restCountdown, setRestCountdown] = useState(0);
   const [restRunning, setRestRunning] = useState(false);
   const restRef = useRef<NodeJS.Timeout | null>(null);
 
-  // === NEW: FASTING TIMER ===
+  // FASTING TIMER
   const [fastingGoal, setFastingGoal] = usePersistedState("saude-fast-goal", 16);
   const [fastingStart, setFastingStart] = usePersistedState<string | null>("saude-fast-start", null);
   const [fastingElapsed, setFastingElapsed] = useState(0);
 
-  // === NEW: RECIPES ===
+  // RECIPES
   const [recipes, setRecipes] = usePersistedState<{id: string; name: string; ingredients: string; instructions: string; category: string}[]>("saude-recipes", []);
   const [newRecipeName, setNewRecipeName] = useState("");
 
-  // === NEW: CHECKUPS ===
+  // CHECKUPS
   const [checkups, setCheckups] = usePersistedState<{id: string; name: string; lastDate: string; nextDate: string}[]>("saude-checkups", [
     { id: "1", name: "Dentista", lastDate: "", nextDate: "" },
     { id: "2", name: "Dermatologista", lastDate: "", nextDate: "" },
@@ -141,9 +175,51 @@ const Saude = () => {
   ]);
   const [newCheckupName, setNewCheckupName] = useState("");
 
-  // === NEW: PROGRESS NOTES ===
+  // PROGRESS NOTES
   const [progressNotes, setProgressNotes] = usePersistedState<{date: string; text: string}[]>("saude-progress-notes", []);
   const [newProgressNote, setNewProgressNote] = useState("");
+
+  // === NEW: PERSONAL RECORDS ===
+  const [personalRecords, setPersonalRecords] = usePersistedState<{id: string; exercise: string; record: string; date: string}[]>("saude-prs", [
+    { id: "1", exercise: "Leg Press", record: "200Kg", date: "" },
+    { id: "2", exercise: "Supino Reto", record: "40Kg", date: "" },
+    { id: "3", exercise: "Agachamento", record: "60Kg", date: "" },
+  ]);
+  const [newPRExercise, setNewPRExercise] = useState("");
+  const [newPRRecord, setNewPRRecord] = useState("");
+
+  // === NEW: WORKOUT STREAK ===
+  const [workoutLog, setWorkoutLog] = usePersistedState<string[]>("saude-workout-log", []);
+  const streak = (() => {
+    if (workoutLog.length === 0) return 0;
+    const sorted = [...workoutLog].sort((a, b) => b.localeCompare(a));
+    let count = 0;
+    const d = new Date();
+    for (let i = 0; i < 365; i++) {
+      const dateStr = d.toISOString().split("T")[0];
+      if (sorted.includes(dateStr)) { count++; d.setDate(d.getDate() - 1); }
+      else if (i === 0) { d.setDate(d.getDate() - 1); continue; }
+      else break;
+    }
+    return count;
+  })();
+
+  // === NEW: BMI CALCULATOR ===
+  const [bmiHeight, setBmiHeight] = usePersistedState("saude-bmi-height", "");
+  const [bmiWeight, setBmiWeight] = usePersistedState("saude-bmi-weight", "");
+  const bmi = bmiHeight && bmiWeight ? (Number(bmiWeight) / Math.pow(Number(bmiHeight) / 100, 2)).toFixed(1) : null;
+  const bmiCategory = bmi ? (Number(bmi) < 18.5 ? "Abaixo" : Number(bmi) < 25 ? "Normal ✅" : Number(bmi) < 30 ? "Sobrepeso" : "Obesidade") : "";
+  const bmiColor = bmi ? (Number(bmi) < 18.5 ? "text-blue-500" : Number(bmi) < 25 ? "text-green-500" : Number(bmi) < 30 ? "text-yellow-500" : "text-red-500") : "";
+
+  // === NEW: BODY GOALS ===
+  const [bodyGoals, setBodyGoals] = usePersistedState<{id: string; goal: string; current: string; target: string}[]>("saude-body-goals", [
+    { id: "1", goal: "Peso", current: "", target: "" },
+    { id: "2", goal: "Cintura", current: "", target: "" },
+    { id: "3", goal: "% Gordura", current: "", target: "" },
+  ]);
+
+  // === NEW: WORKOUT NOTES PER DAY ===
+  const [workoutNotes, setWorkoutNotes] = usePersistedState<Record<string, string>>("saude-workout-notes", {});
 
   useEffect(() => { if (waterDate !== today) { setWaterToday(0); setWaterDate(today); } }, [today]);
 
@@ -174,15 +250,25 @@ const Saude = () => {
   const totalCarb = todayMeals.reduce((s, m) => s + m.carb, 0);
   const totalFat = todayMeals.reduce((s, m) => s + m.fat, 0);
 
+  const logWorkoutToday = () => {
+    if (!workoutLog.includes(today)) setWorkoutLog([...workoutLog, today]);
+  };
+
   return (
     <div className="min-h-screen bg-background pb-20">
       <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
           <Button variant="ghost" size="icon" onClick={() => navigate("/")}><ArrowLeft className="w-5 h-5" /></Button>
-          <div>
+          <div className="flex-1">
             <h1 className="text-lg font-bold tracking-tight flex items-center gap-2"><Heart className="w-5 h-5 text-red-500" /> SAÚDE EM ORDEM</h1>
             <p className="text-xs text-muted-foreground">Dieta, treinos, medidas, saúde e beleza</p>
           </div>
+          {streak > 0 && (
+            <div className="flex items-center gap-1 bg-orange-100 dark:bg-orange-500/20 px-3 py-1.5 rounded-full border border-orange-300 dark:border-orange-500/30">
+              <Flame className="w-4 h-4 text-orange-500" />
+              <span className="text-xs font-bold text-orange-700 dark:text-orange-300">{streak} dias</span>
+            </div>
+          )}
         </div>
       </header>
 
@@ -190,47 +276,45 @@ const Saude = () => {
         <Tabs defaultValue="dieta" className="w-full">
           <TabsList className="w-full flex overflow-x-auto gap-1 bg-muted/50 p-1 mb-4 h-auto flex-wrap">
             {[
-              { v: "dieta", l: "DIETA" }, { v: "calorias", l: "CALORIAS" }, { v: "treinos", l: "TREINOS" },
-              { v: "medidas", l: "MEDIDAS" }, { v: "saude", l: "SAÚDE" }, { v: "jejum", l: "JEJUM" },
-              { v: "receitas", l: "RECEITAS" }, { v: "checkups", l: "CHECK-UPS" },
-              { v: "beleza", l: "BELEZA" }, { v: "progresso", l: "PROGRESSO" },
+              { v: "dieta", l: "DIETA" }, { v: "calorias", l: "CALORIAS" }, { v: "treinos", l: "PLANILHA DE TREINOS" },
+              { v: "records", l: "RECORDES" }, { v: "medidas", l: "MEDIDAS" }, { v: "saude", l: "SAÚDE" },
+              { v: "jejum", l: "JEJUM" }, { v: "receitas", l: "RECEITAS" }, { v: "checkups", l: "CHECK-UPS" },
+              { v: "beleza", l: "BELEZA" }, { v: "metas", l: "METAS CORPO" }, { v: "progresso", l: "PROGRESSO" },
             ].map(t => <TabsTrigger key={t.v} value={t.v} className="text-xs px-3 py-1.5">{t.l}</TabsTrigger>)}
           </TabsList>
 
           {/* ========== DIETA ========== */}
           <TabsContent value="dieta" className="space-y-3">
-            <p className="text-xs text-muted-foreground">Clique no dia para ver/editar as refeições:</p>
-            {weekDays.map(day => (
-              <div key={day} className="bg-card rounded-xl border border-border overflow-hidden">
-                <button onClick={() => setExpandedDay(expandedDay === day ? null : day)}
-                  className={`w-full flex items-center justify-between p-3 ${dayColors[day]} text-white font-bold text-sm`}>
-                  <span>{day}</span>
-                  {expandedDay === day ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                </button>
-                {expandedDay === day && (
+            <p className="text-xs text-muted-foreground">Cardápio semanal completo — clique para editar:</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {weekDays.map(day => (
+                <div key={day} className="bg-card rounded-xl border border-border overflow-hidden">
+                  <div className={`${dayColors[day]} text-white p-3 font-bold text-sm text-center`}>
+                    {day}
+                  </div>
                   <div className="p-3 space-y-3">
                     {meals.map(meal => {
                       const key = `${day}-${meal}`; const isEditing = editingMeal === key;
                       return (
-                        <div key={meal} className="border-l-4 border-primary/20 pl-3">
+                        <div key={meal} className={`rounded-lg p-2 border ${mealColors[meal]}`}>
                           <p className="text-xs font-bold mb-1">{meal} {mealEmojis[meal]}</p>
                           {isEditing ? (
-                            <div className="flex gap-2">
-                              <Textarea value={editMealValue} onChange={e => setEditMealValue(e.target.value)} className="text-xs min-h-[60px] flex-1" />
-                              <Button size="sm" className="h-8 self-end" onClick={() => saveMeal(day, meal)}><Check className="w-3 h-3" /></Button>
+                            <div className="flex gap-1">
+                              <Textarea value={editMealValue} onChange={e => setEditMealValue(e.target.value)} className="text-[10px] min-h-[50px] flex-1 bg-white/50 dark:bg-background/50" />
+                              <Button size="sm" className="h-7 self-end" onClick={() => saveMeal(day, meal)}><Check className="w-3 h-3" /></Button>
                             </div>
                           ) : (
-                            <p className="text-xs text-muted-foreground cursor-pointer hover:bg-muted/50 rounded p-1 -m-1" onClick={() => startEditMeal(day, meal)}>
-                              {mealPlan[day]?.[meal] || <span className="italic">Clique para adicionar...</span>}
+                            <p className="text-[11px] leading-relaxed cursor-pointer hover:opacity-70" onClick={() => startEditMeal(day, meal)}>
+                              {mealPlan[day]?.[meal] || <span className="italic text-muted-foreground">Clique para adicionar...</span>}
                             </p>
                           )}
                         </div>
                       );
                     })}
                   </div>
-                )}
-              </div>
-            ))}
+                </div>
+              ))}
+            </div>
           </TabsContent>
 
           {/* ========== CALORIAS & MACROS ========== */}
@@ -280,10 +364,25 @@ const Saude = () => {
                 </div>
               ))}
             </div>
+
+            {/* BMI Calculator */}
+            <div className="bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-500/10 dark:to-cyan-500/10 rounded-xl border border-teal-200 dark:border-teal-500/30 p-4">
+              <h3 className="text-xs font-bold mb-3 flex items-center gap-2"><Activity className="w-4 h-4 text-teal-500" /> CALCULADORA IMC</h3>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="flex items-center gap-1"><Input type="number" value={bmiHeight} onChange={e => setBmiHeight(e.target.value)} placeholder="Altura" className="text-xs h-8 w-20" /><span className="text-xs text-muted-foreground">cm</span></div>
+                <div className="flex items-center gap-1"><Input type="number" value={bmiWeight} onChange={e => setBmiWeight(e.target.value)} placeholder="Peso" className="text-xs h-8 w-20" /><span className="text-xs text-muted-foreground">kg</span></div>
+              </div>
+              {bmi && (
+                <div className="flex items-center gap-3 mt-2">
+                  <span className="text-2xl font-bold">{bmi}</span>
+                  <span className={`text-sm font-bold ${bmiColor}`}>{bmiCategory}</span>
+                </div>
+              )}
+            </div>
           </TabsContent>
 
-          {/* ========== TREINOS ========== */}
-          <TabsContent value="treinos" className="space-y-3">
+          {/* ========== PLANILHA DE TREINOS (matching reference image) ========== */}
+          <TabsContent value="treinos" className="space-y-4">
             {/* Rest Timer */}
             <div className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-xl border border-blue-500/20 p-4">
               <h3 className="text-xs font-bold mb-2 flex items-center gap-2"><Timer className="w-4 h-4 text-blue-500" /> TIMER DE DESCANSO</h3>
@@ -304,53 +403,127 @@ const Saude = () => {
               </div>
             </div>
 
-            <p className="text-xs text-muted-foreground">Marque exercícios como feitos ✅ e edite séries/reps:</p>
-            {weekDays.map(day => {
-              const workout = workoutPlan[day]; if (!workout) return null;
-              return (
-                <div key={day} className="bg-card rounded-xl border border-border overflow-hidden">
-                  <button onClick={() => setExpandedWorkout(expandedWorkout === day ? null : day)}
-                    className={`w-full flex items-center justify-between p-3 ${dayColors[day]} text-white font-bold text-sm`}>
-                    <span>{day} — {workout.muscle}</span>
-                    <div className="flex items-center gap-2">
-                      {workout.exercises.length > 0 && <span className="text-xs opacity-80">{workout.exercises.filter(e => e.done).length}/{workout.exercises.length}</span>}
-                      {expandedWorkout === day ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            {/* Log workout button */}
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-muted-foreground">Planilha de treinos — estilo academia profissional:</p>
+              <Button size="sm" variant="outline" onClick={logWorkoutToday} className="text-xs gap-1">
+                <Check className="w-3 h-3" /> Registrar treino hoje
+              </Button>
+            </div>
+
+            {/* Workout grid - all days visible like the reference image */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {weekDays.map(day => {
+                const workout = workoutPlan[day]; if (!workout) return null;
+                if (workout.exercises.length === 0) return (
+                  <div key={day} className="bg-card rounded-xl border border-border overflow-hidden">
+                    <div className={`${dayColors[day]} text-white p-3 font-bold text-sm`}>{day}</div>
+                    <div className="p-4 text-center"><p className="text-xs text-muted-foreground">Dia de descanso 😴</p></div>
+                  </div>
+                );
+                return (
+                  <div key={day} className="bg-card rounded-xl border border-border overflow-hidden">
+                    <div className={`${dayColors[day]} text-white p-3`}>
+                      <p className="font-bold text-sm">{day}</p>
+                      <p className="text-xs opacity-80">{workout.muscle}</p>
                     </div>
-                  </button>
-                  {expandedWorkout === day && (
                     <div className="p-3">
-                      {workout.exercises.length === 0 ? (
-                        <p className="text-xs text-muted-foreground text-center py-4">Dia de descanso 😴</p>
-                      ) : (
-                        <div className="space-y-2">
-                          <div className="grid grid-cols-[24px_1fr_50px_50px] gap-2 text-[10px] font-bold text-muted-foreground uppercase">
-                            <span></span><span>Exercício</span><span className="text-center">Séries</span><span className="text-center">Reps</span>
+                      {/* Table header */}
+                      <div className="grid grid-cols-[20px_1fr_auto_28px] gap-2 text-[10px] font-bold text-muted-foreground uppercase border-b border-border pb-1 mb-2">
+                        <span></span>
+                        <span>Exercício</span>
+                        <span className="text-center">Repetição e Carga</span>
+                        <span className="text-center">Done</span>
+                      </div>
+                      {/* Exercises */}
+                      {workout.exercises.map((ex, i) => (
+                        <div key={i} className={`grid grid-cols-[20px_1fr_auto_28px] gap-2 items-center py-1.5 ${i < workout.exercises.length - 1 ? "border-b border-border/30" : ""}`}>
+                          <span className="text-[10px] text-muted-foreground">{i + 1}</span>
+                          <div>
+                            <span className={`inline-block px-2 py-0.5 rounded text-[11px] font-medium ${exerciseColors[i % exerciseColors.length]}`}>
+                              {ex.name}
+                            </span>
                           </div>
-                          {workout.exercises.map((ex, i) => (
-                            <div key={i} className={`grid grid-cols-[24px_1fr_50px_50px] gap-2 items-center rounded-md p-2 ${ex.done ? "bg-green-50 dark:bg-green-500/10" : "bg-muted/30"}`}>
-                              <button onClick={() => {
-                                const u = { ...workoutPlan }; u[day].exercises[i].done = !ex.done; setWorkoutPlan({...u});
-                              }} className={`w-5 h-5 rounded border-2 flex items-center justify-center ${ex.done ? "bg-green-500 border-green-500" : "border-muted-foreground/30"}`}>
-                                {ex.done && <Check className="w-3 h-3 text-white" />}
-                              </button>
-                              <Input value={ex.name} onChange={e => { const u = { ...workoutPlan }; u[day].exercises[i].name = e.target.value; setWorkoutPlan({...u}); }} className="text-xs h-7 border-none bg-transparent p-0" />
-                              <Input value={ex.sets} onChange={e => { const u = { ...workoutPlan }; u[day].exercises[i].sets = e.target.value; setWorkoutPlan({...u}); }} className="text-xs h-7 text-center border-none bg-transparent p-0" />
-                              <Input value={ex.reps} onChange={e => { const u = { ...workoutPlan }; u[day].exercises[i].reps = e.target.value; setWorkoutPlan({...u}); }} className="text-xs h-7 text-center border-none bg-transparent p-0" />
-                            </div>
-                          ))}
-                          <div className="flex gap-2 mt-2">
-                            <Input value={newExName} onChange={e => setNewExName(e.target.value)} placeholder="Novo exercício..." className="text-xs h-7 flex-1" />
-                            <Button size="sm" className="h-7 px-2" onClick={() => {
-                              if (newExName.trim()) { const u = { ...workoutPlan }; u[day].exercises.push({ name: newExName.trim(), sets: "3", reps: "12", done: false }); setWorkoutPlan({...u}); setNewExName(""); }
-                            }}><Plus className="w-3 h-3" /></Button>
+                          <div className="flex items-center gap-1">
+                            <Input value={ex.sets} onChange={e => { const u = { ...workoutPlan }; u[day].exercises[i].sets = e.target.value; setWorkoutPlan({...u}); }}
+                              className="text-xs h-6 w-8 text-center border-none bg-transparent p-0" />
+                            <span className="text-muted-foreground text-xs">-</span>
+                            <Input value={ex.reps} onChange={e => { const u = { ...workoutPlan }; u[day].exercises[i].reps = e.target.value; setWorkoutPlan({...u}); }}
+                              className="text-xs h-6 w-8 text-center border-none bg-transparent p-0" />
+                            <span className="text-muted-foreground text-xs">-</span>
+                            <Input value={ex.carga} onChange={e => { const u = { ...workoutPlan }; u[day].exercises[i].carga = e.target.value; setWorkoutPlan({...u}); }}
+                              className="text-xs h-6 w-16 text-center border-none bg-transparent p-0 font-medium" />
                           </div>
+                          <button onClick={() => {
+                            const u = { ...workoutPlan }; u[day].exercises[i].done = !ex.done; setWorkoutPlan({...u});
+                          }} className={`w-5 h-5 rounded border-2 flex items-center justify-center mx-auto ${ex.done ? "bg-blue-500 border-blue-500" : "border-blue-300"}`}>
+                            {ex.done && <Check className="w-3 h-3 text-white" />}
+                          </button>
                         </div>
-                      )}
+                      ))}
+                      {/* Add new exercise */}
+                      <div className="flex gap-1 mt-2 pt-2 border-t border-border/30">
+                        <Input value={newExName} onChange={e => setNewExName(e.target.value)} placeholder="+ Novo exercício..." className="text-xs h-6 flex-1 bg-transparent" />
+                        <Button size="sm" className="h-6 px-2" onClick={() => {
+                          if (newExName.trim()) { const u = { ...workoutPlan }; u[day].exercises.push({ name: newExName.trim(), sets: "3", reps: "12", carga: "—", done: false }); setWorkoutPlan({...u}); setNewExName(""); }
+                        }}><Plus className="w-3 h-3" /></Button>
+                      </div>
+                      {/* Workout notes */}
+                      <div className="mt-2 pt-2 border-t border-border/30">
+                        <Input value={workoutNotes[day] || ""} onChange={e => setWorkoutNotes({ ...workoutNotes, [day]: e.target.value })}
+                          placeholder="Observações do dia..." className="text-[10px] h-6 bg-muted/20 border-none" />
+                      </div>
                     </div>
-                  )}
+                  </div>
+                );
+              })}
+            </div>
+          </TabsContent>
+
+          {/* ========== RECORDES PESSOAIS ========== */}
+          <TabsContent value="records" className="space-y-4">
+            <div className="bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-500/10 dark:to-amber-500/10 rounded-xl border border-yellow-200 dark:border-yellow-500/30 p-4">
+              <h3 className="text-xs font-bold mb-3 flex items-center gap-2"><Trophy className="w-4 h-4 text-yellow-500" /> MEUS RECORDES PESSOAIS (PRs)</h3>
+              <p className="text-xs text-muted-foreground mb-3">Registre seus maiores pesos e conquistas 💪</p>
+              {personalRecords.map((pr, i) => (
+                <div key={pr.id} className="flex items-center gap-3 bg-white/50 dark:bg-background/30 rounded-lg p-3 border border-yellow-200/50 dark:border-yellow-500/20 mb-2">
+                  <Trophy className="w-4 h-4 text-yellow-500 shrink-0" />
+                  <div className="flex-1">
+                    <Input value={pr.exercise} onChange={e => { const u = [...personalRecords]; u[i] = { ...pr, exercise: e.target.value }; setPersonalRecords(u); }}
+                      className="text-xs h-6 font-bold border-none bg-transparent p-0" />
+                  </div>
+                  <Input value={pr.record} onChange={e => { const u = [...personalRecords]; u[i] = { ...pr, record: e.target.value }; setPersonalRecords(u); }}
+                    className="text-xs h-6 w-24 text-center font-bold border-none bg-transparent p-0 text-yellow-700 dark:text-yellow-300" />
+                  <Input type="date" value={pr.date} onChange={e => { const u = [...personalRecords]; u[i] = { ...pr, date: e.target.value }; setPersonalRecords(u); }}
+                    className="text-[10px] h-6 w-28 border-none bg-transparent p-0" />
+                  <button onClick={() => setPersonalRecords(personalRecords.filter(x => x.id !== pr.id))}><Trash2 className="w-3 h-3 text-muted-foreground" /></button>
                 </div>
-              );
-            })}
+              ))}
+              <div className="flex gap-2 mt-3">
+                <Input value={newPRExercise} onChange={e => setNewPRExercise(e.target.value)} placeholder="Exercício" className="text-xs h-8 flex-1" />
+                <Input value={newPRRecord} onChange={e => setNewPRRecord(e.target.value)} placeholder="Recorde" className="text-xs h-8 w-24" />
+                <Button size="sm" className="h-8" onClick={() => {
+                  if (newPRExercise.trim()) { setPersonalRecords([...personalRecords, { id: Date.now().toString(), exercise: newPRExercise.trim(), record: newPRRecord, date: today }]); setNewPRExercise(""); setNewPRRecord(""); }
+                }}><Plus className="w-3 h-3" /></Button>
+              </div>
+            </div>
+
+            {/* Workout History */}
+            <div className="bg-card rounded-xl border border-border p-4">
+              <h3 className="text-xs font-bold mb-3 flex items-center gap-2"><Flame className="w-4 h-4 text-orange-500" /> HISTÓRICO DE TREINOS — {streak} dias de sequência 🔥</h3>
+              <div className="flex flex-wrap gap-1 mb-3">
+                {Array.from({ length: 30 }, (_, i) => {
+                  const d = new Date(); d.setDate(d.getDate() - (29 - i));
+                  const dateStr = d.toISOString().split("T")[0];
+                  const trained = workoutLog.includes(dateStr);
+                  return (
+                    <div key={i} title={d.toLocaleDateString("pt-BR")}
+                      className={`w-5 h-5 rounded-sm ${trained ? "bg-green-400" : "bg-muted/30"} border border-border/30`} />
+                  );
+                })}
+              </div>
+              <p className="text-[10px] text-muted-foreground">Últimos 30 dias — verde = treinou</p>
+            </div>
           </TabsContent>
 
           {/* ========== MEDIDAS ========== */}
@@ -584,6 +757,32 @@ const Saude = () => {
             <div className="bg-card rounded-xl border border-border p-4">
               <h3 className="text-xs font-bold mb-3">📝 NOTAS DE BELEZA</h3>
               <Textarea value={beautyNotes} onChange={e => setBeautyNotes(e.target.value)} placeholder="Produtos, procedimentos, lembretes..." className="text-xs min-h-[80px]" />
+            </div>
+          </TabsContent>
+
+          {/* ========== METAS DO CORPO ========== */}
+          <TabsContent value="metas" className="space-y-4">
+            <div className="bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-500/10 dark:to-pink-500/10 rounded-xl border border-rose-200 dark:border-rose-500/30 p-4">
+              <h3 className="text-xs font-bold mb-3 flex items-center gap-2"><Target className="w-4 h-4 text-rose-500" /> METAS DO CORPO</h3>
+              <p className="text-xs text-muted-foreground mb-3">Defina onde você está e onde quer chegar:</p>
+              {bodyGoals.map((g, i) => (
+                <div key={g.id} className="grid grid-cols-[1fr_80px_80px_24px] gap-2 items-center mb-2">
+                  <Input value={g.goal} onChange={e => { const u = [...bodyGoals]; u[i] = { ...g, goal: e.target.value }; setBodyGoals(u); }}
+                    className="text-xs h-8 font-medium" />
+                  <div className="relative">
+                    <Input value={g.current} onChange={e => { const u = [...bodyGoals]; u[i] = { ...g, current: e.target.value }; setBodyGoals(u); }}
+                      placeholder="Atual" className="text-xs h-8" />
+                  </div>
+                  <div className="relative">
+                    <Input value={g.target} onChange={e => { const u = [...bodyGoals]; u[i] = { ...g, target: e.target.value }; setBodyGoals(u); }}
+                      placeholder="Meta" className="text-xs h-8" />
+                  </div>
+                  <button onClick={() => setBodyGoals(bodyGoals.filter(x => x.id !== g.id))}><Trash2 className="w-3 h-3 text-muted-foreground" /></button>
+                </div>
+              ))}
+              <Button size="sm" variant="outline" className="w-full mt-2" onClick={() => setBodyGoals([...bodyGoals, { id: Date.now().toString(), goal: "", current: "", target: "" }])}>
+                <Plus className="w-3 h-3 mr-1" /> Adicionar meta
+              </Button>
             </div>
           </TabsContent>
 
