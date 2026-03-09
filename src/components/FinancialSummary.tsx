@@ -1,68 +1,66 @@
-import { TrendingUp, TrendingDown, Wallet, PiggyBank } from "lucide-react";
+import { DollarSign, ShoppingBag, AlertTriangle, BarChart3 } from "lucide-react";
 
 interface FinancialSummaryProps {
   totalIncome: number;
   totalExpenses: number;
+  totalDebts: number;
+  totalInvestments: number;
 }
 
-export const FinancialSummary = ({ totalIncome, totalExpenses }: FinancialSummaryProps) => {
-  const balance = totalIncome - totalExpenses;
-  const savingsRate = totalIncome > 0 ? ((balance / totalIncome) * 100).toFixed(1) : "0";
-
+export const FinancialSummary = ({ totalIncome, totalExpenses, totalDebts, totalInvestments }: FinancialSummaryProps) => {
   const cards = [
     {
-      title: "Receitas",
-      value: totalIncome,
-      icon: TrendingUp,
-      color: "bg-success/10 text-success border-success/30",
-      iconBg: "bg-success",
+      title: "RECEITAS",
+      subtitle: `Receita Mensal - R$ ${totalIncome.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
+      icon: DollarSign,
+      bg: "bg-card-receitas",
+      borderColor: "border-card-receitas-border",
+      textColor: "text-card-receitas-text",
+      iconBg: "bg-card-receitas-border",
     },
     {
-      title: "Despesas",
-      value: totalExpenses,
-      icon: TrendingDown,
-      color: "bg-destructive/10 text-destructive border-destructive/30",
-      iconBg: "bg-destructive",
+      title: "DESPESAS",
+      subtitle: `Custo Mensal - R$ ${totalExpenses.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
+      icon: ShoppingBag,
+      bg: "bg-card-despesas",
+      borderColor: "border-card-despesas-border",
+      textColor: "text-card-despesas-text",
+      iconBg: "bg-card-despesas-border",
     },
     {
-      title: "Saldo",
-      value: balance,
-      icon: Wallet,
-      color: balance >= 0 
-        ? "bg-success/10 text-success border-success/30" 
-        : "bg-destructive/10 text-destructive border-destructive/30",
-      iconBg: balance >= 0 ? "bg-success" : "bg-destructive",
+      title: "DÍVIDAS",
+      subtitle: `Total de Dívidas - R$ ${totalDebts.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
+      icon: AlertTriangle,
+      bg: "bg-card-dividas",
+      borderColor: "border-card-dividas-border",
+      textColor: "text-card-dividas-text",
+      iconBg: "bg-card-dividas-border",
     },
     {
-      title: "Taxa de Economia",
-      value: savingsRate,
-      icon: PiggyBank,
-      color: "bg-warning/10 text-warning border-warning/30",
-      iconBg: "bg-warning",
-      isPercentage: true,
+      title: "INVESTIMENTOS",
+      subtitle: `Total Investido - R$ ${totalInvestments.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
+      icon: BarChart3,
+      bg: "bg-card-investimentos",
+      borderColor: "border-card-investimentos-border",
+      textColor: "text-card-investimentos-text",
+      iconBg: "bg-card-investimentos-border",
     },
   ];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 animate-fade-in">
       {cards.map((card) => (
         <div
           key={card.title}
-          className={`rounded-xl p-4 border-2 ${card.color} transition-all hover:scale-105`}
+          className={`rounded-lg p-3 border ${card.bg} ${card.borderColor} transition-all hover:shadow-md`}
         >
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-medium opacity-80">{card.title}</span>
-            <div className={`${card.iconBg} rounded-full p-2`}>
-              <card.icon className="w-4 h-4 text-white" />
+          <div className="flex items-center justify-between mb-2">
+            <span className={`text-xs font-bold tracking-wide ${card.textColor}`}>{card.title}</span>
+            <div className={`${card.iconBg} rounded-md p-1.5`}>
+              <card.icon className="w-3.5 h-3.5 text-card" />
             </div>
           </div>
-          <div className="text-2xl font-bold">
-            {card.isPercentage ? (
-              <>{card.value}%</>
-            ) : (
-              <>R$ {(card.value as number).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</>
-            )}
-          </div>
+          <p className={`text-xs ${card.textColor} opacity-80`}>{card.subtitle}</p>
         </div>
       ))}
     </div>

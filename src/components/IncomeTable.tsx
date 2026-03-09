@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Trash2, DollarSign } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -40,87 +40,81 @@ export const IncomeTable = ({ incomes, setIncomes }: IncomeTableProps) => {
   const total = incomes.reduce((sum, i) => sum + i.value, 0);
 
   return (
-    <div className="bg-income/30 rounded-xl overflow-hidden animate-fade-in">
-      <div className="table-header flex items-center justify-center gap-2 bg-success">
-        <DollarSign className="w-5 h-5" />
-        RECEITAS
+    <div className="bg-card rounded-lg overflow-hidden border border-border animate-fade-in">
+      <div className="bg-income py-2 px-4">
+        <span className="font-bold text-sm text-income-foreground tracking-wide">RECEITAS</span>
       </div>
-      
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="bg-income/50">
-              <th className="table-cell text-left font-semibold">Descrição</th>
-              <th className="table-cell text-right font-semibold">Valor</th>
-              <th className="table-cell text-center font-semibold">Data</th>
-              <th className="table-cell w-12"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {incomes.map((income) => (
-              <tr key={income.id} className="hover:bg-income/20 transition-colors">
-                <td className="table-cell">{income.description}</td>
-                <td className="table-cell text-right font-medium text-success">
-                  R$ {income.value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                </td>
-                <td className="table-cell text-center text-muted-foreground">
-                  {new Date(income.date).toLocaleDateString("pt-BR")}
-                </td>
-                <td className="table-cell">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => deleteIncome(income.id)}
-                    className="h-8 w-8 text-destructive hover:text-destructive"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </td>
-              </tr>
-            ))}
-            <tr className="bg-income/30">
-              <td className="table-cell">
-                <Input
-                  placeholder="Nova receita..."
-                  value={newIncome.description}
-                  onChange={(e) => setNewIncome({ ...newIncome, description: e.target.value })}
-                  className="h-8 bg-background/50"
-                />
+
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-border bg-muted/30">
+            <th className="px-3 py-2 text-left font-medium text-muted-foreground text-xs">Descrição</th>
+            <th className="px-3 py-2 text-right font-medium text-muted-foreground text-xs">Valor</th>
+            <th className="px-3 py-2 text-center font-medium text-muted-foreground text-xs">Data</th>
+            <th className="px-3 py-2 w-8"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {incomes.map((income) => (
+            <tr key={income.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
+              <td className="px-3 py-2">
+                <span className="category-badge bg-income text-income-foreground">{income.description}</span>
               </td>
-              <td className="table-cell">
-                <Input
-                  type="number"
-                  placeholder="0,00"
-                  value={newIncome.value}
-                  onChange={(e) => setNewIncome({ ...newIncome, value: e.target.value })}
-                  className="h-8 bg-background/50 text-right"
-                />
+              <td className="px-3 py-2 text-right tabular-nums">
+                {income.value.toLocaleString("pt-BR", { minimumFractionDigits: 0 })}
               </td>
-              <td className="table-cell">
-                <Input
-                  type="date"
-                  value={newIncome.date}
-                  onChange={(e) => setNewIncome({ ...newIncome, date: e.target.value })}
-                  className="h-8 bg-background/50"
-                />
+              <td className="px-3 py-2 text-center text-muted-foreground text-xs">
+                {new Date(income.date + "T00:00:00").toLocaleDateString("pt-BR", { month: "short", day: "numeric", year: "numeric" })}
               </td>
-              <td className="table-cell">
-                <Button size="icon" onClick={addIncome} className="h-8 w-8 bg-success hover:bg-success/90">
-                  <Plus className="w-4 h-4" />
-                </Button>
+              <td className="px-3 py-2">
+                <button onClick={() => deleteIncome(income.id)} className="text-muted-foreground hover:text-destructive transition-colors">
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
               </td>
             </tr>
-          </tbody>
-          <tfoot>
-            <tr className="bg-success/20">
-              <td className="table-cell font-bold">TOTAL</td>
-              <td className="table-cell text-right font-bold text-success text-lg" colSpan={3}>
-                R$ {total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-              </td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
+          ))}
+          <tr className="bg-muted/20">
+            <td className="px-3 py-2">
+              <Input
+                placeholder="+ New"
+                value={newIncome.description}
+                onChange={(e) => setNewIncome({ ...newIncome, description: e.target.value })}
+                className="h-7 text-xs border-0 bg-transparent shadow-none px-0 focus-visible:ring-0"
+              />
+            </td>
+            <td className="px-3 py-2">
+              <Input
+                type="number"
+                placeholder="0"
+                value={newIncome.value}
+                onChange={(e) => setNewIncome({ ...newIncome, value: e.target.value })}
+                className="h-7 text-xs border-0 bg-transparent shadow-none px-0 text-right focus-visible:ring-0"
+              />
+            </td>
+            <td className="px-3 py-2">
+              <Input
+                type="date"
+                value={newIncome.date}
+                onChange={(e) => setNewIncome({ ...newIncome, date: e.target.value })}
+                className="h-7 text-xs border-0 bg-transparent shadow-none px-0 focus-visible:ring-0"
+              />
+            </td>
+            <td className="px-3 py-2">
+              <button onClick={addIncome} className="text-muted-foreground hover:text-foreground transition-colors">
+                <Plus className="w-3.5 h-3.5" />
+              </button>
+            </td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr className="border-t border-border">
+            <td className="px-3 py-2 text-xs text-muted-foreground">SUM</td>
+            <td className="px-3 py-2 text-right font-bold tabular-nums" colSpan={3}>
+              {total.toLocaleString("pt-BR", { minimumFractionDigits: 0 })}
+            </td>
+          </tr>
+        </tfoot>
+      </table>
     </div>
   );
 };
