@@ -10,6 +10,10 @@ import DesenvolvimentoPessoal from "./pages/DesenvolvimentoPessoal";
 import Saude from "./pages/Saude";
 import Casa from "./pages/Casa";
 import Estudos from "./pages/Estudos";
+import Biblioteca from "./pages/Biblioteca";
+import Beleza from "./pages/Beleza";
+import Viagens from "./pages/Viagens";
+import Carreira from "./pages/Carreira";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
