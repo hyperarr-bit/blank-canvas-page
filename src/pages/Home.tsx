@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { DollarSign, CalendarCheck, ArrowRight, Sparkles, Heart, Home, GraduationCap } from "lucide-react";
+import { DollarSign, CalendarCheck, ArrowRight, Sparkles, Heart, Home, GraduationCap, BookOpen, Droplets, Plane, Briefcase } from "lucide-react";
 
 const HomeCard = ({ onClick, borderColor, gradientFrom, gradientTo, iconBg, iconHoverBg, IconComponent, iconColor, accentColor, title, description, textColor, descColor }: {
   onClick: () => void; borderColor: string; gradientFrom: string; gradientTo: string; iconBg: string; iconHoverBg: string;
