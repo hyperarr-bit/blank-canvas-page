@@ -10,6 +10,10 @@ import DesenvolvimentoPessoal from "./pages/DesenvolvimentoPessoal";
 import Saude from "./pages/Saude";
 import Casa from "./pages/Casa";
 import Estudos from "./pages/Estudos";
+import Biblioteca from "./pages/Biblioteca";
+import Beleza from "./pages/Beleza";
+import Viagens from "./pages/Viagens";
+import Carreira from "./pages/Carreira";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +32,10 @@ const App = () => (
           <Route path="/saude" element={<Saude />} />
           <Route path="/casa" element={<Casa />} />
           <Route path="/estudos" element={<Estudos />} />
+          <Route path="/biblioteca" element={<Biblioteca />} />
+          <Route path="/beleza" element={<Beleza />} />
+          <Route path="/viagens" element={<Viagens />} />
+          <Route path="/carreira" element={<Carreira />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { DollarSign, CalendarCheck, ArrowRight, Sparkles, Heart, Home, GraduationCap } from "lucide-react";
+import { DollarSign, CalendarCheck, ArrowRight, Sparkles, Heart, Home, GraduationCap, BookOpen, Droplets, Plane, Briefcase } from "lucide-react";
 
 const HomeCard = ({ onClick, borderColor, gradientFrom, gradientTo, iconBg, iconHoverBg, IconComponent, iconColor, accentColor, title, description, textColor, descColor }: {
   onClick: () => void; borderColor: string; gradientFrom: string; gradientTo: string; iconBg: string; iconHoverBg: string;
@@ -70,6 +70,30 @@ const HomePage = () => {
             IconComponent={GraduationCap} iconColor="text-blue-600" accentColor="text-blue-600/70"
             title="ESTUDOS" description="Grade horária, conteúdos, provas, tarefas e Pomodoro"
             textColor="text-blue-900" descColor="text-blue-700/70" />
+
+          <HomeCard onClick={() => navigate("/biblioteca")} borderColor="border-orange-200 hover:border-orange-400"
+            gradientFrom="from-orange-50" gradientTo="to-amber-50" iconBg="bg-orange-400/20" iconHoverBg="bg-orange-400/30"
+            IconComponent={BookOpen} iconColor="text-orange-600" accentColor="text-orange-600/70"
+            title="BIBLIOTECA & CINEMA" description="Estante de livros, watchlist, citações e resenhas"
+            textColor="text-orange-900" descColor="text-orange-700/70" />
+
+          <HomeCard onClick={() => navigate("/beleza")} borderColor="border-pink-200 hover:border-pink-400"
+            gradientFrom="from-pink-50" gradientTo="to-rose-50" iconBg="bg-pink-400/20" iconHoverBg="bg-pink-400/30"
+            IconComponent={Droplets} iconColor="text-pink-600" accentColor="text-pink-600/70"
+            title="SKINCARE & BELEZA" description="Cronograma capilar, inventário de produtos e rotina diária"
+            textColor="text-pink-900" descColor="text-pink-700/70" />
+
+          <HomeCard onClick={() => navigate("/viagens")} borderColor="border-teal-200 hover:border-teal-400"
+            gradientFrom="from-teal-50" gradientTo="to-emerald-50" iconBg="bg-teal-400/20" iconHoverBg="bg-teal-400/30"
+            IconComponent={Plane} iconColor="text-teal-600" accentColor="text-teal-600/70"
+            title="VIAGENS" description="Bucket list, itinerário, packing list e memórias"
+            textColor="text-teal-900" descColor="text-teal-700/70" />
+
+          <HomeCard onClick={() => navigate("/carreira")} borderColor="border-slate-200 hover:border-slate-400"
+            gradientFrom="from-slate-50" gradientTo="to-gray-50" iconBg="bg-slate-400/20" iconHoverBg="bg-slate-400/30"
+            IconComponent={Briefcase} iconColor="text-slate-600" accentColor="text-slate-600/70"
+            title="CARREIRA" description="Job tracker, portfolio, conquistas e networking"
+            textColor="text-slate-900" descColor="text-slate-700/70" />
         </div>
       </main>
 
