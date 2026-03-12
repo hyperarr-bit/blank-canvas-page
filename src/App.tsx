@@ -14,6 +14,8 @@ import Biblioteca from "./pages/Biblioteca";
 import Beleza from "./pages/Beleza";
 import Viagens from "./pages/Viagens";
 import Carreira from "./pages/Carreira";
+import Treino from "./pages/Treino";
+import Dieta from "./pages/Dieta";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +38,8 @@ const App = () => (
           <Route path="/beleza" element={<Beleza />} />
           <Route path="/viagens" element={<Viagens />} />
           <Route path="/carreira" element={<Carreira />} />
+          <Route path="/treino" element={<Treino />} />
+          <Route path="/dieta" element={<Dieta />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
