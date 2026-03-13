@@ -181,6 +181,31 @@ const Index = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-5 space-y-5">
+        {/* Compact summary bar - all tabs except dashboard and financeiro */}
+        {activeTab !== "dashboard" && activeTab !== "financeiro" && (
+          <div className="bg-card rounded-lg border border-border px-4 py-2 flex items-center justify-between gap-3 overflow-x-auto">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="text-[10px] text-muted-foreground">Receitas</span>
+              <span className="text-xs font-bold text-green-500">R$ {totalIncome.toLocaleString("pt-BR")}</span>
+            </div>
+            <div className="w-px h-4 bg-border flex-shrink-0" />
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="text-[10px] text-muted-foreground">Despesas</span>
+              <span className="text-xs font-bold text-red-400">R$ {totalExpenses.toLocaleString("pt-BR")}</span>
+            </div>
+            <div className="w-px h-4 bg-border flex-shrink-0" />
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="text-[10px] text-muted-foreground">Dívidas</span>
+              <span className="text-xs font-bold text-orange-400">R$ {totalDebts.toLocaleString("pt-BR")}</span>
+            </div>
+            <div className="w-px h-4 bg-border flex-shrink-0" />
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="text-[10px] text-muted-foreground">Invest.</span>
+              <span className="text-xs font-bold text-purple-400">R$ {totalInvestments.toLocaleString("pt-BR")}</span>
+            </div>
+          </div>
+        )}
+
         {activeTab === "dashboard" && (
           <Dashboard
             totalIncome={totalIncome}
