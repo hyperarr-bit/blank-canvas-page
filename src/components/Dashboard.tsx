@@ -164,48 +164,6 @@ export const Dashboard = ({
 
   return (
     <div className="space-y-4">
-      {/* Quick Stats Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="bg-card rounded-lg border border-border p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-muted-foreground">Receitas</p>
-              <p className="text-xl font-bold text-green-400">R$ {totalIncome.toLocaleString("pt-BR")}</p>
-            </div>
-            <DollarSign className="w-8 h-8 text-green-400/30" />
-          </div>
-        </div>
-        <div className="bg-card rounded-lg border border-border p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-muted-foreground">Despesas</p>
-              <p className="text-xl font-bold text-red-400">R$ {totalExpenses.toLocaleString("pt-BR")}</p>
-            </div>
-            <TrendingDown className="w-8 h-8 text-red-400/30" />
-          </div>
-        </div>
-        <div className="bg-card rounded-lg border border-border p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-muted-foreground">Saldo do Mês</p>
-              <p className={`text-xl font-bold ${balance >= 0 ? "text-green-400" : "text-red-400"}`}>
-                {balance >= 0 ? "+" : ""}R$ {balance.toLocaleString("pt-BR")}
-              </p>
-            </div>
-            {balance >= 0 ? <TrendingUp className="w-8 h-8 text-green-400/30" /> : <TrendingDown className="w-8 h-8 text-red-400/30" />}
-          </div>
-        </div>
-        <div className="bg-card rounded-lg border border-border p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-muted-foreground">Investimentos</p>
-              <p className="text-xl font-bold text-purple-400">R$ {totalInvestments.toLocaleString("pt-BR")}</p>
-            </div>
-            <TrendingUp className="w-8 h-8 text-purple-400/30" />
-          </div>
-        </div>
-      </div>
-
       {/* Alerts */}
       {alerts.length > 0 && (
         <div className="bg-card rounded-lg border border-border p-4">
