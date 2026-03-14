@@ -1,11 +1,7 @@
 import { Sun, Moon, Palette } from "lucide-react";
-import { useTheme, palettes } from "@/hooks/use-theme";
+import { useTheme, palettes, type ThemePalette } from "@/hooks/use-theme";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
-import type { ThemePalette } from "@/hooks/use-theme";
-
-// Re-export the type properly
-type ThemePaletteType = keyof typeof palettes;
 
 export const ThemeToggle = ({ showPalette = false }: { showPalette?: boolean }) => {
   const { mode, toggleMode, palette, setPalette } = useTheme();

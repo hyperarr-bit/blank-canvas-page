@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
-type ThemeMode = "light" | "dark";
-type ThemePalette = "default" | "midnight" | "ocean" | "rose" | "forest";
+export type ThemeMode = "light" | "dark";
+export type ThemePalette = "default" | "midnight" | "ocean" | "rose" | "forest";
 
 interface ThemeContextType {
   mode: ThemeMode;
