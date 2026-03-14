@@ -52,7 +52,16 @@ const Index = () => {
     { id: "6", description: "Cafeteira", category: "eletrodomesticos", value: 890, date: "2025-03-02", paymentMethod: "Cartão de Crédito" },
   ]);
 
-  const [dueDays, setDueDays] = usePersistedState("finance-dueDays", [
+  const [fixedExpenses, setFixedExpenses] = usePersistedState("finance-fixed-expenses", [
+    { id: "1", description: "Aluguel", category: "moradia", value: 1500, paymentMethod: "boleto" },
+    { id: "2", description: "Condomínio", category: "moradia", value: 450, paymentMethod: "boleto" },
+    { id: "3", description: "Luz", category: "contas_gerais", value: 180, paymentMethod: "debito_auto" },
+    { id: "4", description: "Água", category: "contas_gerais", value: 90, paymentMethod: "debito_auto" },
+    { id: "5", description: "Internet", category: "essencial", value: 120, paymentMethod: "debito_auto" },
+    { id: "6", description: "Academia", category: "saude", value: 130, paymentMethod: "credito", cardName: "nubank" },
+    { id: "7", description: "Streaming", category: "assinaturas", value: 55, paymentMethod: "credito", cardName: "nubank" },
+  ]);
+
     { day: 5, color: "yellow", bills: [{ id: "1", name: "Luz", paid: true }, { id: "2", name: "Água", paid: true }, { id: "3", name: "Cartão Nubank", paid: true }] },
     { day: 10, color: "slate", bills: [{ id: "4", name: "Cartão Inter", paid: false }, { id: "5", name: "Cartão Itaú", paid: false }, { id: "6", name: "Curso", paid: false }, { id: "7", name: "Escolinha João", paid: false }] },
     { day: 20, color: "indigo", bills: [{ id: "8", name: "Academia", paid: false }, { id: "9", name: "Aluguel", paid: false }, { id: "10", name: "Condomínio", paid: false }] },
