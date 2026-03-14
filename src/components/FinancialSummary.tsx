@@ -32,7 +32,11 @@ export const FinancialSummary = ({
   };
 
   const handleSave = (cardId: string) => {
-    const value = parseFloat(editValue) || 0;
+    const value = parseFloat(editValue);
+    if (isNaN(value)) {
+      setEditing(null);
+      return;
+    }
     switch (cardId) {
       case "receitas":
         onUpdateIncome?.(value);
@@ -135,6 +139,8 @@ export const FinancialSummary = ({
                 onChange={(e) => setEditValue(e.target.value)}
                 className="h-6 text-xs flex-1 bg-background/80"
                 autoFocus
+                min="0"
+                step="0.01"
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleSave(card.id);
                   if (e.key === "Escape") handleCancel();

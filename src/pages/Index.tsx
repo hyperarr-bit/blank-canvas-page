@@ -232,28 +232,24 @@ const Index = () => {
               totalInvestments={totalInvestments}
               onUpdateIncome={(value) => {
                 if (incomes.length > 0) {
-                  const othersSum = incomes.slice(1).reduce((s: number, i: any) => s + i.value, 0);
-                  setIncomes(incomes.map((inc: any, idx: number) => idx === 0 ? { ...inc, value: Math.max(0, value - othersSum) } : inc));
+                  setIncomes(incomes.map((inc: any, idx: number) => idx === 0 ? { ...inc, value } : inc));
                 }
               }}
               onUpdateExpenses={(value) => {
                 if (expenses.length > 0) {
-                  const othersSum = expenses.slice(1).reduce((s: number, e: any) => s + e.value, 0);
-                  setExpenses(expenses.map((exp: any, idx: number) => idx === 0 ? { ...exp, value: Math.max(0, value - othersSum) } : exp));
+                  setExpenses(expenses.map((exp: any, idx: number) => idx === 0 ? { ...exp, value } : exp));
                 }
               }}
               onUpdateDebts={(value) => {
                 if (installments.length > 0) {
-                  const othersDebt = installments.slice(1).reduce((s: number, i: any) => s + (i.totalInstallments - i.paidInstallments) * i.installmentValue, 0);
                   const firstRemaining = installments[0].totalInstallments - installments[0].paidInstallments;
-                  const newInstallmentValue = firstRemaining > 0 ? Math.max(0, value - othersDebt) / firstRemaining : 0;
+                  const newInstallmentValue = firstRemaining > 0 ? value / firstRemaining : 0;
                   setInstallments(installments.map((inst: any, idx: number) => idx === 0 ? { ...inst, installmentValue: newInstallmentValue } : inst));
                 }
               }}
               onUpdateInvestments={(value) => {
                 if (investments.length > 0) {
-                  const othersSum = investments.slice(1).reduce((s: number, i: any) => s + i.currentValue, 0);
-                  setInvestments(investments.map((inv: any, idx: number) => idx === 0 ? { ...inv, currentValue: Math.max(0, value - othersSum) } : inv));
+                  setInvestments(investments.map((inv: any, idx: number) => idx === 0 ? { ...inv, currentValue: value } : inv));
                 }
               }}
             />
