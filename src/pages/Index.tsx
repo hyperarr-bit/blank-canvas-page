@@ -62,6 +62,7 @@ const Index = () => {
     { id: "7", description: "Streaming", category: "assinaturas", value: 55, paymentMethod: "credito", cardName: "nubank" },
   ]);
 
+  const [dueDays, setDueDays] = usePersistedState("finance-dueDays", [
     { day: 5, color: "yellow", bills: [{ id: "1", name: "Luz", paid: true }, { id: "2", name: "Água", paid: true }, { id: "3", name: "Cartão Nubank", paid: true }] },
     { day: 10, color: "slate", bills: [{ id: "4", name: "Cartão Inter", paid: false }, { id: "5", name: "Cartão Itaú", paid: false }, { id: "6", name: "Curso", paid: false }, { id: "7", name: "Escolinha João", paid: false }] },
     { day: 20, color: "indigo", bills: [{ id: "8", name: "Academia", paid: false }, { id: "9", name: "Aluguel", paid: false }, { id: "10", name: "Condomínio", paid: false }] },
