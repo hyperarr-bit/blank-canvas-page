@@ -71,8 +71,8 @@ const Index = () => {
   ]);
 
   const [installments, setInstallments] = usePersistedState("finance-installments", [
-    { id: "1", description: "iPhone 15", totalValue: 6000, installmentValue: 500, paidInstallments: 3, totalInstallments: 12, cardName: "nubank" },
-    { id: "2", description: "Sofá", totalValue: 2400, installmentValue: 200, paidInstallments: 6, totalInstallments: 12, cardName: "inter" },
+    { id: "1", description: "iPhone 15", totalValue: 6000, installmentValue: 500, paidInstallments: 3, totalInstallments: 12, cardName: "nubank", category: "eletronicos", date: "2025-01-15" },
+    { id: "2", description: "Sofá", totalValue: 2400, installmentValue: 200, paidInstallments: 6, totalInstallments: 12, cardName: "inter", category: "casa", date: "2024-09-10" },
   ]);
 
   const [annualData, setAnnualData] = usePersistedState("finance-annual", 
