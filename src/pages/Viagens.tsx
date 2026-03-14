@@ -150,9 +150,9 @@ const Itinerary = () => {
 type PackingCategory = { id: string; name: string; climate: string; items: { id: string; name: string; packed: boolean }[] };
 const PackingList = () => {
   const defaultCategories: PackingCategory[] = [
-    { id: "1", name: "Roupas - Praia", climate: "praia", items: [{ id: "a", name: "Biquíni/Sunga", packed: false }, { id: "b", name: "Saída de praia", packed: false }, { id: "c", name: "Chinelo", packed: false }, { id: "d", name: "Protetor solar", packed: false }, { id: "e", name: "Óculos de sol", packed: false }, { id: "f", name: "Chapéu/Boné", packed: false }] },
-    { id: "2", name: "Roupas - Frio", climate: "frio", items: [{ id: "g", name: "Casaco pesado", packed: false }, { id: "h", name: "Cachecol", packed: false }, { id: "i", name: "Luvas", packed: false }, { id: "j", name: "Bota", packed: false }, { id: "k", name: "Meias térmicas", packed: false }] },
-    { id: "3", name: "Essenciais", climate: "geral", items: [{ id: "l", name: "Documentos (RG/Passaporte)", packed: false }, { id: "m", name: "Carregador", packed: false }, { id: "n", name: "Remédios", packed: false }, { id: "o", name: "Necessaire", packed: false }, { id: "p", name: "Fone de ouvido", packed: false }, { id: "q", name: "Adaptador tomada", packed: false }] },
+    { id: "1", name: "Roupas - Praia", climate: "praia", items: [] },
+    { id: "2", name: "Roupas - Frio", climate: "frio", items: [] },
+    { id: "3", name: "Essenciais", climate: "geral", items: [] },
   ];
   const [categories, setCategories] = usePersistedState<PackingCategory[]>("packing-list", defaultCategories);
   const [newItemMap, setNewItemMap] = useState<Record<string, string>>({});

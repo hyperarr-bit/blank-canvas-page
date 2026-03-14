@@ -176,8 +176,8 @@ const ProductInventory = () => {
 // ============= SKINCARE ROUTINE =============
 const SkincareRoutine = () => {
   const today = getDateKey();
-  const [morningSteps, setMorningSteps] = usePersistedState<string[]>("skincare-morning-steps", ["Lavar o rosto", "Tônico", "Sérum Vitamina C", "Hidratante", "Protetor Solar"]);
-  const [nightSteps, setNightSteps] = usePersistedState<string[]>("skincare-night-steps", ["Demaquilante", "Lavar o rosto", "Tônico", "Sérum Retinol", "Hidratante", "Lip balm"]);
+  const [morningSteps, setMorningSteps] = usePersistedState<string[]>("skincare-morning-steps", []);
+  const [nightSteps, setNightSteps] = usePersistedState<string[]>("skincare-night-steps", []);
   const [morningChecked, setMorningChecked] = usePersistedState<Record<string, number[]>>("skincare-morning-checked", {});
   const [nightChecked, setNightChecked] = usePersistedState<Record<string, number[]>>("skincare-night-checked", {});
   const [newMorning, setNewMorning] = useState("");

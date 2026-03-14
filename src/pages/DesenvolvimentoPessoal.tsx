@@ -21,17 +21,8 @@ const usePersistedState = <T,>(key: string, initial: T): [T, (v: T | ((prev: T) 
   return [state, setState];
 };
 
-const defaultAffirmations = [
-  "Eu mereço ser amado(a)", "Eu sou próspero(a)", "Eu sou abençoado(a)",
-  "Tudo o que eu faço dá certo", "Eu sou criativo(a)",
-  "Minha família e eu somos cheios de saúde", "Eu mereço ser feliz",
-];
-
-const defaultMotivations = [
-  "Dar uma vida melhor para minha família",
-  "Ter liberdade financeira",
-  "Poder trabalhar de onde eu quiser",
-];
+const defaultAffirmations: string[] = [];
+const defaultMotivations: string[] = [];
 
 const lifeAreas = [
   { id: "saude", name: "Saúde", icon: Heart, color: "text-red-400" },
@@ -68,19 +59,19 @@ const DesenvolvimentoPessoal = () => {
   const [newMotivation, setNewMotivation] = useState("");
   const [affirmations, setAffirmations] = usePersistedState<string[]>("dp-affirmations", defaultAffirmations);
   const [newAffirmation, setNewAffirmation] = useState("");
-  const [strengths, setStrengths] = usePersistedState<string[]>("dp-strengths", ["Comunicativo(a)", "Disciplinado(a)", "Organizado(a)"]);
+  const [strengths, setStrengths] = usePersistedState<string[]>("dp-strengths", []);
   const [newStrength, setNewStrength] = useState("");
-  const [weaknesses, setWeaknesses] = usePersistedState<string[]>("dp-weaknesses", ["Perfeccionismo", "Ansiedade"]);
+  const [weaknesses, setWeaknesses] = usePersistedState<string[]>("dp-weaknesses", []);
   const [newWeakness, setNewWeakness] = useState("");
-  const [skills, setSkills] = usePersistedState<string[]>("dp-skills", ["Treinar", "Ler", "Disciplina", "Oratória"]);
+  const [skills, setSkills] = usePersistedState<string[]>("dp-skills", []);
   const [newSkill, setNewSkill] = useState("");
-  const [skillsToLearn, setSkillsToLearn] = usePersistedState<string[]>("dp-skills-learn", ["Falar inglês", "Cozinhar", "Falar em público", "Correr"]);
+  const [skillsToLearn, setSkillsToLearn] = usePersistedState<string[]>("dp-skills-learn", []);
   const [newSkillToLearn, setNewSkillToLearn] = useState("");
-  const [values, setValues] = usePersistedState<string[]>("dp-values", ["Fé em Deus", "Família", "Honestidade", "Gratidão"]);
+  const [values, setValues] = usePersistedState<string[]>("dp-values", []);
   const [newValue, setNewValue] = useState("");
-  const [canControl, setCanControl] = usePersistedState<string[]>("dp-can-control", ["Minhas atitudes", "Meu esforço", "Minha rotina"]);
+  const [canControl, setCanControl] = usePersistedState<string[]>("dp-can-control", []);
   const [newCanControl, setNewCanControl] = useState("");
-  const [cantControl, setCantControl] = usePersistedState<string[]>("dp-cant-control", ["Opinião dos outros", "O passado", "O clima"]);
+  const [cantControl, setCantControl] = usePersistedState<string[]>("dp-cant-control", []);
   const [newCantControl, setNewCantControl] = useState("");
 
   // METAS

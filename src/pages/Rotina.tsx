@@ -12,30 +12,18 @@ import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 
 const days = ["SEGUNDA", "TERÇA", "QUARTA", "QUINTA", "SEXTA", "SÁBADO", "DOMINGO"];
-const defaultHabits = ["Acordar 6am", "Devocional", "Exercício Físico", "Ler 10 páginas", "Tomar 2L de água"];
+const defaultHabits: string[] = [];
 
 const hours = [
   "6:00", "7:00", "8:00", "9:00", "10:00", "11:00", "12:00",
   "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "19:30"
 ];
 
-const defaultSchedule: Record<string, Record<string, string>> = {
-  "6:00": { Segunda: "Acordar", Terça: "Acordar", Quarta: "Acordar", Quinta: "Acordar", Sexta: "Acordar", Sábado: "", Domingo: "" },
-  "7:00": { Segunda: "Café e devocional", Terça: "Café e devocional", Quarta: "Café e devocional", Quinta: "Café e devocional", Sexta: "Café e devocional", Sábado: "", Domingo: "" },
-  "8:00": { Segunda: "Treino", Terça: "Cardio", Quarta: "Treino", Quinta: "Cardio", Sexta: "Treino", Sábado: "", Domingo: "" },
-  "9:00": { Segunda: "Trabalhar", Terça: "Trabalhar", Quarta: "Trabalhar", Quinta: "Trabalhar", Sexta: "Trabalhar", Sábado: "Aula de Bike", Domingo: "" },
-  "10:00": { Segunda: "Trabalhar", Terça: "Trabalhar", Quarta: "Trabalhar", Quinta: "Trabalhar", Sexta: "Trabalhar", Sábado: "", Domingo: "" },
-  "11:00": { Segunda: "Trabalhar", Terça: "Trabalhar", Quarta: "Trabalhar", Quinta: "Trabalhar", Sexta: "Trabalhar", Sábado: "", Domingo: "" },
-  "12:00": { Segunda: "Almoço", Terça: "Almoço", Quarta: "Almoço", Quinta: "Almoço", Sexta: "Almoço", Sábado: "", Domingo: "" },
-  "13:00": { Segunda: "Trabalhar", Terça: "Trabalhar", Quarta: "Trabalhar", Quinta: "Trabalhar", Sexta: "Trabalhar", Sábado: "", Domingo: "Churrasco em família" },
-  "14:00": { Segunda: "Trabalhar", Terça: "Trabalhar", Quarta: "Trabalhar", Quinta: "Trabalhar", Sexta: "Trabalhar", Sábado: "", Domingo: "" },
-  "15:00": { Segunda: "Trabalhar", Terça: "Trabalhar", Quarta: "Trabalhar", Quinta: "Trabalhar", Sexta: "Trabalhar", Sábado: "", Domingo: "" },
-  "16:00": { Segunda: "Trabalhar", Terça: "Trabalhar", Quarta: "Trabalhar", Quinta: "Trabalhar", Sexta: "", Sábado: "Manicure", Domingo: "" },
-  "17:00": { Segunda: "", Terça: "", Quarta: "", Quinta: "", Sexta: "", Sábado: "Manicure", Domingo: "" },
-  "18:00": { Segunda: "BC grupo", Terça: "", Quarta: "", Quinta: "", Sexta: "Experiência do lar", Sábado: "", Domingo: "" },
-  "19:00": { Segunda: "", Terça: "Faculdade", Quarta: "", Quinta: "Faculdade", Sexta: "Jantar", Sábado: "", Domingo: "Culto" },
-  "19:30": { Segunda: "", Terça: "Faculdade", Quarta: "Faculdade", Quinta: "Faculdade", Sexta: "", Sábado: "", Domingo: "" },
-};
+const defaultSchedule: Record<string, Record<string, string>> = Object.fromEntries(
+  ["6:00", "7:00", "8:00", "9:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "19:30"].map(h => [
+    h, { Segunda: "", Terça: "", Quarta: "", Quinta: "", Sexta: "", Sábado: "", Domingo: "" }
+  ])
+);
 
 const motivationalQuotes = [
   "CUMPRA O QUE VOCÊ SE PROMETEU",
@@ -56,21 +44,9 @@ const moodEmojis = [
   { emoji: "😞", label: "Ruim", color: "bg-red-300", value: 1 },
 ];
 
-const defaultMorningRitual = [
-  { id: "m1", text: "Beber água ao acordar", icon: "💧" },
-  { id: "m2", text: "Meditação / Oração", icon: "🧘" },
-  { id: "m3", text: "Alongamento", icon: "🤸" },
-  { id: "m4", text: "Café da manhã saudável", icon: "🥗" },
-  { id: "m5", text: "Planejar o dia", icon: "📝" },
-];
+const defaultMorningRitual: { id: string; text: string; icon: string }[] = [];
 
-const defaultNightRitual = [
-  { id: "n1", text: "Desligar telas 30min antes", icon: "📵" },
-  { id: "n2", text: "Gratidão — 3 coisas boas do dia", icon: "🙏" },
-  { id: "n3", text: "Skincare", icon: "✨" },
-  { id: "n4", text: "Leitura", icon: "📖" },
-  { id: "n5", text: "Preparar roupa de amanhã", icon: "👕" },
-];
+const defaultNightRitual: { id: string; text: string; icon: string }[] = [];
 
 const usePersistedState = <T,>(key: string, initial: T): [T, (v: T | ((prev: T) => T)) => void] => {
   const [state, setState] = useState<T>(() => {

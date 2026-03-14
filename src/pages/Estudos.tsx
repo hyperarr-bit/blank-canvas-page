@@ -38,43 +38,26 @@ const Estudos = () => {
   const navigate = useNavigate();
 
   // CONTEÚDO TRACKER
-  const [subjects, setSubjects] = usePersistedState<{id: string; name: string; leitura: boolean; resumo: boolean; exercicio: boolean; revisao: boolean}[]>("estudos-subjects", [
-    { id: "1", name: "Verbo To Be", leitura: true, resumo: true, exercicio: true, revisao: true },
-    { id: "2", name: "Planejamento do ano", leitura: false, resumo: false, exercicio: false, revisao: false },
-    { id: "3", name: "Gestão Financeira", leitura: true, resumo: true, exercicio: false, revisao: false },
-  ]);
+  const [subjects, setSubjects] = usePersistedState<{id: string; name: string; leitura: boolean; resumo: boolean; exercicio: boolean; revisao: boolean}[]>("estudos-subjects", []);
   const [newSubject, setNewSubject] = useState("");
 
   // PROVAS E ENTREGAS
-  const [exams, setExams] = usePersistedState<{id: string; title: string; date: string; time: string; color: string; done: boolean}[]>("estudos-exams", [
-    { id: "1", title: "Prova final inglês", date: "2026-04-12", time: "19h", color: "bg-indigo-200 dark:bg-indigo-500/20 border-indigo-300", done: false },
-    { id: "2", title: "Trabalho faculdade", date: "2026-04-12", time: "7h", color: "bg-purple-200 dark:bg-purple-500/20 border-purple-300", done: false },
-    { id: "3", title: "Sessão coach", date: "2026-04-20", time: "13h30", color: "bg-yellow-200 dark:bg-yellow-500/20 border-yellow-300", done: false },
-  ]);
+  const [exams, setExams] = usePersistedState<{id: string; title: string; date: string; time: string; color: string; done: boolean}[]>("estudos-exams", []);
   const [newExamTitle, setNewExamTitle] = useState("");
   const [newExamDate, setNewExamDate] = useState("");
   const [newExamTime, setNewExamTime] = useState("");
 
   // GRADE HORÁRIA
-  const [schedule, setSchedule] = usePersistedState<Record<string, Record<string, string>>>("estudos-schedule", {
-    "7h30": { SEGUNDA: "Ética e Responsabilidade Social", TERÇA: "", QUARTA: "", QUINTA: "", SEXTA: "Administração Mercadológica" },
-    "8h": { SEGUNDA: "Ética e Responsabilidade Social", TERÇA: "", QUARTA: "Gestão de Projetos", QUINTA: "Contabilidade", SEXTA: "" },
-    "9h": { SEGUNDA: "Teoria Geral da Administração", TERÇA: "", QUARTA: "Microeconomia", QUINTA: "Administração Mercadológica", SEXTA: "" },
-    "10h": { SEGUNDA: "Teoria Geral da Administração", TERÇA: "", QUARTA: "Microeconomia", QUINTA: "", SEXTA: "" },
-    "11h": { SEGUNDA: "", TERÇA: "", QUARTA: "", QUINTA: "", SEXTA: "" },
-    "12h": { SEGUNDA: "", TERÇA: "", QUARTA: "", QUINTA: "", SEXTA: "" },
-  });
+  const [schedule, setSchedule] = usePersistedState<Record<string, Record<string, string>>>("estudos-schedule", 
+    Object.fromEntries(defaultScheduleHours.map(h => [h, Object.fromEntries(weekDays.map(d => [d, ""]))]))
+  );
   const [editingCell, setEditingCell] = useState<string | null>(null);
   const [editCellValue, setEditCellValue] = useState("");
 
   // TAREFAS DA SEMANA
-  const [weekTasks, setWeekTasks] = usePersistedState<Record<string, {text: string; done: boolean}[]>>("estudos-week-tasks", {
-    SEGUNDA: [{ text: "Assistir aulas atrasadas", done: true }, { text: "Ler livro de G. Projetos", done: false }],
-    TERÇA: [{ text: "Enviar trabalho para correção", done: true }, { text: "", done: false }],
-    QUARTA: [{ text: "Aulas atrasadas", done: false }],
-    QUINTA: [{ text: "Entregar trabalho final", done: false }],
-    SEXTA: [],
-  });
+  const [weekTasks, setWeekTasks] = usePersistedState<Record<string, {text: string; done: boolean}[]>>("estudos-week-tasks",
+    Object.fromEntries(weekDays.map(d => [d, []]))
+  );
   const [newWeekTask, setNewWeekTask] = useState<Record<string, string>>({});
 
   // CADERNO / ANOTAÇÕES

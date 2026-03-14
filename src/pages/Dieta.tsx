@@ -37,15 +37,9 @@ const mealColors: Record<string, string> = {
   "Janta": "bg-purple-100 dark:bg-purple-500/10 border-purple-300 dark:border-purple-500/30"
 };
 
-const presetMealPlan: Record<string, Record<string, string>> = {
-  SEGUNDA: { "Café da Manhã": "Omelete de 3 claras + 1 ovo inteiro, com espinafre e tomate; 1 fatia de pão integral; café ou chá sem açúcar.", "Almoço": "Filé de frango grelhado (150g), arroz integral (1/2 xícara), brócolis no vapor e salada de folhas verdes com azeite e limão.", "Lanche": "1 iogurte natural + 1 colher de chia + 1 maçã.", "Janta": "Crepioca com 2 ovos, queijo e 100g de frango desfiado." },
-  TERÇA: { "Café da Manhã": "Tapioca (2 colheres de goma) com queijo cottage e peito de peru; 1 banana com canela.", "Almoço": "Peixe assado (150g), batata-doce (100g), salada de rúcula, tomate, pepino com azeite.", "Lanche": "1 punhado de castanhas (30g) + 1 fruta.", "Janta": "Omelete de atum com cenoura ralada e orégano; salada de alface e abacate." },
-  QUARTA: { "Café da Manhã": "Mingau de aveia (30g) com leite + 1 colher de pasta de amendoim + 1 iogurte natural.", "Almoço": "Carne vermelha magra (150g), quinoa (1/2 xícara), abobrinha e vagem refogadas.", "Lanche": "Shake de proteína com água ou leite vegetal e morangos.", "Janta": "Salada grande com mix de folhas, ovo cozido, grão-de-bico, cenoura e azeite." },
-  QUINTA: { "Café da Manhã": "Pão integral com pasta de amendoim + banana fatiada; café sem açúcar.", "Almoço": "Frango ao curry com arroz integral e legumes salteados.", "Lanche": "Mix de oleaginosas + 1 fruta.", "Janta": "Sopa de legumes com frango desfiado." },
-  SEXTA: { "Café da Manhã": "Ovos mexidos com tomate e manjericão; torrada integral.", "Almoço": "Salmão grelhado com purê de batata-doce e salada verde.", "Lanche": "Iogurte grego com granola e mel.", "Janta": "Wrap integral com frango, alface, tomate e molho de iogurte." },
-  SÁBADO: { "Café da Manhã": "Panqueca de banana com aveia; café com leite.", "Almoço": "Livre — aproveite com equilíbrio 🍕", "Lanche": "Frutas da estação.", "Janta": "Salada Caesar com frango grelhado." },
-  DOMINGO: { "Café da Manhã": "Açaí com granola e frutas (porção controlada).", "Almoço": "Churrasco em família — priorize carnes magras e saladas 🥗", "Lanche": "Chá + biscoito integral.", "Janta": "Caldo verde com torradinha." },
-};
+const presetMealPlan: Record<string, Record<string, string>> = Object.fromEntries(
+  weekDays.map(day => [day, Object.fromEntries(meals.map(m => [m, ""]))])
+);
 
 const Dieta = () => {
   const navigate = useNavigate();

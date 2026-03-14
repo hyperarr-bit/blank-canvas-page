@@ -4,7 +4,8 @@ import { StaggerContainer, StaggerItem, FadeIn } from "@/components/PageTransiti
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useModulePreferences } from "@/hooks/use-module-preferences";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { OnboardingWizard } from "@/components/OnboardingWizard";
 
 const modules = [
   { id: "financas", path: "/financas", borderColor: "border-amber-200 hover:border-amber-400", gradientFrom: "from-amber-50", gradientTo: "to-yellow-50", darkGradientFrom: "dark:from-amber-500/10", darkGradientTo: "dark:to-yellow-500/10", iconBg: "bg-amber-400/20", IconComponent: DollarSign, iconColor: "text-amber-600", accentColor: "text-amber-600/70", title: "FINANÇAS", description: "Dashboard, receitas, despesas, investimentos e metas", textColor: "text-amber-900 dark:text-amber-300", descColor: "text-amber-700/70 dark:text-amber-400/60" },
@@ -25,6 +26,14 @@ const HomePage = () => {
   const navigate = useNavigate();
   const { toggleFavorite, toggleHidden, isFavorite, isHidden, prefs } = useModulePreferences();
   const [editMode, setEditMode] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    return !localStorage.getItem("core-onboarding-done");
+  });
+
+  const handleOnboardingComplete = () => {
+    localStorage.setItem("core-onboarding-done", "true");
+    setShowOnboarding(false);
+  };
 
   // Sort: favorites first, then rest; filter hidden
   const sortedModules = [...modules].sort((a, b) => {
@@ -37,7 +46,11 @@ const HomePage = () => {
   const hiddenCount = modules.filter(m => isHidden(m.id)).length;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <>
+      <AnimatePresence>
+        {showOnboarding && <OnboardingWizard onComplete={handleOnboardingComplete} />}
+      </AnimatePresence>
+      <div className="min-h-screen bg-background flex flex-col">
       <motion.header
         className="border-b border-border bg-card"
         initial={{ y: -20, opacity: 0 }}
@@ -189,6 +202,7 @@ const HomePage = () => {
         Core © {new Date().getFullYear()} — Organize sua vida
       </motion.footer>
     </div>
+    </>
   );
 };
 

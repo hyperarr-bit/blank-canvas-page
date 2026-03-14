@@ -215,10 +215,7 @@ const EnergyTracker = () => {
 
 // ============= SUPPLEMENTS TRACKER =============
 const SupplementsTracker = () => {
-  const [supplements, setSupplements] = usePersistedState<{name: string; time: string; taken: boolean}[]>("saude-supplements", [
-    { name: "Whey Protein", time: "Pós-treino", taken: false }, { name: "Creatina", time: "Manhã", taken: false },
-    { name: "Vitamina D", time: "Manhã", taken: false }, { name: "Ômega 3", time: "Almoço", taken: false },
-  ]);
+  const [supplements, setSupplements] = usePersistedState<{name: string; time: string; taken: boolean}[]>("saude-supplements", []);
   const [newSuppName, setNewSuppName] = useState("");
 
   return (
@@ -257,21 +254,11 @@ const Saude = () => {
   const [newMeasure, setNewMeasure] = useState({ date: today, peso: "", cintura: "", quadril: "", braco: "", coxa: "", peitoral: "" });
 
   // CHECKUPS
-  const [checkups, setCheckups] = usePersistedState<{id: string; name: string; lastDate: string; nextDate: string}[]>("saude-checkups", [
-    { id: "1", name: "Dentista", lastDate: "", nextDate: "" },
-    { id: "2", name: "Dermatologista", lastDate: "", nextDate: "" },
-    { id: "3", name: "Exame de sangue", lastDate: "", nextDate: "" },
-    { id: "4", name: "Oftalmologista", lastDate: "", nextDate: "" },
-    { id: "5", name: "Ginecologista/Urologista", lastDate: "", nextDate: "" },
-  ]);
+  const [checkups, setCheckups] = usePersistedState<{id: string; name: string; lastDate: string; nextDate: string}[]>("saude-checkups", []);
   const [newCheckupName, setNewCheckupName] = useState("");
 
   // BODY GOALS
-  const [bodyGoals, setBodyGoals] = usePersistedState<{id: string; goal: string; current: string; target: string}[]>("saude-body-goals", [
-    { id: "1", goal: "Peso", current: "", target: "" },
-    { id: "2", goal: "Cintura", current: "", target: "" },
-    { id: "3", goal: "% Gordura", current: "", target: "" },
-  ]);
+  const [bodyGoals, setBodyGoals] = usePersistedState<{id: string; goal: string; current: string; target: string}[]>("saude-body-goals", []);
 
   // PROGRESS NOTES
   const [progressNotes, setProgressNotes] = usePersistedState<{date: string; text: string}[]>("saude-progress-notes", []);

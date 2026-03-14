@@ -39,45 +39,12 @@ const exerciseColors: string[] = [
 ];
 
 const defaultWorkoutPlan: Record<string, { muscle: string; exercises: { name: string; sets: string; reps: string; carga: string; done: boolean }[] }> = {
-  SEGUNDA: { muscle: "Quadríceps e Posterior", exercises: [
-    { name: "Leg Press", sets: "4", reps: "10", carga: "200Kg", done: false },
-    { name: "Extensora", sets: "4", reps: "10", carga: "10Kg", done: false },
-    { name: "Passada", sets: "2", reps: "15", carga: "60Kg", done: false },
-    { name: "Flexora", sets: "4", reps: "10", carga: "30Kg", done: false },
-    { name: "Abdutora", sets: "4", reps: "10", carga: "30Kg", done: false },
-  ]},
-  TERÇA: { muscle: "Costas e Bíceps", exercises: [
-    { name: "Puxada Frontal", sets: "4", reps: "10", carga: "30Kg", done: false },
-    { name: "Remada Baixa", sets: "4", reps: "12", carga: "35Kg", done: false },
-    { name: "Remada com Halter", sets: "4", reps: "12", carga: "10Kg", done: false },
-    { name: "Rosca Direta", sets: "3", reps: "12", carga: "5Kg", done: false },
-    { name: "Rosca Concentrada", sets: "3", reps: "12", carga: "5Kg", done: false },
-  ]},
-  QUARTA: { muscle: "Ombros e Tríceps", exercises: [
-    { name: "Desenvolvimento", sets: "4", reps: "12", carga: "10Kg", done: false },
-    { name: "Elevação lateral", sets: "3", reps: "15", carga: "5Kg", done: false },
-    { name: "Elevação frontal", sets: "3", reps: "12", carga: "5Kg", done: false },
-    { name: "Tríceps corda", sets: "3", reps: "15", carga: "15Kg", done: false },
-    { name: "Tríceps francês", sets: "3", reps: "12", carga: "8Kg", done: false },
-  ]},
-  QUINTA: { muscle: "Glúteos", exercises: [
-    { name: "Hip Thrust", sets: "4", reps: "12", carga: "80Kg", done: false },
-    { name: "Agachamento Sumô", sets: "4", reps: "15", carga: "40Kg", done: false },
-    { name: "Elevação pélvica", sets: "4", reps: "15", carga: "20Kg", done: false },
-    { name: "Cadeira abdutora", sets: "3", reps: "15", carga: "30Kg", done: false },
-    { name: "Stiff", sets: "3", reps: "12", carga: "30Kg", done: false },
-  ]},
-  SEXTA: { muscle: "Peito e Abdômen", exercises: [
-    { name: "Supino reto", sets: "4", reps: "12", carga: "20Kg", done: false },
-    { name: "Supino inclinado", sets: "3", reps: "12", carga: "15Kg", done: false },
-    { name: "Crucifixo", sets: "3", reps: "15", carga: "8Kg", done: false },
-    { name: "Abdominal infra", sets: "3", reps: "20", carga: "—", done: false },
-    { name: "Prancha", sets: "3", reps: "45s", carga: "—", done: false },
-  ]},
-  SÁBADO: { muscle: "Cardio + Full Body", exercises: [
-    { name: "Corrida / Bike", sets: "1", reps: "30min", carga: "—", done: false },
-    { name: "Burpees", sets: "3", reps: "15", carga: "—", done: false },
-  ]},
+  SEGUNDA: { muscle: "", exercises: [] },
+  TERÇA: { muscle: "", exercises: [] },
+  QUARTA: { muscle: "", exercises: [] },
+  QUINTA: { muscle: "", exercises: [] },
+  SEXTA: { muscle: "", exercises: [] },
+  SÁBADO: { muscle: "", exercises: [] },
   DOMINGO: { muscle: "Descanso", exercises: [] },
 };
 
@@ -95,11 +62,7 @@ const Treino = () => {
   const [newExName, setNewExName] = useState("");
   const [workoutLog, setWorkoutLog] = usePersistedState<string[]>("saude-workout-log", []);
   const [workoutNotes, setWorkoutNotes] = usePersistedState<Record<string, string>>("saude-workout-notes", {});
-  const [personalRecords, setPersonalRecords] = usePersistedState<{id: string; exercise: string; record: string; date: string}[]>("saude-prs", [
-    { id: "1", exercise: "Leg Press", record: "200Kg", date: "" },
-    { id: "2", exercise: "Supino Reto", record: "40Kg", date: "" },
-    { id: "3", exercise: "Agachamento", record: "60Kg", date: "" },
-  ]);
+  const [personalRecords, setPersonalRecords] = usePersistedState<{id: string; exercise: string; record: string; date: string}[]>("saude-prs", []);
   const [newPRExercise, setNewPRExercise] = useState("");
   const [newPRRecord, setNewPRRecord] = useState("");
 
