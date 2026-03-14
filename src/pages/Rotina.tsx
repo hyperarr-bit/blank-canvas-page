@@ -1032,7 +1032,7 @@ const Rotina = () => {
   const tabs = [
     { id: "semana", label: "MINHA SEMANA", icon: "📅" },
     { id: "foco", label: "FOCO", icon: "🧠" },
-    { id: "saude", label: "SAÚDE", icon: "💧" },
+    
     { id: "mes", label: "MEU MÊS", icon: "📆" },
     { id: "diario", label: "DIÁRIO", icon: "📝" },
     { id: "revisao", label: "REVISÃO", icon: "⭐" },
