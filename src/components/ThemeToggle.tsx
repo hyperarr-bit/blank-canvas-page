@@ -62,7 +62,7 @@ export const ThemeToggle = ({ showPalette = false }: { showPalette?: boolean }) 
                 className="absolute right-0 top-11 bg-card border border-border rounded-xl shadow-lg p-3 z-50 w-48"
               >
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Tema</p>
-                {(Object.keys(palettes) as ThemePaletteType[]).map(key => (
+                {(Object.keys(palettes) as ThemePalette[]).map(key => (
                   <motion.button
                     key={key}
                     onClick={() => { setPalette(key as any); setShowPaletteMenu(false); }}
