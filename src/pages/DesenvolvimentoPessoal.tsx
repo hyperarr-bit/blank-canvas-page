@@ -21,17 +21,8 @@ const usePersistedState = <T,>(key: string, initial: T): [T, (v: T | ((prev: T) 
   return [state, setState];
 };
 
-const defaultAffirmations = [
-  "Eu mereço ser amado(a)", "Eu sou próspero(a)", "Eu sou abençoado(a)",
-  "Tudo o que eu faço dá certo", "Eu sou criativo(a)",
-  "Minha família e eu somos cheios de saúde", "Eu mereço ser feliz",
-];
-
-const defaultMotivations = [
-  "Dar uma vida melhor para minha família",
-  "Ter liberdade financeira",
-  "Poder trabalhar de onde eu quiser",
-];
+const defaultAffirmations: string[] = [];
+const defaultMotivations: string[] = [];
 
 const lifeAreas = [
   { id: "saude", name: "Saúde", icon: Heart, color: "text-red-400" },
