@@ -26,45 +26,15 @@ interface GroceryCategory {
 }
 
 const defaultGroceries: GroceryCategory[] = [
-  { name: "HortiFrutti", emoji: "🥬", color: "bg-green-500", items: [
-    { text: "Cebola roxa", checked: false }, { text: "Berinjela", checked: false }, { text: "Alho", checked: false },
-    { text: "Batata", checked: false }, { text: "Aipim", checked: false }, { text: "Cenoura", checked: false },
-    { text: "Maçã", checked: true }, { text: "Banana", checked: true }, { text: "Melão", checked: true },
-    { text: "Limão", checked: true }, { text: "Abacaxi", checked: true }, { text: "Brócolis", checked: false },
-    { text: "Couve-flor", checked: false }, { text: "Pimentão verde", checked: false }, { text: "Pepino", checked: false },
-  ]},
-  { name: "Açougue e Peixaria", emoji: "🥩", color: "bg-red-500", items: [
-    { text: "Carne moída", checked: false }, { text: "Filé mignon", checked: false },
-    { text: "Sobrecoxa", checked: false }, { text: "Peito de frango", checked: true }, { text: "Salmão", checked: false },
-  ]},
-  { name: "Laticínios e Frios", emoji: "🧀", color: "bg-blue-500", items: [
-    { text: "Leite desnatado", checked: false }, { text: "Iogurte Grego Zero", checked: true },
-    { text: "Requeijão light", checked: false }, { text: "Queijo", checked: false }, { text: "Yopro", checked: true },
-  ]},
-  { name: "Mercearia", emoji: "🏪", color: "bg-purple-500", items: [
-    { text: "Azeite de oliva", checked: false }, { text: "Lentilha", checked: false }, { text: "Macarrão", checked: true },
-    { text: "Farinha de trigo", checked: true }, { text: "Tapioca", checked: false }, { text: "Açúcar", checked: false },
-    { text: "Atum", checked: false }, { text: "Milho", checked: true }, { text: "Creme de leite", checked: false },
-    { text: "Café", checked: false }, { text: "Chá", checked: false }, { text: "Aveia", checked: false },
-  ]},
-  { name: "Padaria", emoji: "🥖", color: "bg-amber-500", items: [
-    { text: "Pão francês", checked: true }, { text: "Pão de forma", checked: false }, { text: "Bolo de laranja", checked: false },
-  ]},
-  { name: "Congelados", emoji: "🍦", color: "bg-yellow-500", items: [
-    { text: "Sorvete", checked: false }, { text: "Pão de queijo", checked: false },
-    { text: "Pizza congelada", checked: false }, { text: "Batata frita", checked: false },
-  ]},
-  { name: "Limpeza", emoji: "🧹", color: "bg-cyan-500", items: [
-    { text: "Esponja", checked: false }, { text: "Vanish", checked: false }, { text: "Desinfetante", checked: false },
-    { text: "Sabão em pó", checked: false }, { text: "Amaciante", checked: false },
-  ]},
-  { name: "Higiene Pessoal", emoji: "🛁", color: "bg-pink-400", items: [
-    { text: "Lenço umedecido", checked: false }, { text: "Cotopaxi", checked: false },
-    { text: "Shampoo", checked: false }, { text: "Condicionador", checked: false },
-  ]},
-  { name: "Bebidas", emoji: "🥤", color: "bg-indigo-500", items: [
-    { text: "Suco de uva", checked: true }, { text: "Coca Zero", checked: true }, { text: "Água mineral", checked: false },
-  ]},
+  { name: "HortiFrutti", emoji: "🥬", color: "bg-green-500", items: [] },
+  { name: "Açougue e Peixaria", emoji: "🥩", color: "bg-red-500", items: [] },
+  { name: "Laticínios e Frios", emoji: "🧀", color: "bg-blue-500", items: [] },
+  { name: "Mercearia", emoji: "🏪", color: "bg-purple-500", items: [] },
+  { name: "Padaria", emoji: "🥖", color: "bg-amber-500", items: [] },
+  { name: "Congelados", emoji: "🍦", color: "bg-yellow-500", items: [] },
+  { name: "Limpeza", emoji: "🧹", color: "bg-cyan-500", items: [] },
+  { name: "Higiene Pessoal", emoji: "🛁", color: "bg-pink-400", items: [] },
+  { name: "Bebidas", emoji: "🥤", color: "bg-indigo-500", items: [] },
 ];
 
 const weekDays = ["SEGUNDA", "TERÇA", "QUARTA", "QUINTA", "SEXTA", "SÁBADO", "DOMINGO"];
@@ -74,13 +44,7 @@ const dayCleanColors: Record<string, string> = {
 };
 
 const defaultCleaningRoutine: Record<string, string[]> = {
-  SEGUNDA: ["Limpar cozinha", "Lavar louça", "Passar pano no chão"],
-  TERÇA: ["Limpar banheiros", "Trocar toalhas"],
-  QUARTA: ["Aspirar a casa toda", "Limpar espelhos"],
-  QUINTA: ["Lavar roupas", "Passar roupas"],
-  SEXTA: ["Organizar armários", "Limpar geladeira"],
-  SÁBADO: ["Faxina geral", "Trocar roupa de cama"],
-  DOMINGO: ["Descanso / Organização leve"],
+  SEGUNDA: [], TERÇA: [], QUARTA: [], QUINTA: [], SEXTA: [], SÁBADO: [], DOMINGO: [],
 };
 
 const Casa = () => {
