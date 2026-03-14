@@ -258,6 +258,7 @@ const Index = () => {
               <IncomeTable incomes={incomes} setIncomes={setIncomes} />
               <Calculator />
             </div>
+            <FixedExpensesTable expenses={fixedExpenses} setExpenses={setFixedExpenses} />
             <div className="grid lg:grid-cols-[1fr_280px] gap-4">
               <ExpenseTable expenses={expenses} setExpenses={setExpenses} />
               <Notes notes={notes} setNotes={setNotes} />
