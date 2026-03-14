@@ -215,10 +215,7 @@ const EnergyTracker = () => {
 
 // ============= SUPPLEMENTS TRACKER =============
 const SupplementsTracker = () => {
-  const [supplements, setSupplements] = usePersistedState<{name: string; time: string; taken: boolean}[]>("saude-supplements", [
-    { name: "Whey Protein", time: "Pós-treino", taken: false }, { name: "Creatina", time: "Manhã", taken: false },
-    { name: "Vitamina D", time: "Manhã", taken: false }, { name: "Ômega 3", time: "Almoço", taken: false },
-  ]);
+  const [supplements, setSupplements] = usePersistedState<{name: string; time: string; taken: boolean}[]>("saude-supplements", []);
   const [newSuppName, setNewSuppName] = useState("");
 
   return (
