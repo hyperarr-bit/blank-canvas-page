@@ -64,12 +64,7 @@ const Casa = () => {
   const [newErrand, setNewErrand] = useState("");
 
   // MANUTENÇÃO DA CASA
-  const [maintenance, setMaintenance] = usePersistedState<{id: string; task: string; lastDone: string; frequency: string}[]>("casa-maintenance", [
-    { id: "1", task: "Dedetização", lastDone: "", frequency: "6 meses" },
-    { id: "2", task: "Limpeza de ar-condicionado", lastDone: "", frequency: "3 meses" },
-    { id: "3", task: "Troca de filtro de água", lastDone: "", frequency: "6 meses" },
-    { id: "4", task: "Revisão elétrica", lastDone: "", frequency: "1 ano" },
-  ]);
+  const [maintenance, setMaintenance] = usePersistedState<{id: string; task: string; lastDone: string; frequency: string}[]>("casa-maintenance", []);
   const [newMainTask, setNewMainTask] = useState("");
 
   const toggleGroceryItem = (catIdx: number, itemIdx: number) => {

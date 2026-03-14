@@ -258,11 +258,7 @@ const Saude = () => {
   const [newCheckupName, setNewCheckupName] = useState("");
 
   // BODY GOALS
-  const [bodyGoals, setBodyGoals] = usePersistedState<{id: string; goal: string; current: string; target: string}[]>("saude-body-goals", [
-    { id: "1", goal: "Peso", current: "", target: "" },
-    { id: "2", goal: "Cintura", current: "", target: "" },
-    { id: "3", goal: "% Gordura", current: "", target: "" },
-  ]);
+  const [bodyGoals, setBodyGoals] = usePersistedState<{id: string; goal: string; current: string; target: string}[]>("saude-body-goals", []);
 
   // PROGRESS NOTES
   const [progressNotes, setProgressNotes] = usePersistedState<{date: string; text: string}[]>("saude-progress-notes", []);

@@ -62,11 +62,7 @@ const Treino = () => {
   const [newExName, setNewExName] = useState("");
   const [workoutLog, setWorkoutLog] = usePersistedState<string[]>("saude-workout-log", []);
   const [workoutNotes, setWorkoutNotes] = usePersistedState<Record<string, string>>("saude-workout-notes", {});
-  const [personalRecords, setPersonalRecords] = usePersistedState<{id: string; exercise: string; record: string; date: string}[]>("saude-prs", [
-    { id: "1", exercise: "Leg Press", record: "200Kg", date: "" },
-    { id: "2", exercise: "Supino Reto", record: "40Kg", date: "" },
-    { id: "3", exercise: "Agachamento", record: "60Kg", date: "" },
-  ]);
+  const [personalRecords, setPersonalRecords] = usePersistedState<{id: string; exercise: string; record: string; date: string}[]>("saude-prs", []);
   const [newPRExercise, setNewPRExercise] = useState("");
   const [newPRRecord, setNewPRRecord] = useState("");
 

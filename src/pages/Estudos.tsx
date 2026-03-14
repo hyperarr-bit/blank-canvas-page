@@ -48,25 +48,16 @@ const Estudos = () => {
   const [newExamTime, setNewExamTime] = useState("");
 
   // GRADE HORÁRIA
-  const [schedule, setSchedule] = usePersistedState<Record<string, Record<string, string>>>("estudos-schedule", {
-    "7h30": { SEGUNDA: "Ética e Responsabilidade Social", TERÇA: "", QUARTA: "", QUINTA: "", SEXTA: "Administração Mercadológica" },
-    "8h": { SEGUNDA: "Ética e Responsabilidade Social", TERÇA: "", QUARTA: "Gestão de Projetos", QUINTA: "Contabilidade", SEXTA: "" },
-    "9h": { SEGUNDA: "Teoria Geral da Administração", TERÇA: "", QUARTA: "Microeconomia", QUINTA: "Administração Mercadológica", SEXTA: "" },
-    "10h": { SEGUNDA: "Teoria Geral da Administração", TERÇA: "", QUARTA: "Microeconomia", QUINTA: "", SEXTA: "" },
-    "11h": { SEGUNDA: "", TERÇA: "", QUARTA: "", QUINTA: "", SEXTA: "" },
-    "12h": { SEGUNDA: "", TERÇA: "", QUARTA: "", QUINTA: "", SEXTA: "" },
-  });
+  const [schedule, setSchedule] = usePersistedState<Record<string, Record<string, string>>>("estudos-schedule", 
+    Object.fromEntries(defaultScheduleHours.map(h => [h, Object.fromEntries(weekDays.map(d => [d, ""]))]))
+  );
   const [editingCell, setEditingCell] = useState<string | null>(null);
   const [editCellValue, setEditCellValue] = useState("");
 
   // TAREFAS DA SEMANA
-  const [weekTasks, setWeekTasks] = usePersistedState<Record<string, {text: string; done: boolean}[]>>("estudos-week-tasks", {
-    SEGUNDA: [{ text: "Assistir aulas atrasadas", done: true }, { text: "Ler livro de G. Projetos", done: false }],
-    TERÇA: [{ text: "Enviar trabalho para correção", done: true }, { text: "", done: false }],
-    QUARTA: [{ text: "Aulas atrasadas", done: false }],
-    QUINTA: [{ text: "Entregar trabalho final", done: false }],
-    SEXTA: [],
-  });
+  const [weekTasks, setWeekTasks] = usePersistedState<Record<string, {text: string; done: boolean}[]>>("estudos-week-tasks",
+    Object.fromEntries(weekDays.map(d => [d, []]))
+  );
   const [newWeekTask, setNewWeekTask] = useState<Record<string, string>>({});
 
   // CADERNO / ANOTAÇÕES

@@ -59,19 +59,19 @@ const DesenvolvimentoPessoal = () => {
   const [newMotivation, setNewMotivation] = useState("");
   const [affirmations, setAffirmations] = usePersistedState<string[]>("dp-affirmations", defaultAffirmations);
   const [newAffirmation, setNewAffirmation] = useState("");
-  const [strengths, setStrengths] = usePersistedState<string[]>("dp-strengths", ["Comunicativo(a)", "Disciplinado(a)", "Organizado(a)"]);
+  const [strengths, setStrengths] = usePersistedState<string[]>("dp-strengths", []);
   const [newStrength, setNewStrength] = useState("");
-  const [weaknesses, setWeaknesses] = usePersistedState<string[]>("dp-weaknesses", ["Perfeccionismo", "Ansiedade"]);
+  const [weaknesses, setWeaknesses] = usePersistedState<string[]>("dp-weaknesses", []);
   const [newWeakness, setNewWeakness] = useState("");
-  const [skills, setSkills] = usePersistedState<string[]>("dp-skills", ["Treinar", "Ler", "Disciplina", "Oratória"]);
+  const [skills, setSkills] = usePersistedState<string[]>("dp-skills", []);
   const [newSkill, setNewSkill] = useState("");
-  const [skillsToLearn, setSkillsToLearn] = usePersistedState<string[]>("dp-skills-learn", ["Falar inglês", "Cozinhar", "Falar em público", "Correr"]);
+  const [skillsToLearn, setSkillsToLearn] = usePersistedState<string[]>("dp-skills-learn", []);
   const [newSkillToLearn, setNewSkillToLearn] = useState("");
-  const [values, setValues] = usePersistedState<string[]>("dp-values", ["Fé em Deus", "Família", "Honestidade", "Gratidão"]);
+  const [values, setValues] = usePersistedState<string[]>("dp-values", []);
   const [newValue, setNewValue] = useState("");
-  const [canControl, setCanControl] = usePersistedState<string[]>("dp-can-control", ["Minhas atitudes", "Meu esforço", "Minha rotina"]);
+  const [canControl, setCanControl] = usePersistedState<string[]>("dp-can-control", []);
   const [newCanControl, setNewCanControl] = useState("");
-  const [cantControl, setCantControl] = usePersistedState<string[]>("dp-cant-control", ["Opinião dos outros", "O passado", "O clima"]);
+  const [cantControl, setCantControl] = usePersistedState<string[]>("dp-cant-control", []);
   const [newCantControl, setNewCantControl] = useState("");
 
   // METAS
