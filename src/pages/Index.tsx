@@ -70,33 +70,11 @@ const Index = () => {
     months.map((m) => ({ month: m, value: 0, hasNote: false }))
   );
 
-  const [wishlistItems, setWishlistItems] = usePersistedState("finance-wishlist", [
-    { id: "1", name: "MacBook Pro M3", price: 15000, savedAmount: 3000, priority: "alta" as const, category: "Eletrônicos" },
-    { id: "2", name: "Viagem para Europa", price: 20000, savedAmount: 5000, priority: "media" as const, category: "Viagem" },
-  ]);
+  const [wishlistItems, setWishlistItems] = usePersistedState("finance-wishlist", [] as any[]);
 
-  const [investments, setInvestments] = usePersistedState("finance-investments", [
-    { id: "1", name: "Tesouro IPCA+ 2029", type: "renda_fixa" as const, investedAmount: 5000, currentValue: 5350, monthlyContribution: 500, startDate: "2024-01-15", broker: "XP" },
-    { id: "2", name: "IVVB11", type: "renda_variavel" as const, investedAmount: 3000, currentValue: 3450, monthlyContribution: 300, startDate: "2024-03-01", broker: "Clear" },
-    { id: "3", name: "Bitcoin", type: "cripto" as const, investedAmount: 2000, currentValue: 2800, monthlyContribution: 100, startDate: "2024-06-01", broker: "Binance" },
-  ]);
+  const [investments, setInvestments] = usePersistedState("finance-investments", [] as any[]);
 
-  const [trips, setTrips] = usePersistedState("finance-trips", [
-    {
-      id: "1",
-      destination: "Gramado - RS",
-      startDate: "2025-07-15",
-      endDate: "2025-07-20",
-      budget: 5000,
-      savedAmount: 2500,
-      expenses: [
-        { id: "1", category: "passagem" as const, description: "Passagem aérea", estimatedCost: 1200, paid: false },
-        { id: "2", category: "hospedagem" as const, description: "Hotel 5 noites", estimatedCost: 1500, paid: false },
-        { id: "3", category: "alimentacao" as const, description: "Alimentação estimada", estimatedCost: 800, paid: false },
-        { id: "4", category: "passeios" as const, description: "Snowland + Mini Mundo", estimatedCost: 400, paid: false },
-      ],
-    },
-  ]);
+  const [trips, setTrips] = usePersistedState("finance-trips", [] as any[]);
 
   // Gamification state
   const [streakDays, setStreakDays] = usePersistedState("finance-streak", 0);
