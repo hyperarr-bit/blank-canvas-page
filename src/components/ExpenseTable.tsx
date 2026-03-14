@@ -125,6 +125,14 @@ export const ExpenseTable = ({ expenses, setExpenses }: ExpenseTableProps) => {
               </tr>
             </thead>
             <tbody>
+              {expenses.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="px-3 py-6 text-center">
+                    <p className="text-xs text-muted-foreground">Nenhum gasto variável cadastrado</p>
+                    <p className="text-[10px] text-muted-foreground mt-1">Adicione compras, restaurantes, lazer, presentes...</p>
+                  </td>
+                </tr>
+              )}
               {expenses.map((expense) => (
                 <tr key={expense.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
                   <td className="px-3 py-2">{expense.description}</td>

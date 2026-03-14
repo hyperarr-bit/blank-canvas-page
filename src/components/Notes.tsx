@@ -31,6 +31,9 @@ export const Notes = ({ notes, setNotes }: NotesProps) => {
         <span>📝</span>
       </div>
       <div className="p-3 space-y-1.5">
+        {notes.length === 0 && (
+          <p className="text-[10px] text-muted-foreground py-2">Anote lembretes, metas e ideias financeiras...</p>
+        )}
         {notes.map((note) => (
           <div key={note.id} className="flex items-start gap-2 group text-sm">
             <span className="text-accent mt-0.5">•</span>
