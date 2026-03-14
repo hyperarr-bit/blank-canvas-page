@@ -165,7 +165,10 @@ const Index = () => {
           </button>
           <span className="text-lg">≡</span>
           <h1 className="text-base font-bold tracking-tight">CORE — FINANÇAS</h1>
-          <span className="text-muted-foreground text-xs ml-auto capitalize">{currentMonth}</span>
+          <div className="flex items-center gap-2 ml-auto">
+            <span className="text-muted-foreground text-xs capitalize">{currentMonth}</span>
+            <ThemeToggle />
+          </div>
         </div>
         {/* Tabs */}
         <div className="max-w-7xl mx-auto px-4 pb-2 flex gap-1 overflow-x-auto scrollbar-hide">
