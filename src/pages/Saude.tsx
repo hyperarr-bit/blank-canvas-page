@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, Plus, X, Trash2, Heart, Ruler,
   Check, TrendingUp, Droplets, Stethoscope,
-  Target, Activity
+  Target, Activity, Moon, Sun, Zap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,234 @@ const usePersistedState = <T,>(key: string, initial: T): [T, (v: T | ((prev: T) 
   return [state, setState];
 };
 
+const getDateKey = (d?: Date) => {
+  const date = d || new Date();
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+};
+
+const moodEmojis = [
+  { emoji: "😄", label: "Ótimo", color: "bg-green-400", value: 5 },
+  { emoji: "🙂", label: "Bem", color: "bg-green-300", value: 4 },
+  { emoji: "😐", label: "Neutro", color: "bg-yellow-300", value: 3 },
+  { emoji: "😕", label: "Meh", color: "bg-orange-300", value: 2 },
+  { emoji: "😞", label: "Ruim", color: "bg-red-300", value: 1 },
+];
+
+// ============= HEALTH TRACKER (from Rotina) =============
+const HealthTracker = () => {
+  const today = getDateKey();
+  const [waterLog, setWaterLog] = usePersistedState<Record<string, number>>("water-log", {});
+  const [sleepLog, setSleepLog] = usePersistedState<Record<string, number>>("sleep-log", {});
+  const [sleepInput, setSleepInput] = useState(String(sleepLog[today] || ""));
+  const waterGoal = 8;
+  const waterToday = waterLog[today] || 0;
+  const sleepToday = sleepLog[today] || 0;
+
+  const addWater = () => setWaterLog(prev => ({ ...prev, [today]: Math.min((prev[today] || 0) + 1, 15) }));
+  const removeWater = () => setWaterLog(prev => ({ ...prev, [today]: Math.max((prev[today] || 0) - 1, 0) }));
+  const saveSleep = (val: string) => {
+    const n = parseFloat(val);
+    if (!isNaN(n) && n >= 0 && n <= 24) {
+      setSleepLog(prev => ({ ...prev, [today]: n }));
+    }
+  };
+
+  return (
+    <div className="bg-card rounded-lg border border-border overflow-hidden">
+      <div className="bg-gradient-to-r from-cyan-400 to-blue-500 px-4 py-3 flex items-center gap-2">
+        <Droplets className="w-4 h-4 text-white" />
+        <span className="font-bold text-sm text-white">SAÚDE DIÁRIA</span>
+      </div>
+      <div className="p-4 grid grid-cols-2 gap-4">
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Droplets className="w-4 h-4 text-blue-500" />
+            <span className="font-bold text-xs">ÁGUA</span>
+            <span className="text-xs text-muted-foreground ml-auto">{waterToday}/{waterGoal} copos</span>
+          </div>
+          <Progress value={(waterToday / waterGoal) * 100} className="h-2" />
+          <div className="flex flex-wrap gap-1">
+            {[...Array(waterGoal)].map((_, i) => (
+              <div key={i} className={`w-6 h-8 rounded-md border flex items-center justify-center text-sm transition-colors ${i < waterToday ? "bg-blue-100 border-blue-300 text-blue-600" : "bg-muted/30 border-border text-muted-foreground/30"}`}>
+                💧
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" onClick={removeWater} className="h-7 text-xs flex-1">−</Button>
+            <Button size="sm" onClick={addWater} className="h-7 text-xs flex-1 bg-blue-500 hover:bg-blue-600">+ Copo</Button>
+          </div>
+        </div>
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Moon className="w-4 h-4 text-indigo-500" />
+            <span className="font-bold text-xs">SONO</span>
+            <span className="text-xs text-muted-foreground ml-auto">{sleepToday}h</span>
+          </div>
+          <Progress value={(sleepToday / 8) * 100} className="h-2" />
+          <div className="text-center py-2">
+            <span className="text-3xl font-bold">{sleepToday || "—"}</span>
+            <span className="text-sm text-muted-foreground ml-1">horas</span>
+            <div className="text-[10px] text-muted-foreground mt-1">
+              {sleepToday >= 7 ? "✅ Boa noite!" : sleepToday > 0 ? "⚠️ Durma mais!" : "Registre seu sono"}
+            </div>
+          </div>
+          <Input
+            type="number" step="0.5" min="0" max="24" placeholder="Horas dormidas"
+            value={sleepInput}
+            onChange={e => { setSleepInput(e.target.value); saveSleep(e.target.value); }}
+            className="h-7 text-xs"
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ============= MOOD TRACKER (from Rotina) =============
+const MoodTracker = () => {
+  const [moodLog, setMoodLog] = usePersistedState<Record<string, { mood: number; note: string }>>("mood-log", {});
+  const today = getDateKey();
+  const todayMood = moodLog[today];
+  const [note, setNote] = useState(todayMood?.note || "");
+
+  const logMood = (value: number) => {
+    setMoodLog(prev => ({ ...prev, [today]: { mood: value, note: prev[today]?.note || "" } }));
+  };
+
+  const saveNote = () => {
+    if (todayMood) {
+      setMoodLog(prev => ({ ...prev, [today]: { ...prev[today], note } }));
+    }
+  };
+
+  const last7 = [...Array(7)].map((_, i) => {
+    const d = new Date(); d.setDate(d.getDate() - (6 - i));
+    const key = getDateKey(d);
+    const dayNames = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+    return { key, dayName: dayNames[d.getDay()], mood: moodLog[key]?.mood };
+  });
+
+  return (
+    <div className="bg-card rounded-lg border border-border overflow-hidden">
+      <div className="bg-gradient-to-r from-purple-400 to-pink-400 px-4 py-3 flex items-center gap-2">
+        <Heart className="w-4 h-4 text-white" />
+        <span className="font-bold text-sm text-white">COMO VOCÊ ESTÁ HOJE?</span>
+      </div>
+      <div className="p-4 space-y-4">
+        <div className="flex justify-center gap-3">
+          {moodEmojis.map(m => (
+            <button key={m.value} onClick={() => logMood(m.value)}
+              className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-all ${todayMood?.mood === m.value ? "bg-primary/10 ring-2 ring-primary scale-110" : "hover:bg-muted"}`}>
+              <span className="text-2xl">{m.emoji}</span>
+              <span className="text-[10px] text-muted-foreground">{m.label}</span>
+            </button>
+          ))}
+        </div>
+        {todayMood && (
+          <div className="flex gap-2">
+            <Input placeholder="O que aconteceu hoje? (opcional)" value={note} onChange={e => setNote(e.target.value)} onBlur={saveNote} onKeyDown={e => e.key === "Enter" && saveNote()} className="text-xs h-8" />
+          </div>
+        )}
+        <div className="flex items-end justify-between gap-1 h-16">
+          {last7.map(d => (
+            <div key={d.key} className="flex flex-col items-center gap-1 flex-1">
+              <div className="w-full rounded-sm transition-all"
+                style={{ height: d.mood ? `${d.mood * 10}px` : "4px", backgroundColor: d.mood ? `hsl(${(d.mood - 1) * 30}, 70%, 55%)` : "hsl(var(--muted))" }} />
+              <span className="text-[9px] text-muted-foreground">{d.dayName}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ============= ENERGY TRACKER (from Rotina) =============
+const EnergyTracker = () => {
+  const today = getDateKey();
+  const [energyLog, setEnergyLog] = usePersistedState<Record<string, number[]>>("energy-log", {});
+  const periods = ["Manhã", "Tarde", "Noite"];
+  const periodIcons = [<Sun key="s" className="w-3 h-3" />, <Zap key="z" className="w-3 h-3" />, <Moon key="m" className="w-3 h-3" />];
+  const todayEnergy = energyLog[today] || [0, 0, 0];
+
+  const setEnergy = (periodIndex: number, value: number) => {
+    const newEnergy = [...todayEnergy];
+    newEnergy[periodIndex] = value;
+    setEnergyLog(prev => ({ ...prev, [today]: newEnergy }));
+  };
+
+  return (
+    <div className="bg-card rounded-lg border border-border overflow-hidden">
+      <div className="bg-gradient-to-r from-yellow-400 to-orange-500 px-4 py-3 flex items-center gap-2">
+        <Zap className="w-4 h-4 text-white" />
+        <span className="font-bold text-sm text-white">NÍVEL DE ENERGIA</span>
+      </div>
+      <div className="p-4 space-y-3">
+        {periods.map((period, pi) => (
+          <div key={period} className="flex items-center gap-3">
+            <div className="flex items-center gap-1 w-16 text-xs text-muted-foreground">
+              {periodIcons[pi]}
+              <span>{period}</span>
+            </div>
+            <div className="flex gap-1 flex-1">
+              {[1, 2, 3, 4, 5].map(v => (
+                <button key={v} onClick={() => setEnergy(pi, v)}
+                  className={`flex-1 h-6 rounded-md text-[10px] font-bold transition-all ${v <= todayEnergy[pi]
+                    ? v <= 2 ? "bg-red-400 text-white" : v <= 3 ? "bg-yellow-400 text-white" : "bg-green-400 text-white"
+                    : "bg-muted text-muted-foreground"
+                  }`}>
+                  {v}
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+        {todayEnergy.some(e => e > 0) && (
+          <div className="text-center text-xs text-muted-foreground pt-1">
+            Média: {(todayEnergy.filter(e => e > 0).reduce((a, b) => a + b, 0) / todayEnergy.filter(e => e > 0).length).toFixed(1)} ⚡
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// ============= SUPPLEMENTS TRACKER =============
+const SupplementsTracker = () => {
+  const [supplements, setSupplements] = usePersistedState<{name: string; time: string; taken: boolean}[]>("saude-supplements", [
+    { name: "Whey Protein", time: "Pós-treino", taken: false }, { name: "Creatina", time: "Manhã", taken: false },
+    { name: "Vitamina D", time: "Manhã", taken: false }, { name: "Ômega 3", time: "Almoço", taken: false },
+  ]);
+  const [newSuppName, setNewSuppName] = useState("");
+
+  return (
+    <div className="bg-card rounded-lg border border-border overflow-hidden">
+      <div className="bg-gradient-to-r from-green-400 to-emerald-500 px-4 py-3 flex items-center gap-2">
+        <Activity className="w-4 h-4 text-white" />
+        <span className="font-bold text-sm text-white">SUPLEMENTOS</span>
+      </div>
+      <div className="p-4 space-y-2">
+        {supplements.map((s, i) => (
+          <div key={i} className="flex items-center gap-3 bg-muted/30 rounded-lg p-2 border border-border">
+            <button onClick={() => { const u = [...supplements]; u[i] = { ...s, taken: !s.taken }; setSupplements(u); }}
+              className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 ${s.taken ? "bg-green-500 border-green-500" : "border-muted-foreground/30"}`}>
+              {s.taken && <Check className="w-3 h-3 text-white" />}
+            </button>
+            <div className="flex-1"><p className={`text-xs font-medium ${s.taken ? "line-through text-muted-foreground" : ""}`}>{s.name}</p><p className="text-[10px] text-muted-foreground">{s.time}</p></div>
+            <button onClick={() => setSupplements(supplements.filter((_, j) => j !== i))}><Trash2 className="w-3 h-3 text-muted-foreground" /></button>
+          </div>
+        ))}
+        <div className="flex gap-2 mt-2">
+          <Input value={newSuppName} onChange={e => setNewSuppName(e.target.value)} placeholder="Novo suplemento..." className="text-xs h-8" />
+          <Button size="sm" className="h-8" onClick={() => { if (newSuppName.trim()) { setSupplements([...supplements, { name: newSuppName.trim(), time: "Manhã", taken: false }]); setNewSuppName(""); }}}><Plus className="w-3 h-3" /></Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ============= MAIN =============
 const Saude = () => {
   const navigate = useNavigate();
   const today = new Date().toISOString().split("T")[0];
@@ -27,30 +255,6 @@ const Saude = () => {
   // MEDIDAS
   const [measurements, setMeasurements] = usePersistedState<{date: string; peso: string; cintura: string; quadril: string; braco: string; coxa: string; peitoral: string}[]>("saude-measures", []);
   const [newMeasure, setNewMeasure] = useState({ date: today, peso: "", cintura: "", quadril: "", braco: "", coxa: "", peitoral: "" });
-
-  // ÁGUA & SONO & SUPLEMENTOS
-  const [waterGoal] = usePersistedState("saude-water-goal", 8);
-  const [waterToday, setWaterToday] = usePersistedState("saude-water-today", 0);
-  const [waterDate, setWaterDate] = usePersistedState("saude-water-date", "");
-  const [supplements, setSupplements] = usePersistedState<{name: string; time: string; taken: boolean}[]>("saude-supplements", [
-    { name: "Whey Protein", time: "Pós-treino", taken: false }, { name: "Creatina", time: "Manhã", taken: false },
-    { name: "Vitamina D", time: "Manhã", taken: false }, { name: "Ômega 3", time: "Almoço", taken: false },
-  ]);
-  const [newSuppName, setNewSuppName] = useState("");
-  const [sleepHours, setSleepHours] = usePersistedState("saude-sleep", "7");
-
-  // SKINCARE
-  const [skincareMorning, setSkincareMorning] = usePersistedState<{step: string; done: boolean}[]>("saude-skincare-am", [
-    { step: "Lavar o rosto", done: false }, { step: "Tônico", done: false },
-    { step: "Sérum vitamina C", done: false }, { step: "Hidratante", done: false }, { step: "Protetor solar", done: false },
-  ]);
-  const [skincareNight, setSkincareNight] = usePersistedState<{step: string; done: boolean}[]>("saude-skincare-pm", [
-    { step: "Demaquilante / Óleo", done: false }, { step: "Sabonete facial", done: false },
-    { step: "Tônico", done: false }, { step: "Sérum retinol/ácido", done: false }, { step: "Hidratante noturno", done: false },
-  ]);
-  const [beautyNotes, setBeautyNotes] = usePersistedState("saude-beauty-notes", "");
-  const [hairCare, setHairCare] = usePersistedState<string[]>("saude-hair", ["Cronograma capilar", "Hidratação semanal", "Corte a cada 3 meses"]);
-  const [newHair, setNewHair] = useState("");
 
   // CHECKUPS
   const [checkups, setCheckups] = usePersistedState<{id: string; name: string; lastDate: string; nextDate: string}[]>("saude-checkups", [
@@ -73,8 +277,6 @@ const Saude = () => {
   const [progressNotes, setProgressNotes] = usePersistedState<{date: string; text: string}[]>("saude-progress-notes", []);
   const [newProgressNote, setNewProgressNote] = useState("");
 
-  useEffect(() => { if (waterDate !== today) { setWaterToday(0); setWaterDate(today); } }, [today]);
-
   return (
     <div className="min-h-screen bg-background pb-20">
       <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur">
@@ -82,7 +284,7 @@ const Saude = () => {
           <Button variant="ghost" size="icon" onClick={() => navigate("/")}><ArrowLeft className="w-5 h-5" /></Button>
           <div className="flex-1">
             <h1 className="text-lg font-bold tracking-tight flex items-center gap-2"><Heart className="w-5 h-5 text-red-500" /> SAÚDE EM ORDEM</h1>
-            <p className="text-xs text-muted-foreground">Medidas, suplementos, check-ups e beleza</p>
+            <p className="text-xs text-muted-foreground">Medidas, suplementos, check-ups e bem-estar</p>
           </div>
         </div>
       </header>
@@ -90,58 +292,21 @@ const Saude = () => {
       <main className="max-w-5xl mx-auto px-4 py-4">
         <Tabs defaultValue="saude" className="w-full">
           <TabsList className="w-full flex overflow-x-auto gap-1 bg-muted/50 p-1 mb-4 h-auto flex-wrap">
-            <TabsTrigger value="saude" className="text-xs px-3 py-1.5">💊 SAÚDE</TabsTrigger>
+            <TabsTrigger value="saude" className="text-xs px-3 py-1.5">💧 SAÚDE</TabsTrigger>
             <TabsTrigger value="medidas" className="text-xs px-3 py-1.5">📏 MEDIDAS</TabsTrigger>
             <TabsTrigger value="checkups" className="text-xs px-3 py-1.5">🩺 CHECK-UPS</TabsTrigger>
-            <TabsTrigger value="beleza" className="text-xs px-3 py-1.5">💆 BELEZA</TabsTrigger>
             <TabsTrigger value="metas" className="text-xs px-3 py-1.5">🎯 METAS</TabsTrigger>
             <TabsTrigger value="progresso" className="text-xs px-3 py-1.5">📈 PROGRESSO</TabsTrigger>
           </TabsList>
 
-          {/* ========== SAÚDE ========== */}
+          {/* ========== SAÚDE (Rotina-style) ========== */}
           <TabsContent value="saude" className="space-y-4">
-            <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-500/10 dark:to-cyan-500/10 rounded-xl border border-blue-200 dark:border-blue-500/30 p-4">
-              <h3 className="text-xs font-bold mb-3 flex items-center gap-2"><Droplets className="w-4 h-4 text-blue-500" /> ÁGUA HOJE</h3>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="flex gap-1 flex-wrap">
-                  {Array.from({ length: waterGoal }, (_, i) => (
-                    <button key={i} onClick={() => setWaterToday(i < waterToday ? i : i + 1)}
-                      className={`w-8 h-10 rounded-lg border-2 transition-all ${i < waterToday ? "bg-blue-400 border-blue-500 text-white" : "border-blue-200 dark:border-blue-500/30 text-blue-300"}`}>
-                      <Droplets className="w-4 h-4 mx-auto" />
-                    </button>
-                  ))}
-                </div>
-                <span className="text-lg font-bold">{waterToday}/{waterGoal}</span>
-              </div>
-              <Progress value={(waterToday / waterGoal) * 100} className="h-2" />
+            <HealthTracker />
+            <div className="grid md:grid-cols-2 gap-4">
+              <MoodTracker />
+              <EnergyTracker />
             </div>
-            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-500/10 dark:to-purple-500/10 rounded-xl border border-indigo-200 dark:border-indigo-500/30 p-4">
-              <h3 className="text-xs font-bold mb-3">😴 SONO</h3>
-              <div className="flex items-center gap-3">
-                <Input type="number" value={sleepHours} onChange={e => setSleepHours(e.target.value)} className="text-xs h-8 w-20" min="0" max="14" step="0.5" />
-                <span className="text-xs text-muted-foreground">horas</span>
-                <span className={`text-xs font-bold ${Number(sleepHours) >= 7 ? "text-green-500" : Number(sleepHours) >= 5 ? "text-yellow-500" : "text-red-500"}`}>
-                  {Number(sleepHours) >= 7 ? "✅ Ótimo" : Number(sleepHours) >= 5 ? "⚠️ Regular" : "❌ Pouco"}
-                </span>
-              </div>
-            </div>
-            <div className="bg-card rounded-xl border border-border p-4">
-              <h3 className="text-xs font-bold mb-3">💊 SUPLEMENTOS</h3>
-              {supplements.map((s, i) => (
-                <div key={i} className="flex items-center gap-3 bg-muted/30 rounded-lg p-2 border border-border mb-1">
-                  <button onClick={() => { const u = [...supplements]; u[i] = { ...s, taken: !s.taken }; setSupplements(u); }}
-                    className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 ${s.taken ? "bg-green-500 border-green-500" : "border-muted-foreground/30"}`}>
-                    {s.taken && <Check className="w-3 h-3 text-white" />}
-                  </button>
-                  <div className="flex-1"><p className={`text-xs font-medium ${s.taken ? "line-through text-muted-foreground" : ""}`}>{s.name}</p><p className="text-[10px] text-muted-foreground">{s.time}</p></div>
-                  <button onClick={() => setSupplements(supplements.filter((_, j) => j !== i))}><Trash2 className="w-3 h-3 text-muted-foreground" /></button>
-                </div>
-              ))}
-              <div className="flex gap-2 mt-2">
-                <Input value={newSuppName} onChange={e => setNewSuppName(e.target.value)} placeholder="Novo suplemento..." className="text-xs h-8" />
-                <Button size="sm" className="h-8" onClick={() => { if (newSuppName.trim()) { setSupplements([...supplements, { name: newSuppName.trim(), time: "Manhã", taken: false }]); setNewSuppName(""); }}}><Plus className="w-3 h-3" /></Button>
-              </div>
-            </div>
+            <SupplementsTracker />
           </TabsContent>
 
           {/* ========== MEDIDAS ========== */}
@@ -226,50 +391,6 @@ const Saude = () => {
                   if (newCheckupName.trim()) { setCheckups([...checkups, { id: Date.now().toString(), name: newCheckupName.trim(), lastDate: "", nextDate: "" }]); setNewCheckupName(""); }
                 }}><Plus className="w-3 h-3" /></Button>
               </div>
-            </div>
-          </TabsContent>
-
-          {/* ========== BELEZA ========== */}
-          <TabsContent value="beleza" className="space-y-4">
-            <div className="bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-500/10 dark:to-yellow-500/10 rounded-xl border border-amber-200 dark:border-amber-500/30 p-4">
-              <h3 className="text-xs font-bold mb-3">🌅 SKINCARE MANHÃ</h3>
-              {skincareMorning.map((s, i) => (
-                <div key={i} className="flex items-center gap-3 mb-2">
-                  <button onClick={() => { const u = [...skincareMorning]; u[i] = { ...s, done: !s.done }; setSkincareMorning(u); }}
-                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${s.done ? "bg-amber-500 border-amber-500" : "border-amber-300"}`}>
-                    {s.done && <Check className="w-3 h-3 text-white" />}
-                  </button>
-                  <span className={`text-xs ${s.done ? "line-through text-muted-foreground" : ""}`}>{i + 1}. {s.step}</span>
-                </div>
-              ))}
-            </div>
-            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-500/10 dark:to-purple-500/10 rounded-xl border border-indigo-200 dark:border-indigo-500/30 p-4">
-              <h3 className="text-xs font-bold mb-3">🌙 SKINCARE NOITE</h3>
-              {skincareNight.map((s, i) => (
-                <div key={i} className="flex items-center gap-3 mb-2">
-                  <button onClick={() => { const u = [...skincareNight]; u[i] = { ...s, done: !s.done }; setSkincareNight(u); }}
-                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${s.done ? "bg-indigo-500 border-indigo-500" : "border-indigo-300"}`}>
-                    {s.done && <Check className="w-3 h-3 text-white" />}
-                  </button>
-                  <span className={`text-xs ${s.done ? "line-through text-muted-foreground" : ""}`}>{i + 1}. {s.step}</span>
-                </div>
-              ))}
-            </div>
-            <div className="bg-card rounded-xl border border-border p-4">
-              <h3 className="text-xs font-bold mb-3">💇 CABELO</h3>
-              {hairCare.map((item, i) => (
-                <div key={i} className="flex items-center justify-between bg-muted/30 rounded-md px-3 py-1.5 text-xs border border-border mb-1">
-                  <span>{item}</span><button onClick={() => setHairCare(hairCare.filter((_, j) => j !== i))}><X className="w-3 h-3 text-muted-foreground" /></button>
-                </div>
-              ))}
-              <div className="flex gap-2 mt-2">
-                <Input value={newHair} onChange={e => setNewHair(e.target.value)} placeholder="Novo cuidado..." className="text-xs h-8" />
-                <Button size="sm" className="h-8" onClick={() => { if (newHair.trim()) { setHairCare([...hairCare, newHair.trim()]); setNewHair(""); }}}><Plus className="w-3 h-3" /></Button>
-              </div>
-            </div>
-            <div className="bg-card rounded-xl border border-border p-4">
-              <h3 className="text-xs font-bold mb-3">📝 NOTAS DE BELEZA</h3>
-              <Textarea value={beautyNotes} onChange={e => setBeautyNotes(e.target.value)} placeholder="Produtos, procedimentos, lembretes..." className="text-xs min-h-[80px]" />
             </div>
           </TabsContent>
 

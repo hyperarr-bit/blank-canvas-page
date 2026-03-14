@@ -1216,17 +1216,6 @@ const Rotina = () => {
           </div>
         )}
 
-        {/* ============= SAÚDE ============= */}
-        {activeTab === "saude" && (
-          <div className="space-y-5">
-            <HealthTracker />
-            <div className="grid md:grid-cols-2 gap-4">
-              <MoodTracker />
-              <EnergyTracker />
-            </div>
-            <HabitHeatmap habitsChecked={habitsChecked} habits={habits} days={days} />
-          </div>
-        )}
 
         {/* ============= MEU MÊS ============= */}
         {activeTab === "mes" && <MonthlyPlanning />}
