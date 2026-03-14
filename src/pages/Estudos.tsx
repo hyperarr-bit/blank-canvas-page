@@ -38,19 +38,11 @@ const Estudos = () => {
   const navigate = useNavigate();
 
   // CONTEÚDO TRACKER
-  const [subjects, setSubjects] = usePersistedState<{id: string; name: string; leitura: boolean; resumo: boolean; exercicio: boolean; revisao: boolean}[]>("estudos-subjects", [
-    { id: "1", name: "Verbo To Be", leitura: true, resumo: true, exercicio: true, revisao: true },
-    { id: "2", name: "Planejamento do ano", leitura: false, resumo: false, exercicio: false, revisao: false },
-    { id: "3", name: "Gestão Financeira", leitura: true, resumo: true, exercicio: false, revisao: false },
-  ]);
+  const [subjects, setSubjects] = usePersistedState<{id: string; name: string; leitura: boolean; resumo: boolean; exercicio: boolean; revisao: boolean}[]>("estudos-subjects", []);
   const [newSubject, setNewSubject] = useState("");
 
   // PROVAS E ENTREGAS
-  const [exams, setExams] = usePersistedState<{id: string; title: string; date: string; time: string; color: string; done: boolean}[]>("estudos-exams", [
-    { id: "1", title: "Prova final inglês", date: "2026-04-12", time: "19h", color: "bg-indigo-200 dark:bg-indigo-500/20 border-indigo-300", done: false },
-    { id: "2", title: "Trabalho faculdade", date: "2026-04-12", time: "7h", color: "bg-purple-200 dark:bg-purple-500/20 border-purple-300", done: false },
-    { id: "3", title: "Sessão coach", date: "2026-04-20", time: "13h30", color: "bg-yellow-200 dark:bg-yellow-500/20 border-yellow-300", done: false },
-  ]);
+  const [exams, setExams] = usePersistedState<{id: string; title: string; date: string; time: string; color: string; done: boolean}[]>("estudos-exams", []);
   const [newExamTitle, setNewExamTitle] = useState("");
   const [newExamDate, setNewExamDate] = useState("");
   const [newExamTime, setNewExamTime] = useState("");
