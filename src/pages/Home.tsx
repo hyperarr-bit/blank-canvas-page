@@ -46,7 +46,11 @@ const HomePage = () => {
   const hiddenCount = modules.filter(m => isHidden(m.id)).length;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <>
+      <AnimatePresence>
+        {showOnboarding && <OnboardingWizard onComplete={handleOnboardingComplete} />}
+      </AnimatePresence>
+      <div className="min-h-screen bg-background flex flex-col">
       <motion.header
         className="border-b border-border bg-card"
         initial={{ y: -20, opacity: 0 }}
