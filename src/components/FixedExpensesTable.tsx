@@ -113,6 +113,14 @@ export const FixedExpensesTable = ({ expenses, setExpenses }: FixedExpensesTable
             </tr>
           </thead>
           <tbody>
+            {expenses.length === 0 && (
+              <tr>
+                <td colSpan={6} className="px-3 py-6 text-center">
+                  <p className="text-xs text-muted-foreground">Nenhum custo fixo cadastrado</p>
+                  <p className="text-[10px] text-muted-foreground mt-1">Adicione aluguel, contas, assinaturas, academia...</p>
+                </td>
+              </tr>
+            )}
             {expenses.map((expense) => (
               <tr key={expense.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
                 <td className="px-3 py-2">{expense.description}</td>
