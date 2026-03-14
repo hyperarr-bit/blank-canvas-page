@@ -19,26 +19,21 @@ interface ExpenseTableProps {
 }
 
 const categories = [
-  { value: "contas_gerais", label: "Contas gerais", color: "bg-blue-600/15 text-blue-700 dark:text-blue-300" },
-  { value: "contas_pessoais", label: "Contas pessoais", color: "bg-yellow-500/15 text-yellow-700 dark:text-yellow-300" },
-  { value: "fatura_cartao", label: "Fatura cartão", color: "bg-rose-500/15 text-rose-700 dark:text-rose-300" },
-  { value: "moradia", label: "Moradia", color: "bg-orange-500/15 text-orange-700 dark:text-orange-300" },
-  { value: "essencial", label: "Essencial", color: "bg-sky-500/15 text-sky-700 dark:text-sky-300" },
-  { value: "restaurante", label: "Restaurante", color: "bg-stone-800/15 text-stone-700 dark:text-stone-300" },
-  { value: "beleza", label: "Beleza", color: "bg-purple-500/15 text-purple-700 dark:text-purple-300" },
-  { value: "saude", label: "Saúde", color: "bg-green-500/15 text-green-700 dark:text-green-300" },
-  { value: "mercado", label: "Mercado", color: "bg-amber-500/15 text-amber-700 dark:text-amber-300" },
-  { value: "educacao", label: "Educação", color: "bg-teal-500/15 text-teal-700 dark:text-teal-300" },
-  { value: "assinaturas", label: "Assinaturas", color: "bg-red-800/15 text-red-700 dark:text-red-300" },
-  { value: "estilo_vida", label: "Estilo de vida", color: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" },
-  { value: "pets", label: "Pets", color: "bg-slate-800/15 text-slate-700 dark:text-slate-300" },
-  { value: "filhos", label: "Filhos", color: "bg-blue-400/15 text-blue-600 dark:text-blue-300" },
-  { value: "lazer", label: "Lazer", color: "bg-violet-500/15 text-violet-700 dark:text-violet-300" },
-  { value: "transporte", label: "Transporte", color: "bg-cyan-500/15 text-cyan-700 dark:text-cyan-300" },
-  { value: "vestuario", label: "Vestuário", color: "bg-pink-500/15 text-pink-700 dark:text-pink-300" },
-  { value: "eletronicos", label: "Eletrônicos", color: "bg-red-500/15 text-red-600 dark:text-red-300" },
-  { value: "presente", label: "Presente", color: "bg-fuchsia-500/15 text-fuchsia-700 dark:text-fuchsia-300" },
-  { value: "outros", label: "Outros", color: "bg-gray-500/15 text-gray-700 dark:text-gray-300" },
+  { value: "alimentacao", label: "Alimentação", color: "bg-orange-100/80 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300" },
+  { value: "restaurante", label: "Restaurante", color: "bg-amber-100/80 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300" },
+  { value: "transporte", label: "Transporte", color: "bg-blue-100/80 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300" },
+  { value: "lazer", label: "Lazer", color: "bg-purple-100/80 text-purple-700 dark:bg-purple-500/15 dark:text-purple-300" },
+  { value: "saude", label: "Saúde", color: "bg-green-100/80 text-green-700 dark:bg-green-500/15 dark:text-green-300" },
+  { value: "educacao", label: "Educação", color: "bg-teal-100/80 text-teal-700 dark:bg-teal-500/15 dark:text-teal-300" },
+  { value: "vestuario", label: "Vestuário", color: "bg-pink-100/80 text-pink-700 dark:bg-pink-500/15 dark:text-pink-300" },
+  { value: "eletronicos", label: "Eletrônicos", color: "bg-red-100/80 text-red-600 dark:bg-red-500/15 dark:text-red-300" },
+  { value: "presente", label: "Presente", color: "bg-fuchsia-100/80 text-fuchsia-700 dark:bg-fuchsia-500/15 dark:text-fuchsia-300" },
+  { value: "beleza", label: "Beleza", color: "bg-violet-100/80 text-violet-700 dark:bg-violet-500/15 dark:text-violet-300" },
+  { value: "mercado", label: "Mercado", color: "bg-lime-100/80 text-lime-700 dark:bg-lime-500/15 dark:text-lime-300" },
+  { value: "casa", label: "Casa", color: "bg-yellow-100/80 text-yellow-700 dark:bg-yellow-500/15 dark:text-yellow-300" },
+  { value: "pets", label: "Pets", color: "bg-slate-200/80 text-slate-700 dark:bg-slate-500/15 dark:text-slate-300" },
+  { value: "filhos", label: "Filhos", color: "bg-blue-200/80 text-blue-600 dark:bg-blue-400/15 dark:text-blue-300" },
+  { value: "outros", label: "Outros", color: "bg-gray-100/80 text-gray-700 dark:bg-gray-500/15 dark:text-gray-300" },
 ];
 
 const paymentMethods = [
@@ -92,7 +87,7 @@ export const ExpenseTable = ({ expenses, setExpenses }: ExpenseTableProps) => {
     setExpenses(expenses.filter((e) => e.id !== id));
   };
 
-  const getCategoryStyle = (v: string) => categories.find((c) => c.value === v)?.color || "bg-gray-500/15 text-gray-700";
+  const getCategoryStyle = (v: string) => categories.find((c) => c.value === v)?.color || "bg-gray-100/80 text-gray-700";
   const getCategoryLabel = (v: string) => categories.find((c) => c.value === v)?.label || v;
   const getCardStyle = (v: string) => cardOptions.find((c) => c.value === v)?.color || "bg-gray-500/15 text-gray-700";
   const getCardLabel = (v: string) => cardOptions.find((c) => c.value === v)?.label || v;
