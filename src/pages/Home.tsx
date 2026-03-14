@@ -202,6 +202,7 @@ const HomePage = () => {
         Core © {new Date().getFullYear()} — Organize sua vida
       </motion.footer>
     </div>
+    </>
   );
 };
 
