@@ -26,6 +26,14 @@ const HomePage = () => {
   const navigate = useNavigate();
   const { toggleFavorite, toggleHidden, isFavorite, isHidden, prefs } = useModulePreferences();
   const [editMode, setEditMode] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    return !localStorage.getItem("core-onboarding-done");
+  });
+
+  const handleOnboardingComplete = () => {
+    localStorage.setItem("core-onboarding-done", "true");
+    setShowOnboarding(false);
+  };
 
   // Sort: favorites first, then rest; filter hidden
   const sortedModules = [...modules].sort((a, b) => {
