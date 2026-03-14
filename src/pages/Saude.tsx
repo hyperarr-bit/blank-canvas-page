@@ -254,13 +254,7 @@ const Saude = () => {
   const [newMeasure, setNewMeasure] = useState({ date: today, peso: "", cintura: "", quadril: "", braco: "", coxa: "", peitoral: "" });
 
   // CHECKUPS
-  const [checkups, setCheckups] = usePersistedState<{id: string; name: string; lastDate: string; nextDate: string}[]>("saude-checkups", [
-    { id: "1", name: "Dentista", lastDate: "", nextDate: "" },
-    { id: "2", name: "Dermatologista", lastDate: "", nextDate: "" },
-    { id: "3", name: "Exame de sangue", lastDate: "", nextDate: "" },
-    { id: "4", name: "Oftalmologista", lastDate: "", nextDate: "" },
-    { id: "5", name: "Ginecologista/Urologista", lastDate: "", nextDate: "" },
-  ]);
+  const [checkups, setCheckups] = usePersistedState<{id: string; name: string; lastDate: string; nextDate: string}[]>("saude-checkups", []);
   const [newCheckupName, setNewCheckupName] = useState("");
 
   // BODY GOALS
