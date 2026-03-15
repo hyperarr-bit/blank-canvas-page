@@ -476,6 +476,15 @@ const Biblioteca = () => {
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-6">
+        <ModuleTip
+          moduleId="biblioteca"
+          tips={[
+            "Na estante, cole um link da Amazon ou Goodreads para importar título e capa automaticamente",
+            "Use os filtros para ver livros por status: Lendo, Lidos ou Quero Ler",
+            "Na watchlist, registre filmes, séries e animes que quer assistir",
+            "Configure sua meta anual na aba 🏆 Desafio"
+          ]}
+        />
         <Tabs defaultValue="books">
           <TabsList className="w-full grid grid-cols-4">
             <TabsTrigger value="books" className="text-xs"><BookOpen className="w-3.5 h-3.5 mr-1" />Estante</TabsTrigger>
