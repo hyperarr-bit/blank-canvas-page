@@ -94,7 +94,7 @@ export function useLifeHubData(): LifeHubData {
     const todayMeals = todayLog[todayStr] || {};
     const mealsTotal = dietMeals.length || 4;
     const mealsLogged = Object.keys(todayMeals).length;
-    const caloriesConsumed = Object.values(todayMeals).reduce((s: number, m: any) => s + (Number(m?.calories) || 0), 0);
+    const caloriesConsumed: number = Object.values(todayMeals).reduce<number>((s, m: any) => s + (Number(m?.calories) || 0), 0);
 
     // ---- Health ----
     const waterLog = safeJSON<any>("core-saude-water", {});
