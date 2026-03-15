@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { usePersistedState } from "@/hooks/use-persisted-state";
 import { useNavigate } from "react-router-dom";
+import { ModuleTip } from "@/components/ModuleTip";
 import { 
   ArrowLeft, Plus, X, Trash2, AlertTriangle, Play, Pause, RotateCcw, 
   Droplets, Moon, Sun, Brain, Target, Clock, Calendar, Star, Flame,
