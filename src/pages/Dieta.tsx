@@ -189,9 +189,45 @@ const Dieta = () => {
             <TabsTrigger value="mercado" className="text-xs px-3 py-1.5">🛒 MERCADO</TabsTrigger>
           </TabsList>
 
-          {/* ========== CARDÁPIO ========== */}
           <TabsContent value="cardapio" className="space-y-3">
-            <p className="text-xs text-muted-foreground">Cardápio semanal completo — clique para editar:</p>
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-muted-foreground">Cardápio semanal — clique para editar:</p>
+              <Button size="sm" variant={showMealConfig ? "default" : "outline"} className="text-xs h-7" onClick={() => setShowMealConfig(!showMealConfig)}>
+                <Settings className="w-3 h-3 mr-1" /> Refeições ({meals.length})
+              </Button>
+            </div>
+
+            {showMealConfig && (
+              <div className="bg-muted/30 rounded-xl border border-border p-3 space-y-2">
+                <p className="text-[10px] font-bold text-muted-foreground">CONFIGURAR REFEIÇÕES</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {meals.map((meal, i) => (
+                    <div key={meal} className="flex items-center gap-1 bg-card rounded-lg border border-border px-2 py-1">
+                      <span className="text-xs">{mealEmojis[meal] || "🍽️"} {meal}</span>
+                      {meals.length > 2 && (
+                        <button onClick={() => setMeals(prev => prev.filter(m => m !== meal))} className="text-muted-foreground hover:text-destructive">
+                          <X className="w-3 h-3" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-1.5">
+                  <Select value={newMealNameConfig} onValueChange={v => {
+                    if (!meals.includes(v)) { setMeals(prev => [...prev, v]); }
+                    setNewMealNameConfig("");
+                  }}>
+                    <SelectTrigger className="h-7 text-xs flex-1"><SelectValue placeholder="+ Adicionar refeição" /></SelectTrigger>
+                    <SelectContent>
+                      {availableMeals.filter(m => !meals.includes(m)).map(m => (
+                        <SelectItem key={m} value={m}>{defaultMealEmojis[m]} {m}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {weekDays.map(day => (
                 <div key={day} className="bg-card rounded-xl border border-border overflow-hidden">
@@ -200,8 +236,8 @@ const Dieta = () => {
                     {meals.map(meal => {
                       const key = `${day}-${meal}`; const isEditing = editingMeal === key;
                       return (
-                        <div key={meal} className={`rounded-lg p-2 border ${mealColors[meal]}`}>
-                          <p className="text-xs font-bold mb-1">{meal} {mealEmojis[meal]}</p>
+                        <div key={meal} className={`rounded-lg p-2 border ${mealColors[meal] || "bg-muted/50 border-border"}`}>
+                          <p className="text-xs font-bold mb-1">{meal} {mealEmojis[meal] || "🍽️"}</p>
                           {isEditing ? (
                             <div className="flex gap-1">
                               <Textarea value={editMealValue} onChange={e => setEditMealValue(e.target.value)} className="text-[10px] min-h-[50px] flex-1 bg-white/50 dark:bg-background/50" />
