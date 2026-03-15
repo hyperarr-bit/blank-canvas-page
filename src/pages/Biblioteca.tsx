@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { usePersistedState } from "@/hooks/use-persisted-state";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, BookOpen, Film, Quote, Star, Plus, Trash2, Search, Eye, CheckCircle, Clock, Edit2, X, Heart, Bookmark, Sparkles, Trophy, BarChart3, TrendingUp, Target } from "lucide-react";
+import { ArrowLeft, BookOpen, Film, Quote, Star, Plus, Trash2, Search, Eye, CheckCircle, Clock, Edit2, X, Heart, Bookmark, Sparkles, Trophy, BarChart3, TrendingUp, Target, Link, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
+import { ModuleTip } from "@/components/ModuleTip";
+import { supabase } from "@/integrations/supabase/client";
 
 
 type Book = { id: string; title: string; author: string; cover: string; status: "lendo" | "lido" | "quero-ler"; rating: number; genre: string; pages: number; currentPage: number; notes: string; startDate: string; endDate: string };
