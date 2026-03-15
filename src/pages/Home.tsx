@@ -26,6 +26,7 @@ const modules = [
 const HomePage = () => {
   const navigate = useNavigate();
   const { toggleFavorite, toggleHidden, isFavorite, isHidden, prefs } = useModulePreferences();
+  const { signOut } = useAuth();
   const [editMode, setEditMode] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(() => {
     return !localStorage.getItem("core-onboarding-done");
