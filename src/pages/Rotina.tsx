@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { usePersistedState } from "@/hooks/use-persisted-state";
 import { useNavigate } from "react-router-dom";
 import { 
   ArrowLeft, Plus, X, Trash2, AlertTriangle, Play, Pause, RotateCcw, 
@@ -48,14 +49,6 @@ const defaultMorningRitual: { id: string; text: string; icon: string }[] = [];
 
 const defaultNightRitual: { id: string; text: string; icon: string }[] = [];
 
-const usePersistedState = <T,>(key: string, initial: T): [T, (v: T | ((prev: T) => T)) => void] => {
-  const [state, setState] = useState<T>(() => {
-    const saved = localStorage.getItem(key);
-    return saved ? JSON.parse(saved) : initial;
-  });
-  useEffect(() => { localStorage.setItem(key, JSON.stringify(state)); }, [key, state]);
-  return [state, setState];
-};
 
 const getDateKey = (d?: Date) => {
   const date = d || new Date();

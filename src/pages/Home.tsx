@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import { DollarSign, CalendarCheck, ArrowRight, Sparkles, Heart, Home, GraduationCap, BookOpen, Droplets, Plane, Briefcase, Dumbbell, Apple, Star, Eye, EyeOff, Settings } from "lucide-react";
+import { DollarSign, CalendarCheck, ArrowRight, Sparkles, Heart, Home, GraduationCap, BookOpen, Droplets, Plane, Briefcase, Dumbbell, Apple, Star, Eye, EyeOff, Settings, LogOut } from "lucide-react";
 import { StaggerContainer, StaggerItem, FadeIn } from "@/components/PageTransition";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useModulePreferences } from "@/hooks/use-module-preferences";
+import { useAuth } from "@/hooks/use-auth";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { OnboardingWizard } from "@/components/OnboardingWizard";
@@ -25,6 +26,7 @@ const modules = [
 const HomePage = () => {
   const navigate = useNavigate();
   const { toggleFavorite, toggleHidden, isFavorite, isHidden, prefs } = useModulePreferences();
+  const { signOut } = useAuth();
   const [editMode, setEditMode] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(() => {
     return !localStorage.getItem("core-onboarding-done");
@@ -72,6 +74,14 @@ const HomePage = () => {
               <Settings className="w-4 h-4" />
             </motion.button>
             <ThemeToggle showPalette />
+            <motion.button
+              onClick={signOut}
+              className="w-9 h-9 rounded-xl flex items-center justify-center bg-muted hover:bg-destructive/10 hover:text-destructive transition-colors"
+              whileTap={{ scale: 0.9 }}
+              aria-label="Sair"
+            >
+              <LogOut className="w-4 h-4" />
+            </motion.button>
           </div>
         </div>
       </motion.header>
