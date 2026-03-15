@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { usePersistedState } from "@/hooks/use-persisted-state";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Briefcase, Award, Users, Plus, Trash2, ExternalLink, Edit2, X, Star, CheckCircle, Clock, XCircle, Send, Trophy, Link2, Target, TrendingUp, BookOpen, Zap, DollarSign } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { usePersistedState } from "@/hooks/use-persisted-state";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Droplets, ShoppingBag, Sun, Moon, Plus, Trash2, Check, X, CalendarDays, Sparkles, Package, Star, Camera, TrendingUp, Heart, Edit2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
