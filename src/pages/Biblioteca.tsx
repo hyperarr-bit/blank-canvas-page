@@ -10,14 +10,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 
-const usePersistedState = <T,>(key: string, initial: T): [T, (v: T | ((prev: T) => T)) => void] => {
-  const [state, setState] = useState<T>(() => {
-    const saved = localStorage.getItem(key);
-    return saved ? JSON.parse(saved) : initial;
-  });
-  useEffect(() => { localStorage.setItem(key, JSON.stringify(state)); }, [key, state]);
-  return [state, setState];
-};
 
 type Book = { id: string; title: string; author: string; cover: string; status: "lendo" | "lido" | "quero-ler"; rating: number; genre: string; pages: number; currentPage: number; notes: string; startDate: string; endDate: string };
 type Media = { id: string; title: string; type: "filme" | "serie" | "anime" | "documentario"; status: "assistido" | "assistindo" | "quero-ver"; rating: number; review: string; genre: string; year: string; favorite: boolean };
