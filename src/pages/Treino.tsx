@@ -62,6 +62,8 @@ const Treino = () => {
   const todayDayName = weekDays[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1];
 
   const [workoutPlan, setWorkoutPlan] = usePersistedState("saude-workouts-v2", defaultWorkoutPlan);
+  const [activeDays, setActiveDays] = usePersistedState<string[]>("treino-active-days", ["SEGUNDA", "TERÇA", "QUARTA", "QUINTA", "SEXTA"]);
+  const [showDayConfig, setShowDayConfig] = useState(false);
   const [newExName, setNewExName] = useState("");
   const [workoutLog, setWorkoutLog] = usePersistedState<string[]>("saude-workout-log", []);
   const [workoutNotes, setWorkoutNotes] = usePersistedState<Record<string, string>>("saude-workout-notes", {});
@@ -91,6 +93,14 @@ const Treino = () => {
 
   // Selected view
   const [viewMode, setViewMode] = usePersistedState<"grid" | "today">("treino-view", "today");
+
+  const toggleDay = (day: string) => {
+    setActiveDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]);
+  };
+
+  const setMuscleForDay = (day: string, muscle: string) => {
+    setWorkoutPlan(prev => ({ ...prev, [day]: { ...prev[day], muscle } }));
+  };
 
   // Streak calculation
   const streak = (() => {
