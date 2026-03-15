@@ -170,6 +170,15 @@ const Dieta = () => {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-4">
+        <ModuleTip
+          moduleId="dieta"
+          tips={[
+            "Configure suas refeições clicando em ⚙️ no cardápio (adicione ou remova refeições)",
+            "No cardápio semanal, clique em cada refeição para adicionar o que vai comer",
+            "Na aba 🔥 CALORIAS, registre o que comeu e acompanhe macros",
+            "Use a aba 💧 ÁGUA para contar seus copos diários"
+          ]}
+        />
         <Tabs defaultValue="cardapio" className="w-full">
           <TabsList className="w-full flex overflow-x-auto gap-1 bg-muted/50 p-1 mb-4 h-auto flex-wrap">
             <TabsTrigger value="cardapio" className="text-xs px-3 py-1.5">🍽️ CARDÁPIO</TabsTrigger>
