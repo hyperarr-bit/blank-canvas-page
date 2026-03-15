@@ -37,13 +37,21 @@ const defaultMealColors: Record<string, string> = {
 };
 const availableMeals = ["Café da Manhã", "Almoço", "Lanche", "Janta", "Pré-Treino", "Pós-Treino", "Ceia", "Café da Tarde"];
 
-const presetMealPlan: Record<string, Record<string, string>> = Object.fromEntries(
-  weekDays.map(day => [day, Object.fromEntries(meals.map(m => [m, ""]))])
-);
-
 const Dieta = () => {
   const navigate = useNavigate();
   const today = new Date().toISOString().split("T")[0];
+
+  // Configurable meals
+  const [meals, setMeals] = usePersistedState<string[]>("dieta-meals-config", defaultMeals);
+  const [showMealConfig, setShowMealConfig] = useState(false);
+  const [newMealNameConfig, setNewMealNameConfig] = useState("");
+
+  const mealEmojis = defaultMealEmojis;
+  const mealColors = defaultMealColors;
+
+  const presetMealPlan: Record<string, Record<string, string>> = Object.fromEntries(
+    weekDays.map(day => [day, Object.fromEntries(meals.map(m => [m, ""]))])
+  );
 
   // DIETA
   const [mealPlan, setMealPlan] = usePersistedState("saude-meals", presetMealPlan);
