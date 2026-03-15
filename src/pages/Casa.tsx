@@ -9,14 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const usePersistedState = <T,>(key: string, initial: T): [T, (v: T | ((prev: T) => T)) => void] => {
-  const [state, setState] = useState<T>(() => {
-    const saved = localStorage.getItem(key);
-    return saved ? JSON.parse(saved) : initial;
-  });
-  useEffect(() => { localStorage.setItem(key, JSON.stringify(state)); }, [key, state]);
-  return [state, setState];
-};
 
 interface GroceryCategory {
   name: string;
