@@ -93,6 +93,17 @@ const Bookshelf = () => {
         <Card className="border-primary/30">
           <CardContent className="p-4 space-y-3">
             <div className="flex justify-between items-center"><span className="font-semibold text-sm">{editId ? "Editar" : "Novo"} Livro</span><Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setShowForm(false)}><X className="w-4 h-4" /></Button></div>
+            
+            {/* URL Import */}
+            <ImportFromUrl onImport={(data) => {
+              setForm(p => ({
+                ...p,
+                title: data.title || p.title,
+                author: data.author || p.author,
+                cover: data.cover || p.cover,
+              }));
+            }} />
+
             <Input placeholder="Título" value={form.title || ""} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} className="h-9 text-sm" />
             <Input placeholder="Autor" value={form.author || ""} onChange={e => setForm(p => ({ ...p, author: e.target.value }))} className="h-9 text-sm" />
             <Input placeholder="URL da capa (opcional)" value={form.cover || ""} onChange={e => setForm(p => ({ ...p, cover: e.target.value }))} className="h-9 text-sm" />
