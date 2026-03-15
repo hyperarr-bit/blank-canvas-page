@@ -179,14 +179,39 @@ const Treino = () => {
 
   const renderWorkoutDay = (day: string) => {
     const workout = workoutPlan[day];
+    const isActive = activeDays.includes(day);
     if (!workout) return null;
+    if (!isActive && workout.exercises.length === 0) return (
+      <div key={day} className="bg-card rounded-xl border border-border overflow-hidden opacity-50">
+        <div className={`${dayColors[day]} text-white p-3 font-bold text-sm flex items-center justify-between`}>
+          <span>{day}</span>
+          <span className="text-lg">😴</span>
+        </div>
+        <div className="p-4 text-center"><p className="text-xs text-muted-foreground">Dia de descanso</p></div>
+      </div>
+    );
     if (workout.exercises.length === 0) return (
       <div key={day} className="bg-card rounded-xl border border-border overflow-hidden">
         <div className={`${dayColors[day]} text-white p-3 font-bold text-sm flex items-center justify-between`}>
           <span>{day}</span>
-          <span className="text-lg">{muscleGroupIcons[workout.muscle] || "😴"}</span>
+          <div className="flex items-center gap-2">
+            <Select value={workout.muscle || ""} onValueChange={v => setMuscleForDay(day, v)}>
+              <SelectTrigger className="h-6 w-28 text-[10px] bg-white/20 border-white/30 text-white"><SelectValue placeholder="Grupo muscular" /></SelectTrigger>
+              <SelectContent>{muscleGroups.filter(m => m !== "Descanso").map(m => <SelectItem key={m} value={m}>{muscleGroupIcons[m] || "💪"} {m}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
         </div>
-        <div className="p-4 text-center"><p className="text-xs text-muted-foreground">Dia de descanso 😴</p></div>
+        <div className="p-4">
+          <p className="text-xs text-muted-foreground text-center mb-3">
+            {workout.muscle ? `Adicione exercícios de ${workout.muscle}` : "Selecione o grupo muscular e adicione exercícios"}
+          </p>
+          <div className="flex gap-1">
+            <Input value={day === expandedDay ? newExName : ""} onChange={e => { setExpandedDay(day); setNewExName(e.target.value); }} placeholder="+ Novo exercício..." className="text-xs h-7 flex-1 bg-transparent" />
+            <Button size="sm" className="h-7 px-2" onClick={() => {
+              if (newExName.trim()) { const u = { ...workoutPlan }; u[day].exercises.push({ name: newExName.trim(), sets: "3", reps: "12", carga: "—", done: false }); setWorkoutPlan({...u}); setNewExName(""); }
+            }}><Plus className="w-3 h-3" /></Button>
+          </div>
+        </div>
       </div>
     );
     return (
