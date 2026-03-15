@@ -302,6 +302,15 @@ const Treino = () => {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-4">
+        <ModuleTip
+          moduleId="treino"
+          tips={[
+            "Primeiro, escolha os dias que você vai treinar clicando em ⚙️ Configurar Dias",
+            "Defina o grupo muscular de cada dia e adicione exercícios",
+            "Durante o treino, marque os exercícios feitos e use o timer de descanso",
+            "Registre seus recordes pessoais na aba 🏆 RECORDES"
+          ]}
+        />
         <Tabs defaultValue="treino" className="w-full">
           <TabsList className="w-full flex overflow-x-auto gap-1 bg-muted/50 p-1 mb-4 h-auto flex-wrap">
             <TabsTrigger value="treino" className="text-xs px-3 py-1.5">🏋️ TREINO</TabsTrigger>
