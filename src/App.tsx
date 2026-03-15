@@ -5,8 +5,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { ThemeProvider } from "@/hooks/use-theme";
+import { AuthProvider } from "@/hooks/use-auth";
 import { PageTransition } from "@/components/PageTransition";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { TrialBanner } from "@/components/TrialBanner";
 import Home from "./pages/Home";
+import Auth from "./pages/Auth";
+import Planos from "./pages/Planos";
 import Index from "./pages/Index";
 import Rotina from "./pages/Rotina";
 import DesenvolvimentoPessoal from "./pages/DesenvolvimentoPessoal";
@@ -28,19 +33,21 @@ const AnimatedRoutes = () => {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<PageTransition><Home /></PageTransition>} />
-        <Route path="/financas" element={<PageTransition><Index /></PageTransition>} />
-        <Route path="/rotina" element={<PageTransition><Rotina /></PageTransition>} />
-        <Route path="/desenvolvimento" element={<PageTransition><DesenvolvimentoPessoal /></PageTransition>} />
-        <Route path="/saude" element={<PageTransition><Saude /></PageTransition>} />
-        <Route path="/casa" element={<PageTransition><Casa /></PageTransition>} />
-        <Route path="/estudos" element={<PageTransition><Estudos /></PageTransition>} />
-        <Route path="/biblioteca" element={<PageTransition><Biblioteca /></PageTransition>} />
-        <Route path="/beleza" element={<PageTransition><Beleza /></PageTransition>} />
-        <Route path="/viagens" element={<PageTransition><Viagens /></PageTransition>} />
-        <Route path="/carreira" element={<PageTransition><Carreira /></PageTransition>} />
-        <Route path="/treino" element={<PageTransition><Treino /></PageTransition>} />
-        <Route path="/dieta" element={<PageTransition><Dieta /></PageTransition>} />
+        <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
+        <Route path="/planos" element={<PageTransition><Planos /></PageTransition>} />
+        <Route path="/" element={<ProtectedRoute><PageTransition><><TrialBanner /><Home /></></PageTransition></ProtectedRoute>} />
+        <Route path="/financas" element={<ProtectedRoute><PageTransition><><TrialBanner /><Index /></></PageTransition></ProtectedRoute>} />
+        <Route path="/rotina" element={<ProtectedRoute><PageTransition><><TrialBanner /><Rotina /></></PageTransition></ProtectedRoute>} />
+        <Route path="/desenvolvimento" element={<ProtectedRoute><PageTransition><><TrialBanner /><DesenvolvimentoPessoal /></></PageTransition></ProtectedRoute>} />
+        <Route path="/saude" element={<ProtectedRoute><PageTransition><><TrialBanner /><Saude /></></PageTransition></ProtectedRoute>} />
+        <Route path="/casa" element={<ProtectedRoute><PageTransition><><TrialBanner /><Casa /></></PageTransition></ProtectedRoute>} />
+        <Route path="/estudos" element={<ProtectedRoute><PageTransition><><TrialBanner /><Estudos /></></PageTransition></ProtectedRoute>} />
+        <Route path="/biblioteca" element={<ProtectedRoute><PageTransition><><TrialBanner /><Biblioteca /></></PageTransition></ProtectedRoute>} />
+        <Route path="/beleza" element={<ProtectedRoute><PageTransition><><TrialBanner /><Beleza /></></PageTransition></ProtectedRoute>} />
+        <Route path="/viagens" element={<ProtectedRoute><PageTransition><><TrialBanner /><Viagens /></></PageTransition></ProtectedRoute>} />
+        <Route path="/carreira" element={<ProtectedRoute><PageTransition><><TrialBanner /><Carreira /></></PageTransition></ProtectedRoute>} />
+        <Route path="/treino" element={<ProtectedRoute><PageTransition><><TrialBanner /><Treino /></></PageTransition></ProtectedRoute>} />
+        <Route path="/dieta" element={<ProtectedRoute><PageTransition><><TrialBanner /><Dieta /></></PageTransition></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
@@ -50,13 +57,15 @@ const AnimatedRoutes = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AnimatedRoutes />
-        </BrowserRouter>
-      </TooltipProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AnimatedRoutes />
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>
 );

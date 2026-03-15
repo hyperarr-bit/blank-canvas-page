@@ -29,7 +29,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Check subscription/trial status
           setTimeout(() => checkSubscriptionStatus(session.user.id), 0);
         } else {
           setTrialExpired(false);
@@ -52,7 +51,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const checkSubscriptionStatus = async (userId: string) => {
-    // Check if user has active subscription
     const { data: sub } = await supabase
       .from("subscriptions")
       .select("*")
@@ -66,7 +64,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    // Check trial: profile created_at + 24h
     const { data: profile } = await supabase
       .from("profiles")
       .select("created_at")
