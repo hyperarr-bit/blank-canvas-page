@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { usePersistedState } from "@/hooks/use-persisted-state";
 import { useNavigate } from "react-router-dom";
+import { ModuleTip } from "@/components/ModuleTip";
 import { 
   ArrowLeft, Plus, X, Trash2, AlertTriangle, Play, Pause, RotateCcw, 
   Droplets, Moon, Sun, Brain, Target, Clock, Calendar, Star, Flame,
@@ -1032,6 +1033,15 @@ const Rotina = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-5 space-y-5">
+        <ModuleTip
+          moduleId="rotina"
+          tips={[
+            "Adicione seus hábitos diários e marque conforme concluir cada um",
+            "Monte sua rotina semanal hora a hora na aba 📋 Agenda",
+            "Crie rituais matinais e noturnos para automatizar seu dia",
+            "Acompanhe seu humor diário e veja padrões ao longo do tempo"
+          ]}
+        />
 
         {/* ============= MINHA SEMANA ============= */}
         {activeTab === "semana" && (

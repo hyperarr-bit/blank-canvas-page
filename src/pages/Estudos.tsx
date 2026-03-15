@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { usePersistedState } from "@/hooks/use-persisted-state";
 import { useNavigate } from "react-router-dom";
+import { ModuleTip } from "@/components/ModuleTip";
 import {
   ArrowLeft, Plus, X, Trash2, Check, GraduationCap, BookOpen, ClipboardList,
   Calendar, Clock
@@ -95,6 +96,15 @@ const Estudos = () => {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-4">
+        <ModuleTip
+          moduleId="estudos"
+          tips={[
+            "Adicione suas matérias e monte uma grade de estudos semanal",
+            "Registre provas e trabalhos com datas de entrega",
+            "Use o timer Pomodoro para estudar com foco",
+            "Acompanhe suas notas e veja seu desempenho"
+          ]}
+        />
         <Tabs defaultValue="estudos" className="w-full">
           <TabsList className="w-full flex overflow-x-auto gap-1 bg-muted/50 p-1 mb-4 h-auto flex-wrap">
             {[

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { usePersistedState } from "@/hooks/use-persisted-state";
 import { useNavigate } from "react-router-dom";
+import { ModuleTip } from "@/components/ModuleTip";
 import { ArrowLeft, Briefcase, Award, Users, Plus, Trash2, ExternalLink, Edit2, X, Star, CheckCircle, Clock, XCircle, Send, Trophy, Link2, Target, TrendingUp, BookOpen, Zap, DollarSign } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -330,6 +331,15 @@ const Carreira = () => {
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-6">
+        <ModuleTip
+          moduleId="carreira"
+          tips={[
+            "Registre vagas de emprego e acompanhe o status de cada candidatura",
+            "Monte seu portfolio com projetos e conquistas",
+            "Gerencie contatos de networking importantes",
+            "Adicione habilidades e acompanhe seu aprendizado"
+          ]}
+        />
         <Tabs defaultValue="jobs">
           <TabsList className="w-full grid grid-cols-5">
             <TabsTrigger value="jobs" className="text-[10px]"><Briefcase className="w-3 h-3 mr-0.5" />Vagas</TabsTrigger>

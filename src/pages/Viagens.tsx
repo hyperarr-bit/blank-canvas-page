@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { usePersistedState } from "@/hooks/use-persisted-state";
 import { useNavigate } from "react-router-dom";
+import { ModuleTip } from "@/components/ModuleTip";
 import { ArrowLeft, MapPin, Plane, Luggage, Plus, Trash2, Check, X, Globe, Hotel, Calendar, Star, Edit2, CheckCircle, DollarSign, BookOpen, Clock, Heart, Camera } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -327,6 +328,15 @@ const Viagens = () => {
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-6">
+        <ModuleTip
+          moduleId="viagens"
+          tips={[
+            "Adicione destinos dos seus sonhos na bucket list",
+            "Planeje itinerários dia a dia para cada viagem",
+            "Monte sua lista de mala para não esquecer nada",
+            "Controle o orçamento da viagem na aba 💰 Budget"
+          ]}
+        />
         <Tabs defaultValue="bucket">
           <TabsList className="w-full grid grid-cols-5">
             <TabsTrigger value="bucket" className="text-[10px]"><MapPin className="w-3 h-3 mr-0.5" />Destinos</TabsTrigger>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { usePersistedState } from "@/hooks/use-persisted-state";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, BookOpen, Film, Quote, Star, Plus, Trash2, Search, Eye, CheckCircle, Clock, Edit2, X, Heart, Bookmark, Sparkles, Trophy, BarChart3, TrendingUp, Target } from "lucide-react";
+import { ArrowLeft, BookOpen, Film, Quote, Star, Plus, Trash2, Search, Eye, CheckCircle, Clock, Edit2, X, Heart, Bookmark, Sparkles, Trophy, BarChart3, TrendingUp, Target, Link, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
+import { ModuleTip } from "@/components/ModuleTip";
+import { supabase } from "@/integrations/supabase/client";
 
 
 type Book = { id: string; title: string; author: string; cover: string; status: "lendo" | "lido" | "quero-ler"; rating: number; genre: string; pages: number; currentPage: number; notes: string; startDate: string; endDate: string };
@@ -39,6 +41,52 @@ const statusLabels: Record<string, string> = {
 
 const bookGenres = ["Ficção", "Não-Ficção", "Fantasia", "Romance", "Sci-Fi", "Terror", "Autoajuda", "Negócios", "Biografia", "Técnico", "HQ/Mangá", "Outro"];
 const mediaGenres = ["Ação", "Comédia", "Drama", "Ficção Científica", "Terror", "Romance", "Documentário", "Animação", "Suspense", "Fantasia", "Outro"];
+
+// ============= IMPORT FROM URL =============
+const ImportFromUrl = ({ onImport }: { onImport: (data: { title: string; author: string; cover: string }) => void }) => {
+  const [url, setUrl] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const fetchMetadata = async () => {
+    if (!url.trim()) return;
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('fetch-book-metadata', {
+        body: { url: url.trim() },
+      });
+      if (data?.success && data.data) {
+        onImport({
+          title: data.data.title || "",
+          author: data.data.author || "",
+          cover: data.data.cover || "",
+        });
+        setUrl("");
+      }
+    } catch (err) {
+      console.error('Failed to fetch metadata:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="bg-muted/30 rounded-lg p-2.5 border border-dashed border-primary/30">
+      <p className="text-[10px] font-bold text-primary mb-1.5 flex items-center gap-1"><Link className="w-3 h-3" /> Importar de URL (Amazon, Goodreads...)</p>
+      <div className="flex gap-1">
+        <Input
+          value={url}
+          onChange={e => setUrl(e.target.value)}
+          placeholder="Cole o link do livro aqui..."
+          className="h-8 text-xs flex-1"
+          onKeyDown={e => e.key === "Enter" && fetchMetadata()}
+        />
+        <Button size="sm" className="h-8 px-3" onClick={fetchMetadata} disabled={loading || !url.trim()}>
+          {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Link className="w-3 h-3" />}
+        </Button>
+      </div>
+    </div>
+  );
+};
 
 // ============= BOOKSHELF =============
 const Bookshelf = () => {
@@ -91,6 +139,17 @@ const Bookshelf = () => {
         <Card className="border-primary/30">
           <CardContent className="p-4 space-y-3">
             <div className="flex justify-between items-center"><span className="font-semibold text-sm">{editId ? "Editar" : "Novo"} Livro</span><Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setShowForm(false)}><X className="w-4 h-4" /></Button></div>
+            
+            {/* URL Import */}
+            <ImportFromUrl onImport={(data) => {
+              setForm(p => ({
+                ...p,
+                title: data.title || p.title,
+                author: data.author || p.author,
+                cover: data.cover || p.cover,
+              }));
+            }} />
+
             <Input placeholder="Título" value={form.title || ""} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} className="h-9 text-sm" />
             <Input placeholder="Autor" value={form.author || ""} onChange={e => setForm(p => ({ ...p, author: e.target.value }))} className="h-9 text-sm" />
             <Input placeholder="URL da capa (opcional)" value={form.cover || ""} onChange={e => setForm(p => ({ ...p, cover: e.target.value }))} className="h-9 text-sm" />
@@ -417,6 +476,15 @@ const Biblioteca = () => {
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-6">
+        <ModuleTip
+          moduleId="biblioteca"
+          tips={[
+            "Na estante, cole um link da Amazon ou Goodreads para importar título e capa automaticamente",
+            "Use os filtros para ver livros por status: Lendo, Lidos ou Quero Ler",
+            "Na watchlist, registre filmes, séries e animes que quer assistir",
+            "Configure sua meta anual na aba 🏆 Desafio"
+          ]}
+        />
         <Tabs defaultValue="books">
           <TabsList className="w-full grid grid-cols-4">
             <TabsTrigger value="books" className="text-xs"><BookOpen className="w-3.5 h-3.5 mr-1" />Estante</TabsTrigger>

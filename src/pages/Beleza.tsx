@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { usePersistedState } from "@/hooks/use-persisted-state";
 import { useNavigate } from "react-router-dom";
+import { ModuleTip } from "@/components/ModuleTip";
 import { ArrowLeft, Droplets, ShoppingBag, Sun, Moon, Plus, Trash2, Check, X, CalendarDays, Sparkles, Package, Star, Camera, TrendingUp, Heart, Edit2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -343,6 +344,14 @@ const Beleza = () => {
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-6">
+        <ModuleTip
+          moduleId="beleza"
+          tips={[
+            "Monte sua rotina de skincare com os passos de manhã e noite",
+            "Crie um cronograma capilar personalizado",
+            "Use o diário de pele para registrar o que funciona ou não"
+          ]}
+        />
         <Tabs defaultValue="routine">
           <TabsList className="w-full grid grid-cols-4">
             <TabsTrigger value="routine" className="text-xs"><Sparkles className="w-3.5 h-3.5 mr-1" />Rotina</TabsTrigger>

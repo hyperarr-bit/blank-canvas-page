@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { usePersistedState } from "@/hooks/use-persisted-state";
 import { useNavigate } from "react-router-dom";
+import { ModuleTip } from "@/components/ModuleTip";
 import {
   ArrowLeft, Plus, X, Trash2, Check, Home, ShoppingCart, Sparkles,
   Paintbrush, ClipboardList
@@ -94,6 +95,14 @@ const Casa = () => {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-4">
+        <ModuleTip
+          moduleId="casa"
+          tips={[
+            "Crie sua lista de mercado e marque itens conforme comprar",
+            "Monte uma rotina de limpeza semanal para manter a casa em dia",
+            "Registre manutenções pendentes com datas e prioridades"
+          ]}
+        />
         <Tabs defaultValue="mercado" className="w-full">
           <TabsList className="w-full flex overflow-x-auto gap-1 bg-muted/50 p-1 mb-4 h-auto flex-wrap">
             {[

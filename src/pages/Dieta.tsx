@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, Plus, X, Trash2, Check, Utensils, Clock, Droplets,
   TrendingUp, Target, Zap, Activity, Flame, Apple, ShoppingCart,
-  ChefHat, Calendar, Star, BookOpen, Heart
+  ChefHat, Calendar, Star, BookOpen, Heart, Settings, Edit3
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ModuleTip } from "@/components/ModuleTip";
 
 
 const weekDays = ["SEGUNDA", "TERÇA", "QUARTA", "QUINTA", "SEXTA", "SÁBADO", "DOMINGO"];
@@ -21,22 +22,36 @@ const dayColors: Record<string, string> = {
   SEGUNDA: "bg-blue-500", TERÇA: "bg-indigo-500", QUARTA: "bg-green-500",
   QUINTA: "bg-yellow-500", SEXTA: "bg-pink-500", SÁBADO: "bg-purple-500", DOMINGO: "bg-violet-500"
 };
-const meals = ["Café da Manhã", "Almoço", "Lanche", "Janta"];
-const mealEmojis: Record<string, string> = { "Café da Manhã": "🌅", "Almoço": "🍽️", "Lanche": "🍎", "Janta": "🌙" };
-const mealColors: Record<string, string> = {
+
+const defaultMeals = ["Café da Manhã", "Almoço", "Lanche", "Janta"];
+const defaultMealEmojis: Record<string, string> = { "Café da Manhã": "🌅", "Almoço": "🍽️", "Lanche": "🍎", "Janta": "🌙", "Pré-Treino": "⚡", "Pós-Treino": "💪", "Ceia": "🌙", "Café da Tarde": "☕" };
+const defaultMealColors: Record<string, string> = {
   "Café da Manhã": "bg-amber-100 dark:bg-amber-500/10 border-amber-300 dark:border-amber-500/30",
   "Almoço": "bg-green-100 dark:bg-green-500/10 border-green-300 dark:border-green-500/30",
   "Lanche": "bg-blue-100 dark:bg-blue-500/10 border-blue-300 dark:border-blue-500/30",
-  "Janta": "bg-purple-100 dark:bg-purple-500/10 border-purple-300 dark:border-purple-500/30"
+  "Janta": "bg-purple-100 dark:bg-purple-500/10 border-purple-300 dark:border-purple-500/30",
+  "Pré-Treino": "bg-orange-100 dark:bg-orange-500/10 border-orange-300 dark:border-orange-500/30",
+  "Pós-Treino": "bg-red-100 dark:bg-red-500/10 border-red-300 dark:border-red-500/30",
+  "Ceia": "bg-indigo-100 dark:bg-indigo-500/10 border-indigo-300 dark:border-indigo-500/30",
+  "Café da Tarde": "bg-teal-100 dark:bg-teal-500/10 border-teal-300 dark:border-teal-500/30",
 };
-
-const presetMealPlan: Record<string, Record<string, string>> = Object.fromEntries(
-  weekDays.map(day => [day, Object.fromEntries(meals.map(m => [m, ""]))])
-);
+const availableMeals = ["Café da Manhã", "Almoço", "Lanche", "Janta", "Pré-Treino", "Pós-Treino", "Ceia", "Café da Tarde"];
 
 const Dieta = () => {
   const navigate = useNavigate();
   const today = new Date().toISOString().split("T")[0];
+
+  // Configurable meals
+  const [meals, setMeals] = usePersistedState<string[]>("dieta-meals-config", defaultMeals);
+  const [showMealConfig, setShowMealConfig] = useState(false);
+  const [newMealNameConfig, setNewMealNameConfig] = useState("");
+
+  const mealEmojis = defaultMealEmojis;
+  const mealColors = defaultMealColors;
+
+  const presetMealPlan: Record<string, Record<string, string>> = Object.fromEntries(
+    weekDays.map(day => [day, Object.fromEntries(meals.map(m => [m, ""]))])
+  );
 
   // DIETA
   const [mealPlan, setMealPlan] = usePersistedState("saude-meals", presetMealPlan);
@@ -155,6 +170,15 @@ const Dieta = () => {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-4">
+        <ModuleTip
+          moduleId="dieta"
+          tips={[
+            "Configure suas refeições clicando em ⚙️ no cardápio (adicione ou remova refeições)",
+            "No cardápio semanal, clique em cada refeição para adicionar o que vai comer",
+            "Na aba 🔥 CALORIAS, registre o que comeu e acompanhe macros",
+            "Use a aba 💧 ÁGUA para contar seus copos diários"
+          ]}
+        />
         <Tabs defaultValue="cardapio" className="w-full">
           <TabsList className="w-full flex overflow-x-auto gap-1 bg-muted/50 p-1 mb-4 h-auto flex-wrap">
             <TabsTrigger value="cardapio" className="text-xs px-3 py-1.5">🍽️ CARDÁPIO</TabsTrigger>
@@ -165,9 +189,45 @@ const Dieta = () => {
             <TabsTrigger value="mercado" className="text-xs px-3 py-1.5">🛒 MERCADO</TabsTrigger>
           </TabsList>
 
-          {/* ========== CARDÁPIO ========== */}
           <TabsContent value="cardapio" className="space-y-3">
-            <p className="text-xs text-muted-foreground">Cardápio semanal completo — clique para editar:</p>
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-muted-foreground">Cardápio semanal — clique para editar:</p>
+              <Button size="sm" variant={showMealConfig ? "default" : "outline"} className="text-xs h-7" onClick={() => setShowMealConfig(!showMealConfig)}>
+                <Settings className="w-3 h-3 mr-1" /> Refeições ({meals.length})
+              </Button>
+            </div>
+
+            {showMealConfig && (
+              <div className="bg-muted/30 rounded-xl border border-border p-3 space-y-2">
+                <p className="text-[10px] font-bold text-muted-foreground">CONFIGURAR REFEIÇÕES</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {meals.map((meal, i) => (
+                    <div key={meal} className="flex items-center gap-1 bg-card rounded-lg border border-border px-2 py-1">
+                      <span className="text-xs">{mealEmojis[meal] || "🍽️"} {meal}</span>
+                      {meals.length > 2 && (
+                        <button onClick={() => setMeals(prev => prev.filter(m => m !== meal))} className="text-muted-foreground hover:text-destructive">
+                          <X className="w-3 h-3" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-1.5">
+                  <Select value={newMealNameConfig} onValueChange={v => {
+                    if (!meals.includes(v)) { setMeals(prev => [...prev, v]); }
+                    setNewMealNameConfig("");
+                  }}>
+                    <SelectTrigger className="h-7 text-xs flex-1"><SelectValue placeholder="+ Adicionar refeição" /></SelectTrigger>
+                    <SelectContent>
+                      {availableMeals.filter(m => !meals.includes(m)).map(m => (
+                        <SelectItem key={m} value={m}>{defaultMealEmojis[m]} {m}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {weekDays.map(day => (
                 <div key={day} className="bg-card rounded-xl border border-border overflow-hidden">
@@ -176,8 +236,8 @@ const Dieta = () => {
                     {meals.map(meal => {
                       const key = `${day}-${meal}`; const isEditing = editingMeal === key;
                       return (
-                        <div key={meal} className={`rounded-lg p-2 border ${mealColors[meal]}`}>
-                          <p className="text-xs font-bold mb-1">{meal} {mealEmojis[meal]}</p>
+                        <div key={meal} className={`rounded-lg p-2 border ${mealColors[meal] || "bg-muted/50 border-border"}`}>
+                          <p className="text-xs font-bold mb-1">{meal} {mealEmojis[meal] || "🍽️"}</p>
                           {isEditing ? (
                             <div className="flex gap-1">
                               <Textarea value={editMealValue} onChange={e => setEditMealValue(e.target.value)} className="text-[10px] min-h-[50px] flex-1 bg-white/50 dark:bg-background/50" />

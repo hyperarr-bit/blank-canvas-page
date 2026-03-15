@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, Plus, X, Trash2, Check, Timer, Play, Pause, RotateCcw,
   Trophy, Flame, Dumbbell, TrendingUp, Target, Zap, BarChart3, Calendar,
-  Award, Star, Clock, Volume2, VolumeX, ChevronDown, ChevronUp
+  Award, Star, Clock, Volume2, VolumeX, ChevronDown, ChevronUp, Settings
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ModuleTip } from "@/components/ModuleTip";
 
 
 const weekDays = ["SEGUNDA", "TERÇA", "QUARTA", "QUINTA", "SEXTA", "SÁBADO", "DOMINGO"];
@@ -31,6 +33,19 @@ const exerciseColors: string[] = [
   "bg-pink-200 dark:bg-pink-500/20 text-pink-800 dark:text-pink-300",
 ];
 
+const muscleGroups = [
+  "Peito", "Costas", "Ombros", "Bíceps", "Tríceps", "Pernas", "Glúteos",
+  "Abdômen", "Quadríceps", "Posterior", "Panturrilha", "Cardio", "Full Body", "Descanso"
+];
+
+const muscleGroupIcons: Record<string, string> = {
+  "Peito": "🫁", "Costas": "💪", "Ombros": "🏋️", "Bíceps": "💪", "Tríceps": "💪",
+  "Pernas": "🦵", "Glúteos": "🍑", "Abdômen": "🫁", "Quadríceps": "🦵",
+  "Posterior": "🦵", "Panturrilha": "🦵", "Cardio": "🏃", "Full Body": "🏋️", "Descanso": "😴",
+  "Quadríceps e Posterior": "🦵", "Costas e Bíceps": "💪", "Ombros e Tríceps": "🏋️",
+  "Peito e Abdômen": "🫁", "Cardio + Full Body": "🏃"
+};
+
 const defaultWorkoutPlan: Record<string, { muscle: string; exercises: { name: string; sets: string; reps: string; carga: string; done: boolean }[] }> = {
   SEGUNDA: { muscle: "", exercises: [] },
   TERÇA: { muscle: "", exercises: [] },
@@ -41,17 +56,14 @@ const defaultWorkoutPlan: Record<string, { muscle: string; exercises: { name: st
   DOMINGO: { muscle: "Descanso", exercises: [] },
 };
 
-const muscleGroupIcons: Record<string, string> = {
-  "Quadríceps e Posterior": "🦵", "Costas e Bíceps": "💪", "Ombros e Tríceps": "🏋️",
-  "Glúteos": "🍑", "Peito e Abdômen": "🫁", "Cardio + Full Body": "🏃", "Descanso": "😴"
-};
-
 const Treino = () => {
   const navigate = useNavigate();
   const today = new Date().toISOString().split("T")[0];
   const todayDayName = weekDays[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1];
 
   const [workoutPlan, setWorkoutPlan] = usePersistedState("saude-workouts-v2", defaultWorkoutPlan);
+  const [activeDays, setActiveDays] = usePersistedState<string[]>("treino-active-days", ["SEGUNDA", "TERÇA", "QUARTA", "QUINTA", "SEXTA"]);
+  const [showDayConfig, setShowDayConfig] = useState(false);
   const [newExName, setNewExName] = useState("");
   const [workoutLog, setWorkoutLog] = usePersistedState<string[]>("saude-workout-log", []);
   const [workoutNotes, setWorkoutNotes] = usePersistedState<Record<string, string>>("saude-workout-notes", {});
@@ -81,6 +93,14 @@ const Treino = () => {
 
   // Selected view
   const [viewMode, setViewMode] = usePersistedState<"grid" | "today">("treino-view", "today");
+
+  const toggleDay = (day: string) => {
+    setActiveDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]);
+  };
+
+  const setMuscleForDay = (day: string, muscle: string) => {
+    setWorkoutPlan(prev => ({ ...prev, [day]: { ...prev[day], muscle } }));
+  };
 
   // Streak calculation
   const streak = (() => {
@@ -159,14 +179,39 @@ const Treino = () => {
 
   const renderWorkoutDay = (day: string) => {
     const workout = workoutPlan[day];
+    const isActive = activeDays.includes(day);
     if (!workout) return null;
+    if (!isActive && workout.exercises.length === 0) return (
+      <div key={day} className="bg-card rounded-xl border border-border overflow-hidden opacity-50">
+        <div className={`${dayColors[day]} text-white p-3 font-bold text-sm flex items-center justify-between`}>
+          <span>{day}</span>
+          <span className="text-lg">😴</span>
+        </div>
+        <div className="p-4 text-center"><p className="text-xs text-muted-foreground">Dia de descanso</p></div>
+      </div>
+    );
     if (workout.exercises.length === 0) return (
       <div key={day} className="bg-card rounded-xl border border-border overflow-hidden">
         <div className={`${dayColors[day]} text-white p-3 font-bold text-sm flex items-center justify-between`}>
           <span>{day}</span>
-          <span className="text-lg">{muscleGroupIcons[workout.muscle] || "😴"}</span>
+          <div className="flex items-center gap-2">
+            <Select value={workout.muscle || ""} onValueChange={v => setMuscleForDay(day, v)}>
+              <SelectTrigger className="h-6 w-28 text-[10px] bg-white/20 border-white/30 text-white"><SelectValue placeholder="Grupo muscular" /></SelectTrigger>
+              <SelectContent>{muscleGroups.filter(m => m !== "Descanso").map(m => <SelectItem key={m} value={m}>{muscleGroupIcons[m] || "💪"} {m}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
         </div>
-        <div className="p-4 text-center"><p className="text-xs text-muted-foreground">Dia de descanso 😴</p></div>
+        <div className="p-4">
+          <p className="text-xs text-muted-foreground text-center mb-3">
+            {workout.muscle ? `Adicione exercícios de ${workout.muscle}` : "Selecione o grupo muscular e adicione exercícios"}
+          </p>
+          <div className="flex gap-1">
+            <Input value={day === expandedDay ? newExName : ""} onChange={e => { setExpandedDay(day); setNewExName(e.target.value); }} placeholder="+ Novo exercício..." className="text-xs h-7 flex-1 bg-transparent" />
+            <Button size="sm" className="h-7 px-2" onClick={() => {
+              if (newExName.trim()) { const u = { ...workoutPlan }; u[day].exercises.push({ name: newExName.trim(), sets: "3", reps: "12", carga: "—", done: false }); setWorkoutPlan({...u}); setNewExName(""); }
+            }}><Plus className="w-3 h-3" /></Button>
+          </div>
+        </div>
       </div>
     );
     return (
@@ -257,6 +302,15 @@ const Treino = () => {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-4">
+        <ModuleTip
+          moduleId="treino"
+          tips={[
+            "Primeiro, escolha os dias que você vai treinar clicando em ⚙️ Configurar Dias",
+            "Defina o grupo muscular de cada dia e adicione exercícios",
+            "Durante o treino, marque os exercícios feitos e use o timer de descanso",
+            "Registre seus recordes pessoais na aba 🏆 RECORDES"
+          ]}
+        />
         <Tabs defaultValue="treino" className="w-full">
           <TabsList className="w-full flex overflow-x-auto gap-1 bg-muted/50 p-1 mb-4 h-auto flex-wrap">
             <TabsTrigger value="treino" className="text-xs px-3 py-1.5">🏋️ TREINO</TabsTrigger>
@@ -321,6 +375,46 @@ const Treino = () => {
                 )}
                 <Button size="sm" variant="ghost" onClick={() => { setRestRunning(false); setRestCountdown(restTime); }}><RotateCcw className="w-3 h-3" /></Button>
               </div>
+            </div>
+
+            {/* Day configuration */}
+            <div className="bg-card rounded-xl border border-border p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-xs font-bold flex items-center gap-2"><Settings className="w-4 h-4" /> DIAS DE TREINO</h3>
+                <Button size="sm" variant={showDayConfig ? "default" : "outline"} className="text-xs h-7" onClick={() => setShowDayConfig(!showDayConfig)}>
+                  <Settings className="w-3 h-3 mr-1" /> {showDayConfig ? "Fechar" : "Configurar"}
+                </Button>
+              </div>
+              <div className="flex gap-1.5 flex-wrap">
+                {weekDays.map(day => (
+                  <button
+                    key={day}
+                    onClick={() => showDayConfig && toggleDay(day)}
+                    className={`px-3 py-1.5 rounded-lg text-[10px] font-bold border transition-all ${
+                      activeDays.includes(day)
+                        ? `${dayColors[day]} text-white border-transparent`
+                        : "bg-muted/30 text-muted-foreground border-border"
+                    } ${showDayConfig ? "cursor-pointer hover:scale-105" : "cursor-default"} ${day === todayDayName ? "ring-2 ring-primary ring-offset-1" : ""}`}
+                  >
+                    {day.slice(0, 3)}
+                    {showDayConfig && activeDays.includes(day) && <Check className="w-3 h-3 inline ml-1" />}
+                  </button>
+                ))}
+              </div>
+              {showDayConfig && (
+                <div className="mt-3 space-y-2">
+                  <p className="text-[10px] text-muted-foreground">Clique nos dias para ativar/desativar. Configure o grupo muscular de cada dia ativo:</p>
+                  {activeDays.sort((a, b) => weekDays.indexOf(a) - weekDays.indexOf(b)).map(day => (
+                    <div key={day} className="flex items-center gap-2">
+                      <span className={`text-[10px] font-bold w-12 ${dayColors[day]} text-white px-1.5 py-0.5 rounded text-center`}>{day.slice(0, 3)}</span>
+                      <Select value={workoutPlan[day]?.muscle || ""} onValueChange={v => setMuscleForDay(day, v)}>
+                        <SelectTrigger className="h-7 flex-1 text-xs"><SelectValue placeholder="Selecionar grupo muscular" /></SelectTrigger>
+                        <SelectContent>{muscleGroups.map(m => <SelectItem key={m} value={m}>{muscleGroupIcons[m] || "💪"} {m}</SelectItem>)}</SelectContent>
+                      </Select>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Session controls */}
