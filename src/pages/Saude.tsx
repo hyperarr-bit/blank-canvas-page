@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { usePersistedState } from "@/hooks/use-persisted-state";
 import { useNavigate } from "react-router-dom";
+import { ModuleTip } from "@/components/ModuleTip";
 import {
   ArrowLeft, Plus, X, Trash2, Heart, Ruler,
   Check, TrendingUp, Droplets, Stethoscope,
