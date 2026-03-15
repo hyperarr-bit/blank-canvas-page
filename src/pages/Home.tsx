@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import { DollarSign, CalendarCheck, ArrowRight, Sparkles, Heart, Home, GraduationCap, BookOpen, Droplets, Plane, Briefcase, Dumbbell, Apple, Star, Eye, EyeOff, Settings } from "lucide-react";
+import { DollarSign, CalendarCheck, ArrowRight, Sparkles, Heart, Home, GraduationCap, BookOpen, Droplets, Plane, Briefcase, Dumbbell, Apple, Star, Eye, EyeOff, Settings, LogOut } from "lucide-react";
 import { StaggerContainer, StaggerItem, FadeIn } from "@/components/PageTransition";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useModulePreferences } from "@/hooks/use-module-preferences";
+import { useAuth } from "@/hooks/use-auth";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { OnboardingWizard } from "@/components/OnboardingWizard";
