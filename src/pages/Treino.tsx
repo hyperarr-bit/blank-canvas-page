@@ -377,6 +377,46 @@ const Treino = () => {
               </div>
             </div>
 
+            {/* Day configuration */}
+            <div className="bg-card rounded-xl border border-border p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-xs font-bold flex items-center gap-2"><Settings className="w-4 h-4" /> DIAS DE TREINO</h3>
+                <Button size="sm" variant={showDayConfig ? "default" : "outline"} className="text-xs h-7" onClick={() => setShowDayConfig(!showDayConfig)}>
+                  <Settings className="w-3 h-3 mr-1" /> {showDayConfig ? "Fechar" : "Configurar"}
+                </Button>
+              </div>
+              <div className="flex gap-1.5 flex-wrap">
+                {weekDays.map(day => (
+                  <button
+                    key={day}
+                    onClick={() => showDayConfig && toggleDay(day)}
+                    className={`px-3 py-1.5 rounded-lg text-[10px] font-bold border transition-all ${
+                      activeDays.includes(day)
+                        ? `${dayColors[day]} text-white border-transparent`
+                        : "bg-muted/30 text-muted-foreground border-border"
+                    } ${showDayConfig ? "cursor-pointer hover:scale-105" : "cursor-default"} ${day === todayDayName ? "ring-2 ring-primary ring-offset-1" : ""}`}
+                  >
+                    {day.slice(0, 3)}
+                    {showDayConfig && activeDays.includes(day) && <Check className="w-3 h-3 inline ml-1" />}
+                  </button>
+                ))}
+              </div>
+              {showDayConfig && (
+                <div className="mt-3 space-y-2">
+                  <p className="text-[10px] text-muted-foreground">Clique nos dias para ativar/desativar. Configure o grupo muscular de cada dia ativo:</p>
+                  {activeDays.sort((a, b) => weekDays.indexOf(a) - weekDays.indexOf(b)).map(day => (
+                    <div key={day} className="flex items-center gap-2">
+                      <span className={`text-[10px] font-bold w-12 ${dayColors[day]} text-white px-1.5 py-0.5 rounded text-center`}>{day.slice(0, 3)}</span>
+                      <Select value={workoutPlan[day]?.muscle || ""} onValueChange={v => setMuscleForDay(day, v)}>
+                        <SelectTrigger className="h-7 flex-1 text-xs"><SelectValue placeholder="Selecionar grupo muscular" /></SelectTrigger>
+                        <SelectContent>{muscleGroups.map(m => <SelectItem key={m} value={m}>{muscleGroupIcons[m] || "💪"} {m}</SelectItem>)}</SelectContent>
+                      </Select>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {/* Session controls */}
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
