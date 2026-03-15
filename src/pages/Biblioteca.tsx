@@ -42,6 +42,52 @@ const statusLabels: Record<string, string> = {
 const bookGenres = ["Ficção", "Não-Ficção", "Fantasia", "Romance", "Sci-Fi", "Terror", "Autoajuda", "Negócios", "Biografia", "Técnico", "HQ/Mangá", "Outro"];
 const mediaGenres = ["Ação", "Comédia", "Drama", "Ficção Científica", "Terror", "Romance", "Documentário", "Animação", "Suspense", "Fantasia", "Outro"];
 
+// ============= IMPORT FROM URL =============
+const ImportFromUrl = ({ onImport }: { onImport: (data: { title: string; author: string; cover: string }) => void }) => {
+  const [url, setUrl] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const fetchMetadata = async () => {
+    if (!url.trim()) return;
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('fetch-book-metadata', {
+        body: { url: url.trim() },
+      });
+      if (data?.success && data.data) {
+        onImport({
+          title: data.data.title || "",
+          author: data.data.author || "",
+          cover: data.data.cover || "",
+        });
+        setUrl("");
+      }
+    } catch (err) {
+      console.error('Failed to fetch metadata:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="bg-muted/30 rounded-lg p-2.5 border border-dashed border-primary/30">
+      <p className="text-[10px] font-bold text-primary mb-1.5 flex items-center gap-1"><Link className="w-3 h-3" /> Importar de URL (Amazon, Goodreads...)</p>
+      <div className="flex gap-1">
+        <Input
+          value={url}
+          onChange={e => setUrl(e.target.value)}
+          placeholder="Cole o link do livro aqui..."
+          className="h-8 text-xs flex-1"
+          onKeyDown={e => e.key === "Enter" && fetchMetadata()}
+        />
+        <Button size="sm" className="h-8 px-3" onClick={fetchMetadata} disabled={loading || !url.trim()}>
+          {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Link className="w-3 h-3" />}
+        </Button>
+      </div>
+    </div>
+  );
+};
+
 // ============= BOOKSHELF =============
 const Bookshelf = () => {
   const [books, setBooks] = usePersistedState<Book[]>("lib-books", []);
