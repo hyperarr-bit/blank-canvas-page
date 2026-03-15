@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, Plus, X, Trash2, Check, Timer, Play, Pause, RotateCcw,
   Trophy, Flame, Dumbbell, TrendingUp, Target, Zap, BarChart3, Calendar,
-  Award, Star, Clock, Volume2, VolumeX, ChevronDown, ChevronUp
+  Award, Star, Clock, Volume2, VolumeX, ChevronDown, ChevronUp, Settings
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ModuleTip } from "@/components/ModuleTip";
 
 
 const weekDays = ["SEGUNDA", "TERÇA", "QUARTA", "QUINTA", "SEXTA", "SÁBADO", "DOMINGO"];
@@ -31,6 +33,19 @@ const exerciseColors: string[] = [
   "bg-pink-200 dark:bg-pink-500/20 text-pink-800 dark:text-pink-300",
 ];
 
+const muscleGroups = [
+  "Peito", "Costas", "Ombros", "Bíceps", "Tríceps", "Pernas", "Glúteos",
+  "Abdômen", "Quadríceps", "Posterior", "Panturrilha", "Cardio", "Full Body", "Descanso"
+];
+
+const muscleGroupIcons: Record<string, string> = {
+  "Peito": "🫁", "Costas": "💪", "Ombros": "🏋️", "Bíceps": "💪", "Tríceps": "💪",
+  "Pernas": "🦵", "Glúteos": "🍑", "Abdômen": "🫁", "Quadríceps": "🦵",
+  "Posterior": "🦵", "Panturrilha": "🦵", "Cardio": "🏃", "Full Body": "🏋️", "Descanso": "😴",
+  "Quadríceps e Posterior": "🦵", "Costas e Bíceps": "💪", "Ombros e Tríceps": "🏋️",
+  "Peito e Abdômen": "🫁", "Cardio + Full Body": "🏃"
+};
+
 const defaultWorkoutPlan: Record<string, { muscle: string; exercises: { name: string; sets: string; reps: string; carga: string; done: boolean }[] }> = {
   SEGUNDA: { muscle: "", exercises: [] },
   TERÇA: { muscle: "", exercises: [] },
@@ -39,11 +54,6 @@ const defaultWorkoutPlan: Record<string, { muscle: string; exercises: { name: st
   SEXTA: { muscle: "", exercises: [] },
   SÁBADO: { muscle: "", exercises: [] },
   DOMINGO: { muscle: "Descanso", exercises: [] },
-};
-
-const muscleGroupIcons: Record<string, string> = {
-  "Quadríceps e Posterior": "🦵", "Costas e Bíceps": "💪", "Ombros e Tríceps": "🏋️",
-  "Glúteos": "🍑", "Peito e Abdômen": "🫁", "Cardio + Full Body": "🏃", "Descanso": "😴"
 };
 
 const Treino = () => {
