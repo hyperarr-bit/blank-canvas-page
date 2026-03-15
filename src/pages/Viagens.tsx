@@ -328,6 +328,15 @@ const Viagens = () => {
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-6">
+        <ModuleTip
+          moduleId="viagens"
+          tips={[
+            "Adicione destinos dos seus sonhos na bucket list",
+            "Planeje itinerários dia a dia para cada viagem",
+            "Monte sua lista de mala para não esquecer nada",
+            "Controle o orçamento da viagem na aba 💰 Budget"
+          ]}
+        />
         <Tabs defaultValue="bucket">
           <TabsList className="w-full grid grid-cols-5">
             <TabsTrigger value="bucket" className="text-[10px]"><MapPin className="w-3 h-3 mr-0.5" />Destinos</TabsTrigger>

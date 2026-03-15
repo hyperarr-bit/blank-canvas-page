@@ -209,6 +209,15 @@ const DesenvolvimentoPessoal = () => {
       </div>
 
       <main className="max-w-5xl mx-auto px-4 py-4">
+        <ModuleTip
+          moduleId="desenvolvimento"
+          tips={[
+            "Preencha a Roda da Vida para visualizar áreas que precisam de atenção",
+            "Escreva 3 coisas pelas quais é grato no diário de gratidão",
+            "Defina seus valores e forças pessoais na aba 🧠 Sobre Mim",
+            "Crie afirmações positivas e leia-as diariamente"
+          ]}
+        />
         <Tabs defaultValue="sobre" className="w-full">
           <TabsList className="w-full flex overflow-x-auto gap-1 bg-muted/50 p-1 mb-4 h-auto flex-wrap">
             {[

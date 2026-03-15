@@ -331,6 +331,15 @@ const Carreira = () => {
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-6">
+        <ModuleTip
+          moduleId="carreira"
+          tips={[
+            "Registre vagas de emprego e acompanhe o status de cada candidatura",
+            "Monte seu portfolio com projetos e conquistas",
+            "Gerencie contatos de networking importantes",
+            "Adicione habilidades e acompanhe seu aprendizado"
+          ]}
+        />
         <Tabs defaultValue="jobs">
           <TabsList className="w-full grid grid-cols-5">
             <TabsTrigger value="jobs" className="text-[10px]"><Briefcase className="w-3 h-3 mr-0.5" />Vagas</TabsTrigger>

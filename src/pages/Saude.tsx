@@ -271,6 +271,15 @@ const Saude = () => {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-4">
+        <ModuleTip
+          moduleId="saude"
+          tips={[
+            "Registre seus suplementos e medicamentos com horários",
+            "Acompanhe medidas corporais e veja seu progresso",
+            "Agende check-ups e exames na aba 🩺",
+            "Defina metas de saúde e acompanhe o progresso"
+          ]}
+        />
         <Tabs defaultValue="saude" className="w-full">
           <TabsList className="w-full flex overflow-x-auto gap-1 bg-muted/50 p-1 mb-4 h-auto flex-wrap">
             <TabsTrigger value="saude" className="text-xs px-3 py-1.5">💧 SAÚDE</TabsTrigger>
