@@ -74,6 +74,14 @@ const HomePage = () => {
               <Settings className="w-4 h-4" />
             </motion.button>
             <ThemeToggle showPalette />
+            <motion.button
+              onClick={signOut}
+              className="w-9 h-9 rounded-xl flex items-center justify-center bg-muted hover:bg-destructive/10 hover:text-destructive transition-colors"
+              whileTap={{ scale: 0.9 }}
+              aria-label="Sair"
+            >
+              <LogOut className="w-4 h-4" />
+            </motion.button>
           </div>
         </div>
       </motion.header>
