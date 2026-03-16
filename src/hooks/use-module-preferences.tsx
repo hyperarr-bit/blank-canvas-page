@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useUserData } from "@/hooks/use-user-data";
 
 export interface ModulePrefs {
   favorites: string[];
@@ -8,30 +9,24 @@ export interface ModulePrefs {
 const KEY = "core-module-prefs";
 
 export function useModulePreferences() {
-  const [prefs, setPrefs] = useState<ModulePrefs>(() => {
-    const saved = localStorage.getItem(KEY);
-    return saved ? JSON.parse(saved) : { favorites: [], hidden: [] };
-  });
+  const { get, set: setData } = useUserData();
+  const [prefs, setPrefs] = useState<ModulePrefs>(() => get(KEY, { favorites: [], hidden: [] }));
 
   useEffect(() => {
-    localStorage.setItem(KEY, JSON.stringify(prefs));
-  }, [prefs]);
+    setData(KEY, prefs);
+  }, [prefs, setData]);
 
   const toggleFavorite = (id: string) => {
     setPrefs(p => ({
       ...p,
-      favorites: p.favorites.includes(id)
-        ? p.favorites.filter(f => f !== id)
-        : [...p.favorites, id],
+      favorites: p.favorites.includes(id) ? p.favorites.filter(f => f !== id) : [...p.favorites, id],
     }));
   };
 
   const toggleHidden = (id: string) => {
     setPrefs(p => ({
       ...p,
-      hidden: p.hidden.includes(id)
-        ? p.hidden.filter(h => h !== id)
-        : [...p.hidden, id],
+      hidden: p.hidden.includes(id) ? p.hidden.filter(h => h !== id) : [...p.hidden, id],
     }));
   };
 

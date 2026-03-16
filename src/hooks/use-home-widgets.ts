@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useUserData } from "@/hooks/use-user-data";
 
 export type WidgetId =
   | "week-progress"
@@ -36,14 +37,12 @@ export const WIDGET_CATALOG: WidgetDef[] = [
 const KEY = "core-home-widgets";
 
 export function useHomeWidgets() {
-  const [activeWidgets, setActiveWidgets] = useState<WidgetId[]>(() => {
-    const saved = localStorage.getItem(KEY);
-    return saved ? JSON.parse(saved) : [];
-  });
+  const { get, set: setData } = useUserData();
+  const [activeWidgets, setActiveWidgets] = useState<WidgetId[]>(() => get(KEY, []));
 
   useEffect(() => {
-    localStorage.setItem(KEY, JSON.stringify(activeWidgets));
-  }, [activeWidgets]);
+    setData(KEY, activeWidgets);
+  }, [activeWidgets, setData]);
 
   const addWidget = (id: WidgetId) => {
     setActiveWidgets(prev => prev.includes(id) ? prev : [...prev, id]);
