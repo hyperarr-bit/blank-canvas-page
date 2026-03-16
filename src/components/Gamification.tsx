@@ -28,8 +28,9 @@ export const Gamification = ({
   challenge52Weeks,
   setChallenge52Weeks,
 }: GamificationProps) => {
+  const { get, set: setUserData } = useUserData();
   const [lastCheckIn, setLastCheckIn] = useState(() => {
-    return localStorage.getItem("finance-lastCheckIn") || "";
+    return get<string>("finance-lastCheckIn", "");
   });
 
   // Badges system
