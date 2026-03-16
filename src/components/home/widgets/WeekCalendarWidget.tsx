@@ -1,13 +1,14 @@
 import { motion } from "framer-motion";
 import { useUserData } from "@/hooks/use-user-data";
 
-export const WeekCalendarWidget = () => {
+export const WeekCalendarWidget = ({ size = "large" }: { size?: "small" | "large" }) => {
   const { get } = useUserData();
   const today = new Date();
   const todayStr = today.toISOString().slice(0, 10);
-  const dayNames = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+  const dayNames = ["D", "S", "T", "Q", "Q", "S", "S"];
+  const dayNamesFull = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
-  const weekDays: { date: string; label: string; dayNum: number; isToday: boolean }[] = [];
+  const weekDays: { date: string; label: string; labelFull: string; dayNum: number; isToday: boolean }[] = [];
   const monday = new Date(today);
   monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
 
@@ -15,7 +16,7 @@ export const WeekCalendarWidget = () => {
     const d = new Date(monday);
     d.setDate(monday.getDate() + i);
     const dateStr = d.toISOString().slice(0, 10);
-    weekDays.push({ date: dateStr, label: dayNames[d.getDay()], dayNum: d.getDate(), isToday: dateStr === todayStr });
+    weekDays.push({ date: dateStr, label: dayNames[d.getDay()], labelFull: dayNamesFull[d.getDay()], dayNum: d.getDate(), isToday: dateStr === todayStr });
   }
 
   const workoutLog = get<any>("core-treino-log", {});
@@ -40,24 +41,42 @@ export const WeekCalendarWidget = () => {
     future: "bg-transparent text-muted-foreground/40 border border-border/30",
   };
 
+  const isSmall = size === "small";
+
   return (
-    <div className="bg-card rounded-2xl p-4 border border-border/50 shadow-sm">
-      <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-3">📅 Visão da Semana</h4>
-      <div className="flex gap-1.5">
+    <div className="bg-card rounded-2xl p-3 border border-border/50 shadow-sm overflow-hidden w-full min-w-0">
+      <h4 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2 truncate">
+        📅 {isSmall ? "Semana" : "Visão da Semana"}
+      </h4>
+      <div className="flex gap-1 w-full min-w-0">
         {weekDays.map((day, i) => (
-          <motion.div key={day.date} className="flex-1 flex flex-col items-center gap-1" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-            <span className="text-[8px] font-medium text-muted-foreground">{day.label}</span>
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold ${day.isToday ? "ring-2 ring-primary ring-offset-1 ring-offset-background " : ""}${statusColors[getDayStatus(day.date)]}`}>
+          <motion.div
+            key={day.date}
+            className="flex-1 flex flex-col items-center gap-0.5 min-w-0"
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.04 }}
+          >
+            <span className="text-[7px] font-medium text-muted-foreground">
+              {isSmall ? day.label : day.labelFull}
+            </span>
+            <div
+              className={`${isSmall ? "w-5 h-5 text-[8px]" : "w-7 h-7 text-[10px]"} rounded-md flex items-center justify-center font-bold ${
+                day.isToday ? "ring-1.5 ring-primary ring-offset-1 ring-offset-background " : ""
+              }${statusColors[getDayStatus(day.date)]}`}
+            >
               {day.dayNum}
             </div>
           </motion.div>
         ))}
       </div>
-      <div className="flex items-center gap-3 mt-3 justify-center">
-        <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-emerald-500" /><span className="text-[8px] text-muted-foreground">Completo</span></div>
-        <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-amber-400/50" /><span className="text-[8px] text-muted-foreground">Parcial</span></div>
-        <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-muted" /><span className="text-[8px] text-muted-foreground">Vazio</span></div>
-      </div>
+      {!isSmall && (
+        <div className="flex items-center gap-3 mt-2 justify-center">
+          <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-emerald-500" /><span className="text-[8px] text-muted-foreground">Completo</span></div>
+          <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-amber-400/50" /><span className="text-[8px] text-muted-foreground">Parcial</span></div>
+          <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-muted" /><span className="text-[8px] text-muted-foreground">Vazio</span></div>
+        </div>
+      )}
     </div>
   );
 };
