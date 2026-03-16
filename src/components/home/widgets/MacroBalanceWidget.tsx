@@ -1,15 +1,10 @@
 import { motion } from "framer-motion";
-
-function safeJSON<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
-  } catch { return fallback; }
-}
+import { useUserData } from "@/hooks/use-user-data";
 
 export const MacroBalanceWidget = () => {
+  const { get } = useUserData();
   const todayStr = new Date().toISOString().slice(0, 10);
-  const todayLog = safeJSON<any>("core-dieta-log", {});
+  const todayLog = get<any>("core-dieta-log", {});
   const meals = todayLog[todayStr] || {};
 
   let protein = 0, carbs = 0, fat = 0;
@@ -39,13 +34,7 @@ export const MacroBalanceWidget = () => {
         <>
           <div className="flex h-3 rounded-full overflow-hidden mb-3">
             {macros.map(m => (
-              <motion.div
-                key={m.label}
-                className={m.color}
-                initial={{ width: 0 }}
-                animate={{ width: `${m.pct}%` }}
-                transition={{ duration: 0.6 }}
-              />
+              <motion.div key={m.label} className={m.color} initial={{ width: 0 }} animate={{ width: `${m.pct}%` }} transition={{ duration: 0.6 }} />
             ))}
           </div>
           <div className="flex justify-between">

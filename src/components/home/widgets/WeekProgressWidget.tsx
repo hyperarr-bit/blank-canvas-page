@@ -1,25 +1,23 @@
 import { motion } from "framer-motion";
+import { useUserData } from "@/hooks/use-user-data";
 
 const DAYS = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
 
 export const WeekProgressWidget = () => {
-  // Read weekly scores from localStorage
+  const { get } = useUserData();
+
   const getWeekScores = (): number[] => {
-    try {
-      const data = localStorage.getItem("core-week-scores");
-      if (data) return JSON.parse(data);
-    } catch {}
-    // Generate placeholder based on current day
+    const data = get<number[]>("core-week-scores", []);
+    if (data.length > 0) return data;
     const today = new Date().getDay();
     return DAYS.map((_, i) => {
-      const dayIndex = (i + 1) % 7; // Mon=1...Sun=0
+      const dayIndex = (i + 1) % 7;
       if (dayIndex > today) return 0;
       return Math.floor(Math.random() * 40 + 30);
     });
   };
 
   const scores = getWeekScores();
-  const maxScore = Math.max(...scores, 1);
 
   return (
     <div className="bg-card rounded-2xl p-4 border border-border/50 shadow-sm">

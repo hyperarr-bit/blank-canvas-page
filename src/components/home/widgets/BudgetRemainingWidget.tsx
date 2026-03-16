@@ -1,15 +1,10 @@
 import { motion } from "framer-motion";
-
-function safeJSON<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
-  } catch { return fallback; }
-}
+import { useUserData } from "@/hooks/use-user-data";
 
 export const BudgetRemainingWidget = () => {
-  const incomes = safeJSON<any[]>("core-incomes", []);
-  const expenses = safeJSON<any[]>("core-expenses", []);
+  const { get } = useUserData();
+  const incomes = get<any[]>("core-incomes", []);
+  const expenses = get<any[]>("core-expenses", []);
   const totalIncome = incomes.reduce((s: number, i: any) => s + (Number(i.amount) || 0), 0);
   const totalExpense = expenses.reduce((s: number, e: any) => s + (Number(e.amount) || 0), 0);
   const remaining = totalIncome - totalExpense;

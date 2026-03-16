@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Target, Plus, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useUserData } from "@/hooks/use-user-data";
 
 interface CountdownItem {
   id: string;
@@ -11,22 +12,16 @@ interface CountdownItem {
 
 const KEY = "core-home-countdowns";
 
-function safeJSON<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
-  } catch { return fallback; }
-}
-
 export const CountdownWidget = () => {
-  const [items, setItems] = useState<CountdownItem[]>(() => safeJSON(KEY, []));
+  const { get, set: setData } = useUserData();
+  const [items, setItems] = useState<CountdownItem[]>(() => get(KEY, []));
   const [adding, setAdding] = useState(false);
   const [newLabel, setNewLabel] = useState("");
   const [newDate, setNewDate] = useState("");
 
   useEffect(() => {
-    localStorage.setItem(KEY, JSON.stringify(items));
-  }, [items]);
+    setData(KEY, items);
+  }, [items, setData]);
 
   const addItem = () => {
     if (!newLabel.trim() || !newDate) return;
@@ -54,19 +49,8 @@ export const CountdownWidget = () => {
 
       {adding && (
         <div className="flex gap-2 mb-3">
-          <Input
-            value={newLabel}
-            onChange={e => setNewLabel(e.target.value)}
-            placeholder="Meta ou evento"
-            className="text-xs h-8"
-            onKeyDown={e => e.key === "Enter" && addItem()}
-          />
-          <Input
-            type="date"
-            value={newDate}
-            onChange={e => setNewDate(e.target.value)}
-            className="text-xs h-8 w-32"
-          />
+          <Input value={newLabel} onChange={e => setNewLabel(e.target.value)} placeholder="Meta ou evento" className="text-xs h-8" onKeyDown={e => e.key === "Enter" && addItem()} />
+          <Input type="date" value={newDate} onChange={e => setNewDate(e.target.value)} className="text-xs h-8 w-32" />
         </div>
       )}
 
@@ -77,12 +61,7 @@ export const CountdownWidget = () => {
           {items.slice(0, 3).map(item => {
             const days = getDaysLeft(item.date);
             return (
-              <motion.div
-                key={item.id}
-                className="flex items-center gap-2"
-                initial={{ opacity: 0, x: -5 }}
-                animate={{ opacity: 1, x: 0 }}
-              >
+              <motion.div key={item.id} className="flex items-center gap-2" initial={{ opacity: 0, x: -5 }} animate={{ opacity: 1, x: 0 }}>
                 <Target className="w-3 h-3 text-primary/50 flex-shrink-0" />
                 <span className="text-xs flex-1 truncate">{item.label}</span>
                 <span className="text-xs font-bold text-primary tabular-nums">{days}d</span>
