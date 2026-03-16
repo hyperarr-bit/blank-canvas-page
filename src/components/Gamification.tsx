@@ -3,6 +3,7 @@ import { Trophy, Flame, Star, Target, CheckCircle, Lock, Gift, TrendingUp, Shiel
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
+import { useUserData } from "@/hooks/use-user-data";
 
 interface GamificationProps {
   savingsRate: number;
