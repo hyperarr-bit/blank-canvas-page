@@ -58,14 +58,7 @@ export const WIDGET_CATALOG: WidgetDef[] = [
 
 const KEY = "core-home-widgets-v2";
 
-const DEFAULT_WIDGETS: ActiveWidget[] = [
-  { id: "finances", size: "small" },
-  { id: "workout", size: "small" },
-  { id: "calories", size: "small" },
-  { id: "health", size: "small" },
-  { id: "habits", size: "small" },
-  { id: "reading", size: "small" },
-];
+const DEFAULT_WIDGETS: ActiveWidget[] = [];
 
 export function useHomeWidgets() {
   const { get, set: setData } = useUserData();

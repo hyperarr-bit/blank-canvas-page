@@ -183,4 +183,13 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  @keyframes jiggle {
+    0%, 100% { transform: rotate(-0.7deg); }
+    50% { transform: rotate(0.7deg); }
+  }
+
+  .animate-jiggle {
+    animation: jiggle 0.15s ease-in-out infinite;
+  }
 }

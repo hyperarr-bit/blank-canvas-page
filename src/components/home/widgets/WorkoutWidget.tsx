@@ -1,11 +1,26 @@
 import { useNavigate } from "react-router-dom";
-import { Dumbbell } from "lucide-react";
+import { Dumbbell, Check } from "lucide-react";
 import { useLifeHubData } from "@/hooks/use-life-hub-data";
+import { useUserData } from "@/hooks/use-user-data";
 import { WidgetSize } from "@/hooks/use-home-widgets";
 
 export const WorkoutWidget = ({ size = "small" }: { size?: WidgetSize }) => {
   const navigate = useNavigate();
   const data = useLifeHubData();
+  const { get, set } = useUserData();
+
+  const todayStr = new Date().toISOString().slice(0, 10);
+
+  const toggleWorkoutDone = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const log = get<any>("core-treino-log", {});
+    if (log[todayStr]) {
+      const { [todayStr]: _, ...rest } = log;
+      set("core-treino-log", rest);
+    } else {
+      set("core-treino-log", { ...log, [todayStr]: true });
+    }
+  };
 
   if (size === "small") {
     return (
@@ -33,23 +48,37 @@ export const WorkoutWidget = ({ size = "small" }: { size?: WidgetSize }) => {
   }
 
   return (
-    <button onClick={() => navigate("/treino")} className="w-full text-left bg-card rounded-2xl p-4 shadow-sm hover:shadow-md border border-border/50 transition-all">
-      <div className="flex items-center gap-3 mb-3">
-        <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-blue-400/20">
-          <Dumbbell className="w-4 h-4 text-blue-600" />
-        </div>
-        <h3 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Treino</h3>
+    <div className="w-full text-left bg-card rounded-2xl p-4 shadow-sm border border-border/50">
+      <div className="flex items-center justify-between mb-3">
+        <button onClick={() => navigate("/treino")} className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-blue-400/20">
+            <Dumbbell className="w-4 h-4 text-blue-600" />
+          </div>
+          <h3 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Treino</h3>
+        </button>
+        {data.todayWorkoutGroup && (
+          <button
+            onClick={toggleWorkoutDone}
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+              data.workoutDone
+                ? "bg-emerald-500 text-white"
+                : "border-2 border-muted-foreground/30 text-muted-foreground hover:border-emerald-500"
+            }`}
+          >
+            <Check className="w-4 h-4" />
+          </button>
+        )}
       </div>
       {data.todayWorkoutGroup ? (
         <>
           <p className="text-xl font-bold">{data.todayWorkoutGroup}</p>
-          <p className={`text-xs mt-1 ${data.workoutDone ? "text-emerald-600" : "text-muted-foreground"}`}>
-            {data.workoutDone ? "✓ Concluído" : "⏳ Pendente"}
+          <p className={`text-xs mt-1 ${data.workoutDone ? "text-emerald-600 font-medium" : "text-muted-foreground"}`}>
+            {data.workoutDone ? "✓ Treino concluído!" : "⏳ Toque no ✓ para concluir"}
           </p>
         </>
       ) : (
         <p className="text-sm text-muted-foreground">Dia de descanso 😴</p>
       )}
-    </button>
+    </div>
   );
 };
