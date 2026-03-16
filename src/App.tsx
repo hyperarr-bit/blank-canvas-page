@@ -67,6 +67,7 @@ const App = () => (
             <AnimatedRoutes />
           </BrowserRouter>
         </TooltipProvider>
+        </UserDataProvider>
       </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>

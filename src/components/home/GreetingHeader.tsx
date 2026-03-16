@@ -90,7 +90,8 @@ export const GreetingHeader = ({ data, onNameChange }: GreetingHeaderProps) => {
   const displayName = data.userName || user?.email?.split("@")[0] || "";
 
   const handleNameSave = (name: string) => {
-    localStorage.setItem("core-user-name", name);
+    // Will be persisted via useUserData in the parent
+    try { localStorage.setItem("core-user-name", name); } catch {}
     onNameChange?.(name);
   };
 
