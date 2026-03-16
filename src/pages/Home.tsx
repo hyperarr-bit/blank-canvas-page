@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useUserData } from "@/hooks/use-user-data";
 import { AnimatePresence, motion } from "framer-motion";
 import { DollarSign, Dumbbell, Apple, Heart, BookOpen, CheckSquare, Droplets, Plus, X } from "lucide-react";
 import { OnboardingWizard } from "@/components/OnboardingWizard";
