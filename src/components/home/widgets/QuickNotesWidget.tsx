@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
+import { useUserData } from "@/hooks/use-user-data";
 
 const KEY = "core-home-quick-notes";
 
 export const QuickNotesWidget = () => {
-  const [notes, setNotes] = useState(() => localStorage.getItem(KEY) || "");
+  const { get, set: setData } = useUserData();
+  const [notes, setNotes] = useState(() => get<string>(KEY, ""));
 
   useEffect(() => {
-    localStorage.setItem(KEY, notes);
-  }, [notes]);
+    setData(KEY, notes);
+  }, [notes, setData]);
 
   return (
     <div className="bg-card rounded-2xl p-4 border border-border/50 shadow-sm">

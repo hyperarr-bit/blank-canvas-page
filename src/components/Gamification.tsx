@@ -3,6 +3,7 @@ import { Trophy, Flame, Star, Target, CheckCircle, Lock, Gift, TrendingUp, Shiel
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
+import { useUserData } from "@/hooks/use-user-data";
 
 interface GamificationProps {
   savingsRate: number;
@@ -27,8 +28,9 @@ export const Gamification = ({
   challenge52Weeks,
   setChallenge52Weeks,
 }: GamificationProps) => {
+  const { get, set: setUserData } = useUserData();
   const [lastCheckIn, setLastCheckIn] = useState(() => {
-    return localStorage.getItem("finance-lastCheckIn") || "";
+    return get<string>("finance-lastCheckIn", "");
   });
 
   // Badges system
@@ -61,7 +63,7 @@ export const Gamification = ({
     }
 
     setLastCheckIn(today);
-    localStorage.setItem("finance-lastCheckIn", today);
+    setUserData("finance-lastCheckIn", today);
   };
 
   // 52-week challenge

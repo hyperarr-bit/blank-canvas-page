@@ -1,18 +1,12 @@
 import { motion } from "framer-motion";
-
-function safeJSON<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
-  } catch { return fallback; }
-}
+import { useUserData } from "@/hooks/use-user-data";
 
 export const WeekCalendarWidget = () => {
+  const { get } = useUserData();
   const today = new Date();
   const todayStr = today.toISOString().slice(0, 10);
   const dayNames = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
-  // Build the week days (Mon-Sun)
   const weekDays: { date: string; label: string; dayNum: number; isToday: boolean }[] = [];
   const monday = new Date(today);
   monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
@@ -21,18 +15,12 @@ export const WeekCalendarWidget = () => {
     const d = new Date(monday);
     d.setDate(monday.getDate() + i);
     const dateStr = d.toISOString().slice(0, 10);
-    weekDays.push({
-      date: dateStr,
-      label: dayNames[d.getDay()],
-      dayNum: d.getDate(),
-      isToday: dateStr === todayStr,
-    });
+    weekDays.push({ date: dateStr, label: dayNames[d.getDay()], dayNum: d.getDate(), isToday: dateStr === todayStr });
   }
 
-  // Check what was done each day
-  const workoutLog = safeJSON<any>("core-treino-log", {});
-  const habitLog = safeJSON<any>("core-rotina-habit-log", {});
-  const habits = safeJSON<any[]>("core-rotina-habits", []);
+  const workoutLog = get<any>("core-treino-log", {});
+  const habitLog = get<any>("core-rotina-habit-log", {});
+  const habits = get<any[]>("core-rotina-habits", []);
 
   const getDayStatus = (date: string): "done" | "partial" | "empty" | "future" => {
     if (date > todayStr) return "future";
@@ -57,17 +45,9 @@ export const WeekCalendarWidget = () => {
       <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-3">📅 Visão da Semana</h4>
       <div className="flex gap-1.5">
         {weekDays.map((day, i) => (
-          <motion.div
-            key={day.date}
-            className="flex-1 flex flex-col items-center gap-1"
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.04 }}
-          >
+          <motion.div key={day.date} className="flex-1 flex flex-col items-center gap-1" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
             <span className="text-[8px] font-medium text-muted-foreground">{day.label}</span>
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold ${
-              day.isToday ? "ring-2 ring-primary ring-offset-1 ring-offset-background " : ""
-            }${statusColors[getDayStatus(day.date)]}`}>
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold ${day.isToday ? "ring-2 ring-primary ring-offset-1 ring-offset-background " : ""}${statusColors[getDayStatus(day.date)]}`}>
               {day.dayNum}
             </div>
           </motion.div>

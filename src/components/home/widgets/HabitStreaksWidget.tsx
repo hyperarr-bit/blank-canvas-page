@@ -1,17 +1,11 @@
 import { motion } from "framer-motion";
-
-function safeJSON<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
-  } catch { return fallback; }
-}
+import { useUserData } from "@/hooks/use-user-data";
 
 export const HabitStreaksWidget = () => {
-  const habits = safeJSON<any[]>("core-rotina-habits", []);
-  const habitLog = safeJSON<any>("core-rotina-habit-log", {});
+  const { get } = useUserData();
+  const habits = get<any[]>("core-rotina-habits", []);
+  const habitLog = get<any>("core-rotina-habit-log", {});
 
-  // Last 7 days
   const days: string[] = [];
   for (let i = 6; i >= 0; i--) {
     const d = new Date();
@@ -32,7 +26,6 @@ export const HabitStreaksWidget = () => {
         <p className="text-xs text-muted-foreground">Adicione hábitos no módulo Rotina</p>
       ) : (
         <div className="space-y-1.5">
-          {/* Day headers */}
           <div className="flex items-center gap-1">
             <div className="w-16" />
             {dayLabels.map((label, i) => (

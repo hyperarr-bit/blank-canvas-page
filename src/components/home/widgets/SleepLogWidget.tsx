@@ -1,24 +1,19 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Moon, Minus, Plus } from "lucide-react";
-
-function safeJSON<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
-  } catch { return fallback; }
-}
+import { useUserData } from "@/hooks/use-user-data";
 
 export const SleepLogWidget = () => {
+  const { get, set: setData } = useUserData();
   const todayStr = new Date().toISOString().slice(0, 10);
-  const [sleepLog, setSleepLog] = useState(() => safeJSON<Record<string, number>>("core-saude-sleep", {}));
+  const [sleepLog, setSleepLog] = useState(() => get<Record<string, number>>("core-saude-sleep", {}));
   const hours = sleepLog[todayStr] || 0;
 
   const update = (val: number) => {
     const clamped = Math.max(0, Math.min(14, val));
     const next = { ...sleepLog, [todayStr]: clamped };
     setSleepLog(next);
-    localStorage.setItem("core-saude-sleep", JSON.stringify(next));
+    setData("core-saude-sleep", next);
   };
 
   const quality = hours >= 7 ? "Ótimo 😊" : hours >= 5 ? "Regular 😐" : hours > 0 ? "Pouco 😴" : "Não registrado";
