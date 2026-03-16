@@ -75,7 +75,7 @@ export function useHomeWidgets() {
     const def = WIDGET_CATALOG.find(w => w.id === id);
     if (!def) return;
     setActiveWidgets(prev =>
-      prev.some(w => w.id === id) ? prev : [...prev, { id, size: def.defaultSize }]
+      prev.some(w => w.id === id) ? prev : [...prev, { id, size: "small" }]
     );
   };
 
