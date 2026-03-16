@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Lightbulb } from "lucide-react";
+import { useUserData } from "@/hooks/use-user-data";
 
 interface ModuleTipProps {
   moduleId: string;
@@ -9,11 +10,12 @@ interface ModuleTipProps {
 }
 
 export const ModuleTip = ({ moduleId, tips, icon = "💡" }: ModuleTipProps) => {
+  const { get, set: setData } = useUserData();
   const storageKey = `core-tip-seen-${moduleId}`;
-  const [visible, setVisible] = useState(() => !localStorage.getItem(storageKey));
+  const [visible, setVisible] = useState(() => !get<string>(storageKey, ""));
 
   const dismiss = () => {
-    localStorage.setItem(storageKey, "true");
+    setData(storageKey, "true");
     setVisible(false);
   };
 

@@ -63,7 +63,7 @@ export const Gamification = ({
     }
 
     setLastCheckIn(today);
-    localStorage.setItem("finance-lastCheckIn", today);
+    setUserData("finance-lastCheckIn", today);
   };
 
   // 52-week challenge
