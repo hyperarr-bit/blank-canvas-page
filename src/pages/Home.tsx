@@ -1,20 +1,24 @@
 import { useState, useCallback } from "react";
 import { useUserData } from "@/hooks/use-user-data";
 import { AnimatePresence, motion } from "framer-motion";
-import { DollarSign, Dumbbell, Apple, Heart, BookOpen, CheckSquare, Droplets, Plus, X } from "lucide-react";
+import { Plus, X, Maximize2, Minimize2 } from "lucide-react";
 import { OnboardingWizard } from "@/components/OnboardingWizard";
 import { GreetingHeader } from "@/components/home/GreetingHeader";
 import { DayScoreRing } from "@/components/home/DayScoreRing";
-import { SummaryCard } from "@/components/home/SummaryCard";
-import { ProgressBar } from "@/components/home/ProgressBar";
 import { QuickActions } from "@/components/home/QuickActions";
 import { ModuleDrawer } from "@/components/home/ModuleDrawer";
 import { NextHoursTimeline } from "@/components/home/NextHoursTimeline";
 import { WidgetPicker } from "@/components/home/WidgetPicker";
 import { useLifeHubData } from "@/hooks/use-life-hub-data";
-import { useHomeWidgets, WidgetId, WIDGET_CATALOG } from "@/hooks/use-home-widgets";
+import { useHomeWidgets, WidgetId, ActiveWidget } from "@/hooks/use-home-widgets";
 
 // Widget components
+import { FinancesWidget } from "@/components/home/widgets/FinancesWidget";
+import { WorkoutWidget } from "@/components/home/widgets/WorkoutWidget";
+import { CaloriesWidget } from "@/components/home/widgets/CaloriesWidget";
+import { HealthWidget } from "@/components/home/widgets/HealthWidget";
+import { HabitsWidget } from "@/components/home/widgets/HabitsWidget";
+import { ReadingWidget } from "@/components/home/widgets/ReadingWidget";
 import { WeekProgressWidget } from "@/components/home/widgets/WeekProgressWidget";
 import { BudgetRemainingWidget } from "@/components/home/widgets/BudgetRemainingWidget";
 import { HabitStreaksWidget } from "@/components/home/widgets/HabitStreaksWidget";
@@ -26,23 +30,31 @@ import { SleepLogWidget } from "@/components/home/widgets/SleepLogWidget";
 import { CountdownWidget } from "@/components/home/widgets/CountdownWidget";
 import { WeekCalendarWidget } from "@/components/home/widgets/WeekCalendarWidget";
 
-const WIDGET_COMPONENTS: Record<WidgetId, React.FC> = {
-  "week-progress": WeekProgressWidget,
-  "budget-remaining": BudgetRemainingWidget,
-  "habit-streaks": HabitStreaksWidget,
-  "motivational-quote": MotivationalQuoteWidget,
-  "quick-notes": QuickNotesWidget,
-  "focus-timer": FocusTimerWidget,
-  "macro-balance": MacroBalanceWidget,
-  "sleep-log": SleepLogWidget,
-  "countdown": CountdownWidget,
-  "week-calendar": WeekCalendarWidget,
+type WidgetComponent = React.FC<{ size?: "small" | "large" }>;
+
+const WIDGET_COMPONENTS: Record<WidgetId, WidgetComponent> = {
+  finances: FinancesWidget,
+  workout: WorkoutWidget,
+  calories: CaloriesWidget,
+  health: HealthWidget,
+  habits: HabitsWidget,
+  reading: ReadingWidget,
+  "week-progress": WeekProgressWidget as WidgetComponent,
+  "budget-remaining": BudgetRemainingWidget as WidgetComponent,
+  "habit-streaks": HabitStreaksWidget as WidgetComponent,
+  "motivational-quote": MotivationalQuoteWidget as WidgetComponent,
+  "quick-notes": QuickNotesWidget as WidgetComponent,
+  "focus-timer": FocusTimerWidget as WidgetComponent,
+  "macro-balance": MacroBalanceWidget as WidgetComponent,
+  "sleep-log": SleepLogWidget as WidgetComponent,
+  countdown: CountdownWidget as WidgetComponent,
+  "week-calendar": WeekCalendarWidget as WidgetComponent,
 };
 
 const HomePage = () => {
   const [data, setDataTrigger] = useState(0);
   const lifeData = useLifeHubData();
-  const { activeWidgets, addWidget, removeWidget, isActive } = useHomeWidgets();
+  const { activeWidgets, addWidget, removeWidget, isActive, toggleSize } = useHomeWidgets();
   const { get, set: setData } = useUserData();
   const [showOnboarding, setShowOnboarding] = useState(() => !get<string>("core-onboarding-done", ""));
   const [showWidgetPicker, setShowWidgetPicker] = useState(false);
@@ -62,8 +74,35 @@ const HomePage = () => {
     else addWidget(id);
   };
 
-  const formatCurrency = (v: number) =>
-    v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  // Group widgets into rows: small widgets pair up, large widgets take full width
+  const buildWidgetRows = () => {
+    const rows: ActiveWidget[][] = [];
+    let smallBuffer: ActiveWidget[] = [];
+
+    activeWidgets.forEach(widget => {
+      if (widget.size === "small") {
+        smallBuffer.push(widget);
+        if (smallBuffer.length === 2) {
+          rows.push([...smallBuffer]);
+          smallBuffer = [];
+        }
+      } else {
+        if (smallBuffer.length > 0) {
+          rows.push([...smallBuffer]);
+          smallBuffer = [];
+        }
+        rows.push([widget]);
+      }
+    });
+
+    if (smallBuffer.length > 0) {
+      rows.push([...smallBuffer]);
+    }
+
+    return rows;
+  };
+
+  const widgetRows = buildWidgetRows();
 
   return (
     <>
@@ -87,109 +126,10 @@ const HomePage = () => {
             <QuickActions />
           </div>
 
-          {/* Summary Cards Grid */}
-          <div className="grid grid-cols-2 gap-3">
-            <SummaryCard
-              icon={<DollarSign className="w-4 h-4 text-amber-600" />}
-              title="Finanças"
-              path="/financas"
-              accentClass="bg-amber-400/20"
-              delay={0}
-            >
-              <p className={`text-sm font-bold ${lifeData.monthBalance >= 0 ? "text-emerald-600" : "text-destructive"}`}>
-                {formatCurrency(lifeData.monthBalance)}
-              </p>
-              {lifeData.nextBillName && (
-                <p className="text-[10px] text-muted-foreground mt-0.5 truncate">
-                  📅 {lifeData.nextBillName}
-                </p>
-              )}
-            </SummaryCard>
-
-            <SummaryCard
-              icon={<Dumbbell className="w-4 h-4 text-blue-600" />}
-              title="Treino"
-              path="/treino"
-              accentClass="bg-blue-400/20"
-              delay={0.05}
-            >
-              {lifeData.todayWorkoutGroup ? (
-                <>
-                  <p className="text-sm font-bold">{lifeData.todayWorkoutGroup}</p>
-                  <p className={`text-[10px] ${lifeData.workoutDone ? "text-emerald-600" : "text-muted-foreground"}`}>
-                    {lifeData.workoutDone ? "✓ Concluído" : "Pendente"}
-                  </p>
-                </>
-              ) : (
-                <p className="text-xs text-muted-foreground">Dia de descanso 😴</p>
-              )}
-            </SummaryCard>
-
-            <SummaryCard
-              icon={<Apple className="w-4 h-4 text-emerald-600" />}
-              title="Calorias"
-              path="/dieta"
-              accentClass="bg-emerald-400/20"
-              delay={0.1}
-            >
-              <div className="flex items-baseline gap-1">
-                <span className="text-sm font-bold">{lifeData.caloriesConsumed}</span>
-                <span className="text-[10px] text-muted-foreground">/ {lifeData.caloriesGoal} kcal</span>
-              </div>
-              <ProgressBar value={lifeData.caloriesConsumed} max={lifeData.caloriesGoal} colorClass="bg-emerald-500" />
-            </SummaryCard>
-
-            <SummaryCard
-              icon={<Heart className="w-4 h-4 text-red-600" />}
-              title="Saúde"
-              path="/saude"
-              accentClass="bg-red-400/20"
-              delay={0.15}
-            >
-              <div className="flex items-center gap-2">
-                <Droplets className="w-3 h-3 text-cyan-500" />
-                <span className="text-xs font-medium">{lifeData.waterGlasses}/{lifeData.waterGoal}</span>
-              </div>
-              <ProgressBar value={lifeData.waterGlasses} max={lifeData.waterGoal} colorClass="bg-cyan-500" />
-            </SummaryCard>
-
-            <SummaryCard
-              icon={<CheckSquare className="w-4 h-4 text-emerald-600" />}
-              title="Hábitos"
-              path="/rotina"
-              accentClass="bg-emerald-400/20"
-              delay={0.2}
-            >
-              <div className="flex items-baseline gap-1">
-                <span className="text-sm font-bold">{lifeData.tasksCompleted}</span>
-                <span className="text-[10px] text-muted-foreground">/ {lifeData.tasksTotal} feitos</span>
-              </div>
-              <ProgressBar value={lifeData.tasksCompleted} max={lifeData.tasksTotal} colorClass="bg-emerald-500" />
-            </SummaryCard>
-
-            <SummaryCard
-              icon={<BookOpen className="w-4 h-4 text-orange-600" />}
-              title="Leitura"
-              path="/biblioteca"
-              accentClass="bg-orange-400/20"
-              delay={0.25}
-            >
-              {lifeData.currentBook ? (
-                <>
-                  <p className="text-xs font-medium truncate">{lifeData.currentBook}</p>
-                  <ProgressBar value={lifeData.readingProgress} max={100} colorClass="bg-orange-500" />
-                </>
-              ) : (
-                <p className="text-[10px] text-muted-foreground">Nenhum livro ativo</p>
-              )}
-            </SummaryCard>
-          </div>
-
-          {/* Custom Widgets */}
+          {/* Unified Widgets Section */}
           {activeWidgets.length > 0 && (
             <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Meus Widgets</h3>
+              <div className="flex items-center justify-end">
                 <button
                   onClick={() => setEditingWidgets(!editingWidgets)}
                   className={`text-[10px] font-medium px-2 py-0.5 rounded-md transition-colors ${
@@ -200,30 +140,43 @@ const HomePage = () => {
                 </button>
               </div>
               <AnimatePresence>
-                {activeWidgets.map((widgetId, i) => {
-                  const Component = WIDGET_COMPONENTS[widgetId];
-                  if (!Component) return null;
-                  return (
-                    <motion.div
-                      key={widgetId}
-                      className="relative"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ delay: i * 0.05 }}
-                    >
-                      {editingWidgets && (
-                        <button
-                          onClick={() => removeWidget(widgetId)}
-                          className="absolute -top-1.5 -right-1.5 z-10 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center shadow-sm"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      )}
-                      <Component />
-                    </motion.div>
-                  );
-                })}
+                {widgetRows.map((row, rowIndex) => (
+                  <motion.div
+                    key={row.map(w => w.id).join("-")}
+                    className={`grid gap-3 ${row.length === 2 && row.every(w => w.size === "small") ? "grid-cols-2" : "grid-cols-1"}`}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ delay: rowIndex * 0.03 }}
+                  >
+                    {row.map(widget => {
+                      const Component = WIDGET_COMPONENTS[widget.id];
+                      if (!Component) return null;
+                      return (
+                        <div key={widget.id} className="relative">
+                          {editingWidgets && (
+                            <div className="absolute -top-1.5 -right-1.5 z-10 flex gap-1">
+                              <button
+                                onClick={() => toggleSize(widget.id)}
+                                className="w-5 h-5 rounded-full bg-muted text-muted-foreground flex items-center justify-center shadow-sm border border-border/50"
+                                title={widget.size === "small" ? "Expandir" : "Reduzir"}
+                              >
+                                {widget.size === "small" ? <Maximize2 className="w-2.5 h-2.5" /> : <Minimize2 className="w-2.5 h-2.5" />}
+                              </button>
+                              <button
+                                onClick={() => removeWidget(widget.id)}
+                                className="w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center shadow-sm"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          )}
+                          <Component size={widget.size} />
+                        </div>
+                      );
+                    })}
+                  </motion.div>
+                ))}
               </AnimatePresence>
             </div>
           )}
@@ -257,6 +210,7 @@ const HomePage = () => {
         onOpenChange={setShowWidgetPicker}
         activeWidgets={activeWidgets}
         onToggle={handleWidgetToggle}
+        onToggleSize={toggleSize}
       />
     </>
   );
