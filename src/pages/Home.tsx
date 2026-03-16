@@ -43,12 +43,13 @@ const HomePage = () => {
   const [data, setDataTrigger] = useState(0);
   const lifeData = useLifeHubData();
   const { activeWidgets, addWidget, removeWidget, isActive } = useHomeWidgets();
-  const [showOnboarding, setShowOnboarding] = useState(() => !localStorage.getItem("core-onboarding-done"));
+  const { get, set: setData } = useUserData();
+  const [showOnboarding, setShowOnboarding] = useState(() => !get<string>("core-onboarding-done", ""));
   const [showWidgetPicker, setShowWidgetPicker] = useState(false);
   const [editingWidgets, setEditingWidgets] = useState(false);
 
   const handleOnboardingComplete = () => {
-    localStorage.setItem("core-onboarding-done", "true");
+    setData("core-onboarding-done", "true");
     setShowOnboarding(false);
   };
 
