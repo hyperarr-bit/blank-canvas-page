@@ -116,7 +116,7 @@ const HomePage = () => {
           </div>
 
           {/* Widgets */}
-          {activeWidgets.length > 0 ? (
+          {activeWidgets.length > 0 && (
             <div className="space-y-3" onClick={e => e.stopPropagation()} {...longPressHandlers}>
               <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                 <SortableContext items={activeWidgets.map(w => w.id)} strategy={rectSortingStrategy}>
@@ -151,26 +151,10 @@ const HomePage = () => {
                 </motion.div>
               )}
             </div>
-          ) : (
-            <motion.button
-              onClick={() => setShowWidgetPicker(true)}
-              className="w-full flex flex-col items-center gap-3 py-8 rounded-2xl border-2 border-dashed border-border/50 text-muted-foreground hover:text-foreground hover:border-primary/30 hover:bg-primary/5 transition-all"
-              whileTap={{ scale: 0.98 }}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-            >
-              <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
-                <LayoutGrid className="w-6 h-6 text-primary" />
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-semibold text-foreground">Montar minha Home</p>
-                <p className="text-[10px] text-muted-foreground mt-0.5">Adicione widgets para personalizar</p>
-              </div>
-            </motion.button>
           )}
 
-          {/* Add widget (non-edit mode, when widgets exist) */}
-          {activeWidgets.length > 0 && !editingWidgets && (
+          {/* Add widget button - always visible when not editing */}
+          {!editingWidgets && (
             <motion.button
               onClick={() => setShowWidgetPicker(true)}
               className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border-2 border-dashed border-border/50 text-muted-foreground hover:text-foreground hover:border-primary/30 hover:bg-primary/5 transition-all"
