@@ -103,7 +103,7 @@ export const PlacesBoard = () => {
           <Input placeholder="Nome do lugar" value={form.name || ""} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} className="h-9 rounded-xl text-xs" />
           <div className="grid grid-cols-2 gap-2">
             <Input placeholder="Cidade" value={form.city || ""} onChange={e => setForm(p => ({ ...p, city: e.target.value }))} className="h-9 rounded-xl text-xs" />
-            <Select value={form.category || "comida"} onValueChange={v => setForm(p => ({ ...p, category: v }))}>
+            <Select value={form.category || "comida"} onValueChange={v => setForm(p => ({ ...p, category: v as Place["category"] }))}>
               <SelectTrigger className="h-9 rounded-xl text-xs"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {Object.entries(PLACE_CATEGORIES).map(([k, c]) => (
