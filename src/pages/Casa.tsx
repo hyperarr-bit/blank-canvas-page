@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { ModuleTip } from "@/components/ModuleTip";
-import { ArrowLeft, Home, Droplets, ShoppingCart, UtensilsCrossed, Wrench, Leaf, Users, ShieldCheck, Settings } from "lucide-react";
+import { ArrowLeft, Home, Droplets, ShoppingCart, UtensilsCrossed, Wrench, Leaf, Users, ShieldCheck, Settings, DoorOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { usePersistedState } from "@/hooks/use-persisted-state";
@@ -12,8 +12,10 @@ import PlantsAndPets from "@/components/casa/PlantsAndPets";
 import ChoreRotation from "@/components/casa/ChoreRotation";
 import SafetyChecks from "@/components/casa/SafetyChecks";
 import HomeUtilities from "@/components/casa/HomeUtilities";
+import RoomManager from "@/components/casa/RoomManager";
 
 const tabs = [
+  { v: "comodos", l: "Cômodos", icon: DoorOpen },
   { v: "radar", l: "Limpeza", icon: Droplets },
   { v: "despensa", l: "Despensa", icon: ShoppingCart },
   { v: "cardapio", l: "Cardápio", icon: UtensilsCrossed },
@@ -97,7 +99,7 @@ const Casa = () => {
           </div>
         </div>
 
-        <Tabs defaultValue="radar" className="w-full">
+          <Tabs defaultValue="comodos" className="w-full">
           <div className="overflow-x-auto scrollbar-hide -mx-4 px-4">
             <TabsList className="inline-flex w-auto min-w-full">
               {tabs.map(t => (
@@ -109,6 +111,7 @@ const Casa = () => {
             </TabsList>
           </div>
 
+          <TabsContent value="comodos"><RoomManager /></TabsContent>
           <TabsContent value="radar"><CleaningRadar /></TabsContent>
           <TabsContent value="despensa"><SmartPantry /></TabsContent>
           <TabsContent value="cardapio"><MealPlanner /></TabsContent>
