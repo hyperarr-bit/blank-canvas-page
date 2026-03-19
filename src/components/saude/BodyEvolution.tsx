@@ -24,9 +24,9 @@ interface BodyPhoto {
 }
 
 const sentiments = [
-  { emoji: "😊", label: "Contente", color: "bg-saude-green/20 text-saude-green border-saude-green/30" },
-  { emoji: "✨", label: "Motivado", color: "bg-saude-yellow/20 text-saude-yellow border-saude-yellow/30" },
-  { emoji: "😞", label: "Descontente", color: "bg-saude-red/20 text-saude-red border-saude-red/30" },
+  { emoji: "😊", label: "Contente", color: "bg-[hsl(var(--saude-green)/0.12)] text-[hsl(var(--saude-green))] border-[hsl(var(--saude-green)/0.25)]" },
+  { emoji: "✨", label: "Motivado", color: "bg-[hsl(var(--saude-yellow)/0.12)] text-[hsl(var(--saude-yellow))] border-[hsl(var(--saude-yellow)/0.25)]" },
+  { emoji: "😞", label: "Descontente", color: "bg-[hsl(var(--saude-red)/0.12)] text-[hsl(var(--saude-red))] border-[hsl(var(--saude-red)/0.25)]" },
 ];
 
 const todayStr = () => new Date().toISOString().slice(0, 10);
@@ -86,15 +86,15 @@ export const BodyEvolution = () => {
     <div className="space-y-4">
       {/* Before & After comparator */}
       {photos.length >= 2 && (
-        <div className="saude-card rounded-2xl p-4">
+        <div className="bg-card rounded-xl border border-border p-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <ArrowLeftRight className="w-4 h-4 text-saude-blue" />
+              <ArrowLeftRight className="w-4 h-4 text-[hsl(var(--saude-blue))]" />
               <span className="text-xs font-bold uppercase tracking-wider">Antes & Depois</span>
             </div>
             <button
               onClick={() => setCompareMode(!compareMode)}
-              className={`text-[10px] px-3 py-1 rounded-lg font-bold transition-colors ${compareMode ? "bg-saude-blue/20 text-saude-blue" : "bg-saude-card text-saude-muted"}`}
+              className={`text-[10px] px-3 py-1 rounded-lg font-bold transition-colors ${compareMode ? "bg-[hsl(var(--saude-blue)/0.12)] text-[hsl(var(--saude-blue))]" : "bg-muted text-muted-foreground"}`}
             >
               {compareMode ? "Fechar" : "Comparar"}
             </button>
@@ -104,7 +104,7 @@ export const BodyEvolution = () => {
               {[0, 1].map(slot => (
                 <div key={slot}>
                   <select
-                    className="w-full text-[10px] mb-2 bg-saude-card rounded-lg px-2 py-1.5 border-none text-foreground"
+                    className="w-full text-[10px] mb-2 bg-muted rounded-lg px-2 py-1.5 border border-input text-foreground"
                     value={compareIdx[slot]}
                     onChange={e => {
                       const newIdx = [...compareIdx] as [number, number];
@@ -125,13 +125,13 @@ export const BodyEvolution = () => {
       )}
 
       {/* Photo upload */}
-      <div className="saude-card rounded-2xl p-4">
+      <div className="bg-card rounded-xl border border-border p-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <Camera className="w-4 h-4 text-saude-green" />
+            <Camera className="w-4 h-4 text-[hsl(var(--saude-green))]" />
             <span className="text-xs font-bold uppercase tracking-wider">Fotos de Progresso</span>
           </div>
-          <span className="text-[10px] text-saude-muted">{photos.length} fotos</span>
+          <span className="text-[10px] text-muted-foreground">{photos.length} fotos</span>
         </div>
 
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
@@ -153,14 +153,14 @@ export const BodyEvolution = () => {
           <button
             onClick={() => fileRef.current?.click()}
             disabled={uploading}
-            className="flex-shrink-0 w-20 h-28 rounded-xl border-2 border-dashed border-saude-muted/30 flex flex-col items-center justify-center gap-1 hover:border-saude-green/50 transition-colors"
+            className="flex-shrink-0 w-20 h-28 rounded-xl border-2 border-dashed border-muted-foreground/30 flex flex-col items-center justify-center gap-1 hover:border-[hsl(var(--saude-green)/0.5)] transition-colors"
           >
             {uploading ? (
-              <span className="text-[10px] text-saude-muted">Enviando...</span>
+              <span className="text-[10px] text-muted-foreground">Enviando...</span>
             ) : (
               <>
-                <Camera className="w-5 h-5 text-saude-muted" />
-                <span className="text-[9px] text-saude-muted">Adicionar</span>
+                <Camera className="w-5 h-5 text-muted-foreground" />
+                <span className="text-[9px] text-muted-foreground">Adicionar</span>
               </>
             )}
           </button>
@@ -169,15 +169,15 @@ export const BodyEvolution = () => {
       </div>
 
       {/* Measurement table */}
-      <div className="saude-card rounded-2xl p-4">
-        <div className="flex items-center justify-between mb-3">
+      <div className="bg-card rounded-xl border border-border overflow-hidden">
+        <div className="flex items-center justify-between p-4 pb-3">
           <div className="flex items-center gap-2">
-            <Ruler className="w-4 h-4 text-saude-blue" />
+            <Ruler className="w-4 h-4 text-[hsl(var(--saude-blue))]" />
             <span className="text-xs font-bold uppercase tracking-wider">Medidas Corporais</span>
           </div>
           <button
             onClick={() => setShowForm(!showForm)}
-            className="text-[10px] px-3 py-1.5 rounded-lg bg-saude-green/20 text-saude-green font-bold transition-colors hover:bg-saude-green/30"
+            className="text-[10px] px-3 py-1.5 rounded-lg bg-[hsl(var(--saude-green)/0.12)] text-[hsl(var(--saude-green))] font-bold transition-colors hover:bg-[hsl(var(--saude-green)/0.2)] border border-[hsl(var(--saude-green)/0.2)]"
           >
             <Plus className="w-3 h-3 inline mr-1" />Registrar
           </button>
@@ -189,24 +189,24 @@ export const BodyEvolution = () => {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden mb-3"
+              className="overflow-hidden px-4 mb-3"
             >
-              <div className="grid grid-cols-2 gap-2 p-3 rounded-xl bg-saude-card">
-                <Input type="date" value={newM.date} onChange={e => setNewM({ ...newM, date: e.target.value })} className="col-span-2 text-xs h-8 bg-saude-card border-saude-card" />
+              <div className="grid grid-cols-2 gap-2 p-3 rounded-xl bg-muted">
+                <Input type="date" value={newM.date} onChange={e => setNewM({ ...newM, date: e.target.value })} className="col-span-2 text-xs h-8" />
                 {fields.map(f => (
                   <div key={f.key} className="relative">
                     <Input
                       value={newM[f.key]}
                       onChange={e => setNewM({ ...newM, [f.key]: e.target.value })}
                       placeholder={f.label}
-                      className="text-xs h-8 pr-8 bg-saude-card border-saude-card"
+                      className="text-xs h-8 pr-8"
                     />
-                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-saude-muted">{f.unit}</span>
+                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground">{f.unit}</span>
                   </div>
                 ))}
                 <button
                   onClick={saveMeasurement}
-                  className="col-span-2 py-2 rounded-xl bg-saude-green/20 text-saude-green text-xs font-bold hover:bg-saude-green/30 transition-colors"
+                  className="col-span-2 py-2 rounded-lg bg-[hsl(var(--saude-green)/0.12)] text-[hsl(var(--saude-green))] text-xs font-bold hover:bg-[hsl(var(--saude-green)/0.2)] transition-colors"
                 >
                   Salvar Medidas
                 </button>
@@ -215,24 +215,28 @@ export const BodyEvolution = () => {
           )}
         </AnimatePresence>
 
-        {sorted.length > 0 && (
+        {sorted.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full text-[11px]">
               <thead>
-                <tr className="border-b border-saude-card">
-                  <th className="text-left p-2 text-saude-muted font-medium">Data</th>
-                  {fields.map(f => <th key={f.key} className="text-center p-2 text-saude-muted font-medium">{f.label}</th>)}
-                  <th className="p-2" />
+                <tr className="bg-muted">
+                  <th className="text-left px-4 py-2.5 text-muted-foreground font-semibold text-xs uppercase tracking-wider">Data</th>
+                  {fields.map(f => (
+                    <th key={f.key} className="text-center px-2 py-2.5 text-muted-foreground font-semibold text-xs uppercase tracking-wider">{f.label}</th>
+                  ))}
+                  <th className="px-2 py-2.5" />
                 </tr>
               </thead>
               <tbody>
                 {sorted.slice(0, 10).map((m, i) => (
-                  <tr key={i} className="border-b border-saude-card/50">
-                    <td className="p-2 font-medium">{new Date(m.date + "T12:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}</td>
-                    {fields.map(f => <td key={f.key} className="text-center p-2">{m[f.key] || "—"}</td>)}
-                    <td className="p-2">
+                  <tr key={i} className="border-b border-border last:border-0">
+                    <td className="px-4 py-2.5 font-medium text-foreground">{new Date(m.date + "T12:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}</td>
+                    {fields.map(f => (
+                      <td key={f.key} className="text-center px-2 py-2.5 text-muted-foreground">{m[f.key] || "—"}</td>
+                    ))}
+                    <td className="px-2 py-2.5">
                       <button onClick={() => setMeasurements(prev => prev.filter((_, j) => j !== measurements.indexOf(m)))}>
-                        <Trash2 className="w-3 h-3 text-saude-muted hover:text-saude-red transition-colors" />
+                        <Trash2 className="w-3 h-3 text-muted-foreground hover:text-destructive transition-colors" />
                       </button>
                     </td>
                   </tr>
@@ -240,18 +244,23 @@ export const BodyEvolution = () => {
               </tbody>
             </table>
           </div>
+        ) : (
+          <div className="px-4 pb-4 text-center">
+            <p className="text-sm text-muted-foreground">Nenhuma medida registrada</p>
+            <p className="text-xs text-muted-foreground/70">Clique em "Registrar" para adicionar suas medidas</p>
+          </div>
         )}
       </div>
 
       {/* Sentiment tracker */}
-      <div className="saude-card rounded-2xl p-4">
+      <div className="bg-card rounded-xl border border-border p-4">
         <p className="text-xs font-bold uppercase tracking-wider mb-3">😊 Como me sinto com isso hoje</p>
         <div className="flex gap-2 mb-3">
           {sentiments.map(s => (
             <button
               key={s.label}
               onClick={() => setSentimentLog(prev => ({ ...prev, [today]: { sentiment: s.label, note: prev[today]?.note || "" } }))}
-              className={`flex-1 py-2 rounded-xl border text-xs font-bold transition-all ${todaySentiment?.sentiment === s.label ? s.color : "bg-saude-card border-transparent text-saude-muted"}`}
+              className={`flex-1 py-2 rounded-lg border text-xs font-bold transition-all ${todaySentiment?.sentiment === s.label ? s.color : "bg-muted border-border text-muted-foreground"}`}
             >
               {s.emoji} {s.label}
             </button>
@@ -263,7 +272,7 @@ export const BodyEvolution = () => {
             onChange={e => setSentimentNote(e.target.value)}
             onBlur={() => setSentimentLog(prev => ({ ...prev, [today]: { ...prev[today], note: sentimentNote } }))}
             placeholder="O que te faz sentir assim? (opcional)"
-            className="text-xs h-9 bg-saude-card border-saude-card"
+            className="text-xs h-9"
           />
         )}
       </div>
