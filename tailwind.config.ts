@@ -83,6 +83,9 @@ export default {
           border: "hsl(var(--card-investimentos-border))",
           text: "hsl(var(--card-investimentos-text))",
         },
+        "sk-mint": "hsl(var(--sk-mint, 120 100% 80%))",
+        "sk-lavender": "hsl(var(--sk-lavender, 245 58% 90%))",
+        "sk-coral": "hsl(var(--sk-coral, 6 100% 69%))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",

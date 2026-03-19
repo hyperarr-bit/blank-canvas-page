@@ -192,4 +192,46 @@
   .animate-jiggle {
     animation: jiggle 0.15s ease-in-out infinite;
   }
+
+  /* ===== Skincare Module Dark Theme ===== */
+  .skincare-module {
+    --background: 0 0% 7%;
+    --foreground: 0 0% 92%;
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 92%;
+    --popover: 0 0% 14%;
+    --popover-foreground: 0 0% 92%;
+    --primary: 150 80% 72%;
+    --primary-foreground: 0 0% 5%;
+    --secondary: 0 0% 16%;
+    --secondary-foreground: 0 0% 85%;
+    --muted: 0 0% 16%;
+    --muted-foreground: 0 0% 55%;
+    --accent: 245 58% 90%;
+    --accent-foreground: 0 0% 5%;
+    --destructive: 6 100% 69%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 150 80% 72%;
+    --sk-mint: 120 100% 80%;
+    --sk-lavender: 245 58% 90%;
+    --sk-coral: 6 100% 69%;
+  }
+
+  .skincare-module .sk-glass {
+    background: hsla(0, 0%, 100%, 0.04);
+    backdrop-filter: blur(12px);
+    border: 1px solid hsla(0, 0%, 100%, 0.08);
+    box-shadow: 0 8px 32px hsla(0, 0%, 0%, 0.3);
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 8px hsla(6, 100%, 69%, 0.4); }
+    50% { box-shadow: 0 0 20px hsla(6, 100%, 69%, 0.7); }
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
 }
