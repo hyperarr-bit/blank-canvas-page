@@ -51,7 +51,7 @@ export const SafetyCard = () => {
         </div>
         <div className="bg-red-50 dark:bg-red-950/20 px-3 py-2">
           <p className="text-[10px] text-muted-foreground">
-            Tenha tudo à mão em caso de emergência. <span className="font-bold text-foreground">{filledCount}/{allFields.length}</span> preenchidos.
+            Tenha tudo à mão em caso de emergência. <span className="font-bold text-foreground">{filledCount}/{allKeys.length}</span> preenchidos.
           </p>
         </div>
       </div>
