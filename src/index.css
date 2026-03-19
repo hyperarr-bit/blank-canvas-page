@@ -234,4 +234,44 @@
   .animate-pulse-glow {
     animation: pulse-glow 2s ease-in-out infinite;
   }
+  /* ===== Saúde Module Theme ===== */
+  .saude-module {
+    --saude-green: 145 100% 50%;
+    --saude-blue: 186 100% 50%;
+    --saude-yellow: 50 100% 50%;
+    --saude-red: 0 100% 59%;
+    --saude-card: 0 0% 10%;
+    --saude-muted: 0 0% 60%;
+    --background: 0 0% 4%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 100%;
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 60%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 100%;
+  }
+
+  :root {
+    --saude-green: 145 100% 50%;
+    --saude-blue: 186 100% 50%;
+    --saude-yellow: 50 100% 50%;
+    --saude-red: 0 100% 59%;
+    --saude-card: 0 0% 96%;
+    --saude-muted: 0 0% 53%;
+  }
+
+  .dark {
+    --saude-card: 0 0% 10%;
+    --saude-muted: 0 0% 60%;
+  }
+
+  .saude-module .saude-glass {
+    background: hsla(0, 0%, 100%, 0.04);
+    backdrop-filter: blur(12px);
+    border: 1px solid hsla(0, 0%, 100%, 0.08);
+    box-shadow: 0 8px 32px hsla(0, 0%, 0%, 0.3);
+  }
 }
