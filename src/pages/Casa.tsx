@@ -114,6 +114,7 @@ const Casa = () => {
           </div>
 
           <TabsContent value="comodos"><RoomManager /></TabsContent>
+          <TabsContent value="mercado"><GroceryList /></TabsContent>
           <TabsContent value="radar"><CleaningRadar /></TabsContent>
           <TabsContent value="despensa"><SmartPantry /></TabsContent>
           <TabsContent value="cardapio"><MealPlanner /></TabsContent>
