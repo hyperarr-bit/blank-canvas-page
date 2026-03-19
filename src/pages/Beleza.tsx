@@ -11,7 +11,7 @@ const Beleza = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="skincare-module min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
       <header className="border-b border-border/50 bg-card/80 backdrop-blur-md sticky top-0 z-30">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">

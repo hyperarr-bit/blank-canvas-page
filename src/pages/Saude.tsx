@@ -98,7 +98,7 @@ const Saude = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="agora" className="w-full">
-          <TabsList className="w-full grid grid-cols-4 gap-1 bg-[hsl(var(--saude-card))] p-1 h-auto rounded-xl">
+          <TabsList className="w-full grid grid-cols-4 gap-1 bg-muted p-1 h-auto rounded-xl">
             <TabsTrigger value="agora" className="text-[11px] px-2 py-2 rounded-lg data-[state=active]:bg-saude-green/20 data-[state=active]:text-saude-green font-bold">
               <Zap className="w-3 h-3 mr-1" />Agora
             </TabsTrigger>
