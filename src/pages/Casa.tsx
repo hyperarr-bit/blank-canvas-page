@@ -14,6 +14,7 @@ import SafetyChecks from "@/components/casa/SafetyChecks";
 import HomeUtilities from "@/components/casa/HomeUtilities";
 import RoomManager from "@/components/casa/RoomManager";
 import GroceryList from "@/components/casa/GroceryList";
+import CleaningRoutine from "@/components/casa/CleaningRoutine";
 
 const tabs = [
   { v: "comodos", l: "Cômodos", icon: DoorOpen },
