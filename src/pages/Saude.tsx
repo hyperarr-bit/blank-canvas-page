@@ -1,10 +1,11 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, AlertTriangle, Zap, Scale, Stethoscope, Wrench } from "lucide-react";
+import { ArrowLeft, Zap, Scale, Stethoscope, Wrench, AlertTriangle, Droplets, Pill, Moon, Activity, Timer, Smile, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { usePersistedState } from "@/hooks/use-persisted-state";
-import { HealthScoreRing } from "@/components/saude/HealthScoreRing";
+import { ModuleTip } from "@/components/ModuleTip";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { HydrationTracker } from "@/components/saude/HydrationTracker";
 import { PharmacyChecklist } from "@/components/saude/PharmacyChecklist";
 import { FastingTimer } from "@/components/saude/FastingTimer";
@@ -14,9 +15,17 @@ import { ToolsEmergency } from "@/components/saude/ToolsEmergency";
 
 const todayStr = () => new Date().toISOString().slice(0, 10);
 
+const tabs = [
+  { id: "agora", label: "AGORA", icon: "⚡" },
+  { id: "evolucao", label: "EVOLUÇÃO", icon: "⚖️" },
+  { id: "log", label: "LOG MÉDICO", icon: "🏥" },
+  { id: "tools", label: "FERRAMENTAS", icon: "🛠️" },
+];
+
 const Saude = () => {
   const navigate = useNavigate();
   const today = todayStr();
+  const [activeTab, setActiveTab] = useState("agora");
 
   // Compute health score from all signals
   const [waterLog] = usePersistedState<Record<string, number>>("core-saude-water", {});
@@ -28,11 +37,14 @@ const Saude = () => {
 
   const waterToday = waterLog[today] || 0;
   const waterPct = waterGoal > 0 ? (waterToday / waterGoal) * 100 : 0;
+  const mlCurrent = waterToday * 250;
+  const mlGoal = waterGoal * 250;
   const sleepToday = sleepLog[today] || 0;
   const sleepOk = sleepToday >= sleepGoal - 1;
   const takenToday = supplementLog[today] || [];
   const medsCount = takenToday.length;
   const medsTotal = supplements.length;
+  const debtHours = Math.max(0, sleepGoal - sleepToday);
 
   // Score: water 30%, sleep 30%, meds 40%
   let score = 0;
@@ -41,99 +53,154 @@ const Saude = () => {
   score += medsTotal > 0 ? (medsCount / medsTotal) * 40 : 40;
   score = Math.round(Math.min(100, score));
 
-  // Sleep debt for header
-  const debtHours = Math.max(0, sleepGoal - sleepToday);
-
-  const [showSOS, setShowSOS] = usePersistedState<boolean>("core-saude-sos-visible", false);
+  const currentMonth = new Date().toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
 
   return (
-    <div className="min-h-screen pb-20 bg-background text-foreground">
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-sm">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="text-foreground hover:bg-muted">
+    <div className="min-h-screen bg-background">
+      {/* Header — Notion style */}
+      <header className="border-b border-border bg-card sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
+          <button onClick={() => navigate("/")} className="hover:bg-muted rounded-md p-1 transition-colors">
             <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div className="flex-1">
-            <h1 className="text-lg font-black tracking-tight">CORE SAÚDE</h1>
-            <p className="text-[11px] text-saude-muted">Performance · Evolução · Controle</p>
-          </div>
+          </button>
+          <span className="text-lg">≡</span>
+          <h1 className="text-base font-bold tracking-tight">CORE — SAÚDE</h1>
+          <span className="ml-auto text-xs text-muted-foreground capitalize">{currentMonth}</span>
+          <ThemeToggle />
           <button
             onClick={() => {
-              const el = document.getElementById("saude-sos-section");
-              if (el) el.scrollIntoView({ behavior: "smooth" });
+              setActiveTab("tools");
+              setTimeout(() => {
+                const el = document.getElementById("saude-sos-section");
+                if (el) el.scrollIntoView({ behavior: "smooth" });
+              }, 100);
             }}
-            className="w-9 h-9 rounded-xl bg-saude-red/20 hover:bg-saude-red/30 flex items-center justify-center transition-colors"
+            className="w-8 h-8 rounded-lg bg-destructive/10 hover:bg-destructive/20 flex items-center justify-center transition-colors"
           >
-            <AlertTriangle className="w-4 h-4 text-saude-red" />
+            <AlertTriangle className="w-4 h-4 text-destructive" />
           </button>
+        </div>
+        {/* Tabs row */}
+        <div className="max-w-7xl mx-auto px-4 pb-2 flex gap-1 overflow-x-auto scrollbar-hide">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`notion-tab whitespace-nowrap text-[11px] flex items-center gap-1 ${activeTab === tab.id ? "notion-tab-active" : "hover:bg-muted"}`}
+            >
+              <span>{tab.icon}</span>
+              {tab.label}
+            </button>
+          ))}
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-5 space-y-5">
-        {/* Health Score Ring */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="saude-card p-5"
-        >
-          <HealthScoreRing
-            score={score}
-            waterPct={waterPct}
-            sleepOk={sleepOk}
-            medsCount={medsCount}
-            medsTotal={medsTotal}
-          />
+      <main className="max-w-7xl mx-auto px-4 py-5 space-y-5">
+        {/* Tips card */}
+        <ModuleTip
+          moduleId="saude"
+          tips={[
+            "Acompanhe sua hidratação diária e marque seus copos de água",
+            "Cadastre seus suplementos e marque conforme tomar cada um",
+            "Registre suas medidas corporais na aba ⚖️ Evolução",
+            "Use o Log Médico para salvar consultas e exames importantes",
+          ]}
+        />
 
-          {/* Quick status badges */}
-          <div className="flex items-center justify-center gap-3 mt-4">
-            <div className={`px-3 py-1 rounded-lg text-[11px] font-bold ${debtHours > 0 ? "bg-saude-red/15 text-saude-red" : "bg-saude-green/15 text-saude-green"}`}>
-              Sono: {debtHours > 0 ? `Dívida -${debtHours}h` : "OK ✓"}
+        {/* === AGORA TAB === */}
+        {activeTab === "agora" && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
+            {/* Summary Cards */}
+            <div className="grid grid-cols-2 gap-3">
+              {/* Hydration Card */}
+              <div className="rounded-xl p-4 border bg-[hsl(var(--saude-blue)/0.12)] border-[hsl(var(--saude-blue)/0.25)]">
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-xs font-bold uppercase tracking-wider text-[hsl(var(--saude-blue))]">Hidratação</p>
+                  <Droplets className="w-5 h-5 text-[hsl(var(--saude-blue)/0.5)]" />
+                </div>
+                <p className="text-sm text-[hsl(var(--saude-blue))]">{(mlCurrent / 1000).toFixed(1)}L / {(mlGoal / 1000).toFixed(1)}L</p>
+              </div>
+
+              {/* Supplements Card */}
+              <div className="rounded-xl p-4 border bg-[hsl(var(--saude-green)/0.12)] border-[hsl(var(--saude-green)/0.25)]">
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-xs font-bold uppercase tracking-wider text-[hsl(var(--saude-green))]">Suplementos</p>
+                  <Pill className="w-5 h-5 text-[hsl(var(--saude-green)/0.5)]" />
+                </div>
+                <p className="text-sm text-[hsl(var(--saude-green))]">{medsCount}/{medsTotal} tomados</p>
+              </div>
+
+              {/* Sleep Debt Card */}
+              <div className={`rounded-xl p-4 border ${debtHours > 0 ? "bg-[hsl(var(--saude-red)/0.12)] border-[hsl(var(--saude-red)/0.25)]" : "bg-[hsl(var(--saude-green)/0.12)] border-[hsl(var(--saude-green)/0.25)]"}`}>
+                <div className="flex items-center justify-between mb-1">
+                  <p className={`text-xs font-bold uppercase tracking-wider ${debtHours > 0 ? "text-[hsl(var(--saude-red))]" : "text-[hsl(var(--saude-green))]"}`}>Dívida de Sono</p>
+                  <Moon className={`w-5 h-5 ${debtHours > 0 ? "text-[hsl(var(--saude-red)/0.5)]" : "text-[hsl(var(--saude-green)/0.5)]"}`} />
+                </div>
+                <p className={`text-sm ${debtHours > 0 ? "text-[hsl(var(--saude-red))]" : "text-[hsl(var(--saude-green))]"}`}>
+                  {debtHours > 0 ? `-${debtHours} Horas` : "OK ✓"}
+                </p>
+              </div>
+
+              {/* Health Score Card */}
+              <div className="rounded-xl p-4 border bg-muted border-border">
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Score de Hoje</p>
+                  <Activity className="w-5 h-5 text-muted-foreground/50" />
+                </div>
+                <p className="text-sm font-bold text-foreground">Health Score: {score}%</p>
+              </div>
             </div>
-            <div className={`px-3 py-1 rounded-lg text-[11px] font-bold ${waterPct >= 100 ? "bg-saude-green/15 text-saude-green" : "bg-saude-blue/15 text-saude-blue"}`}>
-              Hidratação: {waterPct >= 100 ? "OK ✓" : `${Math.round(waterPct)}%`}
+
+            {/* Quick Actions */}
+            <div>
+              <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Ações Rápidas</h2>
+              <div className="grid grid-cols-3 gap-2">
+                <QuickActionCard icon="⏱️" label="Iniciar Jejum" onClick={() => setActiveTab("agora")} />
+                <QuickActionCard icon="🧍" label="Postura/Dor" onClick={() => {}} />
+                <QuickActionCard icon="🥱" label="Humor/Sono" onClick={() => setActiveTab("tools")} />
+              </div>
             </div>
-          </div>
-        </motion.div>
 
-        {/* Tabs */}
-        <Tabs defaultValue="agora" className="w-full">
-          <TabsList className="w-full grid grid-cols-4 gap-1 bg-muted p-1 h-auto rounded-xl">
-            <TabsTrigger value="agora" className="text-[11px] px-2 py-2 rounded-lg data-[state=active]:bg-saude-green/20 data-[state=active]:text-saude-green font-bold">
-              <Zap className="w-3 h-3 mr-1" />Agora
-            </TabsTrigger>
-            <TabsTrigger value="evolucao" className="text-[11px] px-2 py-2 rounded-lg data-[state=active]:bg-saude-blue/20 data-[state=active]:text-saude-blue font-bold">
-              <Scale className="w-3 h-3 mr-1" />Evolução
-            </TabsTrigger>
-            <TabsTrigger value="log" className="text-[11px] px-2 py-2 rounded-lg data-[state=active]:bg-saude-green/20 data-[state=active]:text-saude-green font-bold">
-              <Stethoscope className="w-3 h-3 mr-1" />Log
-            </TabsTrigger>
-            <TabsTrigger value="tools" className="text-[11px] px-2 py-2 rounded-lg data-[state=active]:bg-saude-yellow/20 data-[state=active]:text-saude-yellow font-bold">
-              <Wrench className="w-3 h-3 mr-1" />Tools
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="agora" className="space-y-4 mt-4">
+            {/* Trackers */}
             <HydrationTracker />
             <PharmacyChecklist />
             <FastingTimer />
-          </TabsContent>
+          </motion.div>
+        )}
 
-          <TabsContent value="evolucao" className="space-y-4 mt-4">
+        {/* === EVOLUÇÃO TAB === */}
+        {activeTab === "evolucao" && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
             <BodyEvolution />
-          </TabsContent>
+          </motion.div>
+        )}
 
-          <TabsContent value="log" className="space-y-4 mt-4">
+        {/* === LOG MÉDICO TAB === */}
+        {activeTab === "log" && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
             <MedicalLog />
-          </TabsContent>
+          </motion.div>
+        )}
 
-          <TabsContent value="tools" className="space-y-4 mt-4" id="saude-sos-section">
+        {/* === FERRAMENTAS TAB === */}
+        {activeTab === "tools" && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} id="saude-sos-section">
             <ToolsEmergency />
-          </TabsContent>
-        </Tabs>
+          </motion.div>
+        )}
       </main>
     </div>
   );
 };
+
+const QuickActionCard = ({ icon, label, onClick }: { icon: string; label: string; onClick: () => void }) => (
+  <button
+    onClick={onClick}
+    className="flex flex-col items-center gap-1.5 p-3 rounded-xl border border-border bg-card hover:bg-muted/50 transition-colors"
+  >
+    <span className="text-lg">{icon}</span>
+    <span className="text-[10px] font-medium text-muted-foreground">{label}</span>
+  </button>
+);
 
 export default Saude;

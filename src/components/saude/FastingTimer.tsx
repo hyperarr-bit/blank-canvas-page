@@ -4,12 +4,12 @@ import { Timer, Play, Square } from "lucide-react";
 import { usePersistedState } from "@/hooks/use-persisted-state";
 
 const FASTING_PHASES = [
-  { hours: 0, label: "Digestão", color: "text-saude-yellow", emoji: "🍽️" },
-  { hours: 4, label: "Pós-absorção", color: "text-saude-blue", emoji: "⚡" },
-  { hours: 8, label: "Gluconeogênese", color: "text-saude-blue", emoji: "🔄" },
-  { hours: 12, label: "Cetose Leve", color: "text-saude-green", emoji: "🔥" },
-  { hours: 16, label: "Queima de Gordura", color: "text-saude-green", emoji: "💪" },
-  { hours: 20, label: "Autofagia", color: "text-saude-green", emoji: "🧬" },
+  { hours: 0, label: "Digestão", emoji: "🍽️" },
+  { hours: 4, label: "Pós-absorção", emoji: "⚡" },
+  { hours: 8, label: "Gluconeogênese", emoji: "🔄" },
+  { hours: 12, label: "Cetose Leve", emoji: "🔥" },
+  { hours: 16, label: "Queima de Gordura", emoji: "💪" },
+  { hours: 20, label: "Autofagia", emoji: "🧬" },
 ];
 
 export const FastingTimer = () => {
@@ -32,72 +32,60 @@ export const FastingTimer = () => {
   const nextPhase = FASTING_PHASES.find(p => p.hours > hours);
 
   const toggle = () => {
-    if (fastingStart) {
-      setFastingStart(null);
-    } else {
-      setFastingStart(new Date().toISOString());
-    }
+    setFastingStart(fastingStart ? null : new Date().toISOString());
   };
 
   return (
-    <div className="saude-card rounded-2xl p-4">
+    <div className="bg-card rounded-xl border border-border p-4">
       <div className="flex items-center gap-2 mb-4">
-        <Timer className="w-4 h-4 text-saude-blue" />
+        <Timer className="w-4 h-4 text-[hsl(var(--saude-blue))]" />
         <span className="text-xs font-bold uppercase tracking-wider">Relógio de Jejum</span>
       </div>
 
       {fastingStart ? (
         <div className="space-y-4">
-          {/* Timer display */}
           <div className="text-center">
-            <div className="font-mono text-4xl font-black tracking-tighter">
-              <span className="text-saude-blue">{String(hours).padStart(2, "0")}</span>
-              <span className="text-saude-muted">:</span>
-              <span className="text-saude-blue">{String(minutes).padStart(2, "0")}</span>
-              <span className="text-saude-muted text-2xl">:{String(seconds).padStart(2, "0")}</span>
+            <div className="font-mono text-3xl font-black tracking-tighter text-foreground">
+              {String(hours).padStart(2, "0")}
+              <span className="text-muted-foreground">:</span>
+              {String(minutes).padStart(2, "0")}
+              <span className="text-muted-foreground text-xl">:{String(seconds).padStart(2, "0")}</span>
             </div>
           </div>
 
-          {/* Phase indicator */}
-          <motion.div
-            key={currentPhase.label}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center justify-center gap-2 py-2 px-4 rounded-xl bg-saude-card"
-          >
+          <div className="flex items-center justify-center gap-2 py-2 px-4 rounded-lg bg-muted">
             <span className="text-lg">{currentPhase.emoji}</span>
-            <span className={`text-sm font-bold ${currentPhase.color}`}>{currentPhase.label}</span>
-          </motion.div>
+            <span className="text-sm font-bold text-foreground">{currentPhase.label}</span>
+          </div>
 
-          {/* Phase progress */}
           <div className="flex gap-1">
-            {FASTING_PHASES.map((phase, i) => (
+            {FASTING_PHASES.map((phase) => (
               <div
                 key={phase.label}
-                className={`flex-1 h-1.5 rounded-full transition-colors ${hours >= phase.hours ? "bg-saude-blue" : "bg-saude-card"}`}
+                className={`flex-1 h-1.5 rounded-full transition-colors ${hours >= phase.hours ? "bg-[hsl(var(--saude-blue))]" : "bg-muted"}`}
               />
             ))}
           </div>
 
           {nextPhase && (
-            <p className="text-[11px] text-saude-muted text-center">
+            <p className="text-[11px] text-muted-foreground text-center">
               Próxima fase: <span className="font-bold">{nextPhase.emoji} {nextPhase.label}</span> em {nextPhase.hours - hours}h
             </p>
           )}
 
           <button
             onClick={toggle}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-saude-red/20 hover:bg-saude-red/30 text-saude-red text-xs font-bold transition-colors"
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-destructive/10 hover:bg-destructive/20 text-destructive text-xs font-bold transition-colors border border-destructive/20"
           >
             <Square className="w-3.5 h-3.5" /> Encerrar Jejum
           </button>
         </div>
       ) : (
         <div className="text-center space-y-3">
-          <p className="text-xs text-saude-muted">Nenhum jejum ativo</p>
+          <p className="text-xs text-muted-foreground">Nenhum jejum ativo</p>
           <button
             onClick={toggle}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-saude-blue/20 hover:bg-saude-blue/30 text-saude-blue text-sm font-bold transition-colors"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-[hsl(var(--saude-blue)/0.12)] hover:bg-[hsl(var(--saude-blue)/0.2)] text-[hsl(var(--saude-blue))] text-sm font-bold transition-colors border border-[hsl(var(--saude-blue)/0.2)]"
           >
             <Play className="w-4 h-4" /> Iniciar Jejum
           </button>
