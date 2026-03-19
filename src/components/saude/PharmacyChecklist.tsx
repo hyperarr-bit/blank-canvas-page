@@ -54,7 +54,7 @@ export const PharmacyChecklist = () => {
   const timeGroups = ["Manhã", "Tarde", "Noite"];
 
   return (
-    <div className="saude-glass rounded-2xl p-4">
+    <div className="saude-card rounded-2xl p-4">
       <div className="flex items-center gap-2 mb-4">
         <Pill className="w-4 h-4 text-saude-green" />
         <span className="text-xs font-bold uppercase tracking-wider">Farmácia Digital</span>

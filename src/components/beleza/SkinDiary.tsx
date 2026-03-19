@@ -116,7 +116,7 @@ export const SkinDiary = () => {
 
       {/* Today done */}
       {todayEntry && (
-        <div className="sk-glass rounded-xl p-3 border-sk-mint/20">
+        <div className="sk-card rounded-xl p-3 border-sk-mint/20">
           <p className="text-xs font-bold text-sk-mint">✅ Registro de hoje feito!</p>
           <p className="text-[10px] text-muted-foreground">
             {skinStatuses.find(s => s.id === todayEntry.skinStatus)?.emoji} {todayEntry.skinStatus} • {todayEntry.mood}
@@ -126,7 +126,7 @@ export const SkinDiary = () => {
 
       {/* Compare mode */}
       {compareMode && (
-        <div className="sk-glass rounded-2xl p-4">
+        <div className="sk-card rounded-2xl p-4">
           <p className="text-xs font-bold text-sk-mint mb-3">📸 Selecione 2 fotos para comparar</p>
           <div className="grid grid-cols-2 gap-3">
             {[0, 1].map(i => (
@@ -151,7 +151,7 @@ export const SkinDiary = () => {
 
       {/* Form */}
       {showForm && (
-        <div className="sk-glass rounded-2xl p-4 space-y-3">
+        <div className="sk-card rounded-2xl p-4 space-y-3">
           {/* Photo upload */}
           <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
 
@@ -228,7 +228,7 @@ export const SkinDiary = () => {
           const isSelected = compareEntries[0]?.id === e.id || compareEntries[1]?.id === e.id;
           return (
             <div key={e.id}
-              className={`sk-glass rounded-xl p-3 flex items-start gap-3 transition-all ${
+              className={`sk-card rounded-xl p-3 flex items-start gap-3 transition-all ${
                 compareMode && e.photoUrl ? "cursor-pointer hover:bg-muted/10" : ""
               } ${isSelected ? "ring-1 ring-sk-mint" : ""}`}
               onClick={() => compareMode && e.photoUrl && toggleCompare(e)}

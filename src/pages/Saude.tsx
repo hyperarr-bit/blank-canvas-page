@@ -47,11 +47,11 @@ const Saude = () => {
   const [showSOS, setShowSOS] = usePersistedState<boolean>("core-saude-sos-visible", false);
 
   return (
-    <div className="saude-module min-h-screen pb-20">
+    <div className="min-h-screen pb-20 bg-background text-foreground">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-[hsl(var(--border))] bg-[hsl(var(--background))/0.95] backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="text-foreground hover:bg-[hsl(var(--saude-card))]">
+          <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="text-foreground hover:bg-muted">
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="flex-1">
@@ -75,7 +75,7 @@ const Saude = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="saude-glass rounded-2xl p-5"
+          className="saude-card p-5"
         >
           <HealthScoreRing
             score={score}
@@ -98,7 +98,7 @@ const Saude = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="agora" className="w-full">
-          <TabsList className="w-full grid grid-cols-4 gap-1 bg-[hsl(var(--saude-card))] p-1 h-auto rounded-xl">
+          <TabsList className="w-full grid grid-cols-4 gap-1 bg-muted p-1 h-auto rounded-xl">
             <TabsTrigger value="agora" className="text-[11px] px-2 py-2 rounded-lg data-[state=active]:bg-saude-green/20 data-[state=active]:text-saude-green font-bold">
               <Zap className="w-3 h-3 mr-1" />Agora
             </TabsTrigger>

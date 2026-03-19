@@ -103,7 +103,7 @@ export const ProductShelf = () => {
 
       {/* Expiring alerts */}
       {expiringSoon.length > 0 && (
-        <div className="sk-glass rounded-xl p-3 border-sk-coral/20">
+        <div className="sk-card rounded-xl p-3 border-sk-coral/20">
           <div className="flex items-center gap-2 mb-1">
             <AlertTriangle className="w-3.5 h-3.5 text-sk-coral" />
             <p className="text-[11px] font-bold text-sk-coral">Vencendo em breve</p>
@@ -137,7 +137,7 @@ export const ProductShelf = () => {
 
       {/* Add form */}
       {showForm && (
-        <div className="sk-glass rounded-2xl p-4 space-y-3">
+        <div className="sk-card rounded-2xl p-4 space-y-3">
           <Input placeholder="Nome do produto" value={form.name || ""} onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
             className="h-9 text-sm bg-muted/30 border-border/50" />
           <div className="grid grid-cols-2 gap-2">
@@ -192,7 +192,7 @@ export const ProductShelf = () => {
           const cpd = costPerDose(p);
           const expiry = p.openedDate && p.paoMonths ? getExpiryProgress(p.openedDate, p.paoMonths) : null;
           return (
-            <div key={p.id} className="sk-glass rounded-xl p-3 flex items-center gap-3 cursor-pointer hover:bg-muted/10 transition-colors"
+            <div key={p.id} className="sk-card rounded-xl p-3 flex items-center gap-3 cursor-pointer hover:bg-muted/10 transition-colors"
               onClick={() => setSelectedProduct(p)}>
               <span className="text-xl w-8 text-center shrink-0">{catEmoji[p.category] || "✨"}</span>
               <div className="flex-1 min-w-0">
@@ -226,7 +226,7 @@ export const ProductShelf = () => {
 
       {/* Product detail dialog */}
       <Dialog open={!!selectedProduct} onOpenChange={() => setSelectedProduct(null)}>
-        <DialogContent className="max-w-sm skincare-module">
+        <DialogContent className="max-w-sm ">
           {selectedProduct && (() => {
             const p = selectedProduct;
             const cpd = costPerDose(p);
@@ -271,7 +271,7 @@ export const ProductShelf = () => {
 
       {/* Shopping list dialog */}
       <Dialog open={showShopping} onOpenChange={setShowShopping}>
-        <DialogContent className="max-w-sm skincare-module">
+        <DialogContent className="max-w-sm ">
           <DialogHeader><DialogTitle>🛒 Lista de Compras</DialogTitle></DialogHeader>
           <div className="space-y-2 max-h-[60vh] overflow-y-auto">
             {shoppingList.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">Lista vazia</p>}
@@ -295,7 +295,7 @@ export const ProductShelf = () => {
 
       {/* Triggers dialog */}
       <Dialog open={showTriggers} onOpenChange={setShowTriggers}>
-        <DialogContent className="max-w-sm skincare-module">
+        <DialogContent className="max-w-sm ">
           <DialogHeader><DialogTitle>🚫 Ingredientes a Evitar</DialogTitle></DialogHeader>
           <p className="text-[11px] text-muted-foreground">Adicione ingredientes que causam reação na sua pele. Um alerta ficará visível na Lista de Compras.</p>
           <div className="space-y-2">

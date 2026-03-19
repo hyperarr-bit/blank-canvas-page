@@ -109,7 +109,7 @@ export const SkincareRoutine = () => {
     <div className="space-y-4 mt-4">
       {/* Conflict alerts */}
       {conflicts.length > 0 && (
-        <div className="sk-glass rounded-xl p-3 border-sk-coral/30">
+        <div className="sk-card rounded-xl p-3 border-sk-coral/30">
           <div className="flex items-center gap-2 mb-1.5">
             <AlertTriangle className="w-3.5 h-3.5 text-sk-coral" />
             <p className="text-[11px] font-bold text-sk-coral">Conflitos Detectados</p>
@@ -131,7 +131,7 @@ export const SkincareRoutine = () => {
       )}
 
       {/* ====== MORNING ====== */}
-      <div className="sk-glass rounded-2xl p-4 space-y-3">
+      <div className="sk-card rounded-2xl p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Sun className="w-4 h-4 text-sk-mint" />
@@ -196,7 +196,7 @@ export const SkincareRoutine = () => {
       </div>
 
       {/* ====== NIGHT ====== */}
-      <div className="sk-glass rounded-2xl p-4 space-y-3">
+      <div className="sk-card rounded-2xl p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Moon className="w-4 h-4 text-sk-lavender" />
@@ -274,7 +274,7 @@ export const SkincareRoutine = () => {
       </div>
 
       {/* Skin Cycling Config */}
-      <div className="sk-glass rounded-2xl p-3">
+      <div className="sk-card rounded-2xl p-3">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-[11px] font-semibold text-foreground">🔄 Ciclo de 4 Dias</p>
@@ -297,7 +297,7 @@ export const SkincareRoutine = () => {
         <AlertTriangle className="w-3 h-3 mr-1.5" /> Guia: Pode vs. Não Pode
       </Button>
       {showGuide && (
-        <div className="sk-glass rounded-2xl p-4 space-y-2">
+        <div className="sk-card rounded-2xl p-4 space-y-2">
           <h4 className="text-xs font-bold">📋 Combinações a evitar</h4>
           {[
             { bad: "Retinol + AHA/BHA", tip: "Alterne os dias" },

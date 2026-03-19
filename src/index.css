@@ -193,37 +193,21 @@
     animation: jiggle 0.15s ease-in-out infinite;
   }
 
-  /* ===== Skincare Module Dark Theme ===== */
-  .skincare-module {
-    --background: 0 0% 7%;
-    --foreground: 0 0% 92%;
-    --card: 0 0% 12%;
-    --card-foreground: 0 0% 92%;
-    --popover: 0 0% 14%;
-    --popover-foreground: 0 0% 92%;
-    --primary: 150 80% 72%;
-    --primary-foreground: 0 0% 5%;
-    --secondary: 0 0% 16%;
-    --secondary-foreground: 0 0% 85%;
-    --muted: 0 0% 16%;
-    --muted-foreground: 0 0% 55%;
-    --accent: 245 58% 90%;
-    --accent-foreground: 0 0% 5%;
-    --destructive: 6 100% 69%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 150 80% 72%;
-    --sk-mint: 120 100% 80%;
-    --sk-lavender: 245 58% 90%;
+  /* ===== Skincare Module Accent Colors ===== */
+  :root {
+    --sk-mint: 150 60% 42%;
+    --sk-lavender: 245 40% 60%;
+    --sk-coral: 6 80% 58%;
+  }
+
+  .dark {
+    --sk-mint: 150 80% 65%;
+    --sk-lavender: 245 58% 80%;
     --sk-coral: 6 100% 69%;
   }
 
-  .skincare-module .sk-glass {
-    background: hsla(0, 0%, 100%, 0.04);
-    backdrop-filter: blur(12px);
-    border: 1px solid hsla(0, 0%, 100%, 0.08);
-    box-shadow: 0 8px 32px hsla(0, 0%, 0%, 0.3);
+  .sk-card {
+    @apply bg-card rounded-2xl p-4 border border-border shadow-sm;
   }
 
   @keyframes pulse-glow {
@@ -234,44 +218,27 @@
   .animate-pulse-glow {
     animation: pulse-glow 2s ease-in-out infinite;
   }
-  /* ===== Saúde Module Theme ===== */
-  .saude-module {
-    --saude-green: 145 100% 50%;
-    --saude-blue: 186 100% 50%;
-    --saude-yellow: 50 100% 50%;
-    --saude-red: 0 100% 59%;
-    --saude-card: 0 0% 10%;
-    --saude-muted: 0 0% 60%;
-    --background: 0 0% 4%;
-    --foreground: 0 0% 100%;
-    --card: 0 0% 10%;
-    --card-foreground: 0 0% 100%;
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 60%;
-    --popover: 0 0% 10%;
-    --popover-foreground: 0 0% 100%;
-  }
 
+  /* ===== Saúde Module Accent Colors ===== */
   :root {
-    --saude-green: 145 100% 50%;
-    --saude-blue: 186 100% 50%;
-    --saude-yellow: 50 100% 50%;
-    --saude-red: 0 100% 59%;
+    --saude-green: 145 70% 40%;
+    --saude-blue: 200 80% 45%;
+    --saude-yellow: 45 90% 48%;
+    --saude-red: 0 75% 50%;
     --saude-card: 0 0% 96%;
-    --saude-muted: 0 0% 53%;
+    --saude-muted: 0 0% 45%;
   }
 
   .dark {
-    --saude-card: 0 0% 10%;
+    --saude-green: 145 100% 50%;
+    --saude-blue: 186 100% 50%;
+    --saude-yellow: 50 100% 50%;
+    --saude-red: 0 100% 59%;
+    --saude-card: 0 0% 15%;
     --saude-muted: 0 0% 60%;
   }
 
-  .saude-module .saude-glass {
-    background: hsla(0, 0%, 100%, 0.04);
-    backdrop-filter: blur(12px);
-    border: 1px solid hsla(0, 0%, 100%, 0.08);
-    box-shadow: 0 8px 32px hsla(0, 0%, 0%, 0.3);
+  .saude-card {
+    @apply bg-card rounded-2xl p-4 border border-border shadow-sm;
   }
 }

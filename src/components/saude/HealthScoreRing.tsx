@@ -23,7 +23,7 @@ export const HealthScoreRing = ({ score, waterPct, sleepOk, medsCount, medsTotal
     <div className="flex flex-col items-center gap-3">
       <div className="relative w-36 h-36">
         <svg viewBox="0 0 120 120" className="w-full h-full -rotate-90">
-          <circle cx="60" cy="60" r={radius} fill="none" stroke="hsl(var(--saude-card))" strokeWidth="8" />
+          <circle cx="60" cy="60" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="8" />
           <motion.circle
             cx="60" cy="60" r={radius} fill="none"
             stroke={getColor()}

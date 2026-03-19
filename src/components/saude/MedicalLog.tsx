@@ -104,7 +104,7 @@ export const MedicalLog = () => {
   return (
     <div className="space-y-4">
       {/* Appointments */}
-      <div className="saude-glass rounded-2xl p-4">
+      <div className="saude-card rounded-2xl p-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4 text-saude-green" />
@@ -187,7 +187,7 @@ export const MedicalLog = () => {
       </div>
 
       {/* Exam Vault */}
-      <div className="saude-glass rounded-2xl p-4">
+      <div className="saude-card rounded-2xl p-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <FileText className="w-4 h-4 text-saude-blue" />
@@ -222,7 +222,7 @@ export const MedicalLog = () => {
       </div>
 
       {/* Biomarkers */}
-      <div className="saude-glass rounded-2xl p-4">
+      <div className="saude-card rounded-2xl p-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-saude-green" />
