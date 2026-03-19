@@ -11,10 +11,10 @@ import { Plus, Trash2, MapPin, Star } from "lucide-react";
 
 const continents = ["América do Sul", "América do Norte", "Europa", "Ásia", "África", "Oceania"];
 const continentEmoji: Record<string, string> = { "América do Sul": "🌎", "América do Norte": "🌎", "Europa": "🌍", "Ásia": "🌏", "África": "🌍", "Oceania": "🌏" };
-const priorityConfig: Record<string, { emoji: string; label: string }> = {
-  sonho: { emoji: "💭", label: "Sonho" },
-  planejando: { emoji: "📋", label: "Planejando" },
-  "próximo": { emoji: "🔜", label: "Próximo" },
+const priorityConfig: Record<string, { emoji: string; label: string; color: string; bodyColor: string }> = {
+  sonho: { emoji: "💭", label: "Sonho", color: "bg-purple-200 dark:bg-purple-800/50", bodyColor: "bg-purple-50 dark:bg-purple-950/20" },
+  planejando: { emoji: "📋", label: "Planejando", color: "bg-yellow-200 dark:bg-yellow-800/50", bodyColor: "bg-yellow-50 dark:bg-yellow-950/20" },
+  "próximo": { emoji: "🔜", label: "Próximo", color: "bg-green-200 dark:bg-green-800/50", bodyColor: "bg-green-50 dark:bg-green-950/20" },
 };
 
 export const BucketList = () => {
@@ -54,17 +54,20 @@ export const BucketList = () => {
 
   return (
     <div className="space-y-4">
-      {/* Stats */}
+      {/* Stats - Notion-style */}
       <div className="grid grid-cols-3 gap-2">
         {[
-          { label: "Destinos", value: stats.total, emoji: "📍" },
-          { label: "Visitados", value: stats.visited, emoji: "✅" },
-          { label: "Países", value: stats.countries, emoji: "🌍" },
+          { label: "DESTINOS", value: stats.total, emoji: "📍", color: "bg-teal-200 dark:bg-teal-800/50", body: "bg-teal-50 dark:bg-teal-950/20" },
+          { label: "VISITADOS", value: stats.visited, emoji: "✅", color: "bg-emerald-200 dark:bg-emerald-800/50", body: "bg-emerald-50 dark:bg-emerald-950/20" },
+          { label: "PAÍSES", value: stats.countries, emoji: "🌍", color: "bg-sky-200 dark:bg-sky-800/50", body: "bg-sky-50 dark:bg-sky-950/20" },
         ].map(s => (
-          <div key={s.label} className="rounded-2xl bg-muted/50 p-3 text-center">
-            <span className="text-lg">{s.emoji}</span>
-            <p className="text-xl font-black">{s.value}</p>
-            <p className="text-[9px] text-muted-foreground">{s.label}</p>
+          <div key={s.label} className="rounded-xl border border-border overflow-hidden">
+            <div className={`${s.color} px-2 py-1 text-center`}>
+              <span className="text-[9px] font-bold uppercase tracking-wider">{s.emoji} {s.label}</span>
+            </div>
+            <div className={`${s.body} p-2.5 text-center`}>
+              <p className="text-xl font-black">{s.value}</p>
+            </div>
           </div>
         ))}
       </div>
@@ -84,7 +87,7 @@ export const BucketList = () => {
       </Button>
 
       {showForm && (
-        <div className="rounded-2xl border border-accent/30 bg-card p-4 space-y-3">
+        <div className="rounded-xl border border-border bg-card p-4 space-y-3">
           <Input placeholder="Nome do destino" value={form.name || ""} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} className="h-9 rounded-xl text-sm" />
           <div className="grid grid-cols-2 gap-2">
             <Input placeholder="País" value={form.country || ""} onChange={e => setForm(p => ({ ...p, country: e.target.value }))} className="h-9 rounded-xl text-sm" />
@@ -110,27 +113,28 @@ export const BucketList = () => {
         </div>
       )}
 
-      {/* Destination cards */}
+      {/* Destination cards - Notion-style with colored bands */}
       <div className="space-y-2">
         {filtered.map(d => {
           const pCfg = priorityConfig[d.priority];
           return (
-            <div key={d.id} className={`rounded-2xl border overflow-hidden transition-all group ${d.visited ? "opacity-60 border-border" : "border-border hover:shadow-md"}`}>
+            <div key={d.id} className={`rounded-xl border border-border overflow-hidden transition-all group ${d.visited ? "opacity-60" : "hover:shadow-md"}`}>
               {d.photoUrl && (
                 <div className="h-28 bg-cover bg-center" style={{ backgroundImage: `url(${d.photoUrl})` }}>
                   <div className="h-full w-full bg-gradient-to-t from-black/70 to-transparent" />
                 </div>
               )}
-              <div className="p-3">
+              {/* Colored header band */}
+              <div className={`${pCfg.color} px-3 py-1.5 flex items-center justify-between`}>
+                <span className="text-[10px] font-bold uppercase tracking-wider">{pCfg.emoji} {pCfg.label}</span>
+                {d.country && <span className="text-[9px] font-medium">{d.country}</span>}
+              </div>
+              <div className={`${pCfg.bodyColor} p-3`}>
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-2">
                     <Checkbox checked={d.visited} onCheckedChange={() => toggleVisited(d.id)} className="mt-0.5" />
                     <div>
-                      <h4 className={`text-sm font-bold ${d.visited ? "line-through" : ""}`}>{d.name}</h4>
-                      <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                        {d.country && <span className="text-[9px] text-muted-foreground">{d.country}</span>}
-                        <Badge variant="outline" className="text-[8px] px-1.5 py-0">{pCfg.emoji} {pCfg.label}</Badge>
-                      </div>
+                      <h4 className={`text-sm font-bold ${d.visited ? "line-through text-muted-foreground" : ""}`}>{d.name}</h4>
                     </div>
                   </div>
                   <button onClick={() => remove(d.id)} className="opacity-0 group-hover:opacity-100 transition-opacity">

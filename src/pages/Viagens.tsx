@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Plane, Compass, Map, Package, Users, MapPin, DollarSign, BookOpen, Shield, ArrowRightLeft, Timer, Globe, CheckCircle } from "lucide-react";
+import { ArrowLeft, Plane, Compass, Map, Package, Users, MapPin, DollarSign, BookOpen, Shield, ArrowRightLeft, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ModuleTip } from "@/components/ModuleTip";
@@ -65,28 +65,40 @@ const Viagens = () => {
           ]}
         />
 
-        {/* Stat Cards - Travel themed colors */}
+        {/* Stat Cards - Notion-style colored headers */}
         <div className="grid grid-cols-3 gap-2">
-          <div className="bg-teal-100 dark:bg-teal-500/10 border border-teal-200 dark:border-teal-500/20 rounded-xl p-3 text-center">
-            <div className="text-lg">📍</div>
-            <div className="text-xl font-bold text-foreground">{destinations.length}</div>
-            <div className="text-[10px] text-muted-foreground">Destinos</div>
+          <div className="rounded-xl border border-border overflow-hidden">
+            <div className="bg-teal-200 dark:bg-teal-800/50 px-3 py-1.5 text-center">
+              <span className="text-[10px] font-bold uppercase tracking-wider">📍 Destinos</span>
+            </div>
+            <div className="bg-teal-50 dark:bg-teal-950/20 p-3 text-center">
+              <div className="text-2xl font-black">{destinations.length}</div>
+            </div>
           </div>
-          <div className="bg-emerald-100 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-xl p-3 text-center">
-            <div className="text-lg">✅</div>
-            <div className="text-xl font-bold text-foreground">{visited}</div>
-            <div className="text-[10px] text-muted-foreground">Visitados</div>
+          <div className="rounded-xl border border-border overflow-hidden">
+            <div className="bg-emerald-200 dark:bg-emerald-800/50 px-3 py-1.5 text-center">
+              <span className="text-[10px] font-bold uppercase tracking-wider">✅ Visitados</span>
+            </div>
+            <div className="bg-emerald-50 dark:bg-emerald-950/20 p-3 text-center">
+              <div className="text-2xl font-black">{visited}</div>
+            </div>
           </div>
-          <div className="bg-sky-100 dark:bg-sky-500/10 border border-sky-200 dark:border-sky-500/20 rounded-xl p-3 text-center">
-            <div className="text-lg">🌍</div>
-            <div className="text-xl font-bold text-foreground">{countries}</div>
-            <div className="text-[10px] text-muted-foreground">Países</div>
+          <div className="rounded-xl border border-border overflow-hidden">
+            <div className="bg-sky-200 dark:bg-sky-800/50 px-3 py-1.5 text-center">
+              <span className="text-[10px] font-bold uppercase tracking-wider">🌍 Países</span>
+            </div>
+            <div className="bg-sky-50 dark:bg-sky-950/20 p-3 text-center">
+              <div className="text-2xl font-black">{countries}</div>
+            </div>
           </div>
         </div>
 
         {/* Quick Stats */}
-        <div className="flex items-center justify-between bg-muted/50 rounded-xl px-4 py-2.5">
-          <div className="flex items-center gap-4 text-[11px]">
+        <div className="flex items-center justify-between rounded-xl border border-border overflow-hidden">
+          <div className="bg-orange-200 dark:bg-orange-800/50 px-3 py-2">
+            <span className="text-[10px] font-bold uppercase tracking-wider">📊 RESUMO</span>
+          </div>
+          <div className="flex items-center gap-4 text-[11px] px-4 py-2 flex-1 bg-orange-50 dark:bg-orange-950/20">
             <span className="flex items-center gap-1"><MapPin className="w-3 h-3 text-teal-500" /> {places.length} lugares salvos</span>
             <span className="flex items-center gap-1"><BookOpen className="w-3 h-3 text-orange-500" /> {diary.length} memórias</span>
           </div>

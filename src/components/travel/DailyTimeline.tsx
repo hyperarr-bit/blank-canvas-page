@@ -3,17 +3,16 @@ import { usePersistedState } from "@/hooks/use-persisted-state";
 import { ItineraryDay, TimelineItem, genId, formatCurrency } from "./types";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Plus, Trash2, MapPin, ExternalLink, Pin, Plane, Hotel, Utensils, Target, Car, ShoppingBag, Check } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const TYPE_CONFIG = {
-  voo: { icon: Plane, label: "Voo", color: "text-blue-500" },
-  hotel: { icon: Hotel, label: "Hotel", color: "text-purple-500" },
-  restaurante: { icon: Utensils, label: "Restaurante", color: "text-orange-500" },
-  atividade: { icon: Target, label: "Atividade", color: "text-green-500" },
-  transporte: { icon: Car, label: "Transporte", color: "text-yellow-500" },
-  compras: { icon: ShoppingBag, label: "Compras", color: "text-pink-500" },
+  voo: { icon: Plane, label: "Voo", color: "bg-blue-200 dark:bg-blue-800/50", bodyColor: "bg-blue-50 dark:bg-blue-950/20" },
+  hotel: { icon: Hotel, label: "Hotel", color: "bg-purple-200 dark:bg-purple-800/50", bodyColor: "bg-purple-50 dark:bg-purple-950/20" },
+  restaurante: { icon: Utensils, label: "Restaurante", color: "bg-orange-200 dark:bg-orange-800/50", bodyColor: "bg-orange-50 dark:bg-orange-950/20" },
+  atividade: { icon: Target, label: "Atividade", color: "bg-green-200 dark:bg-green-800/50", bodyColor: "bg-green-50 dark:bg-green-950/20" },
+  transporte: { icon: Car, label: "Transporte", color: "bg-yellow-200 dark:bg-yellow-800/50", bodyColor: "bg-yellow-50 dark:bg-yellow-950/20" },
+  compras: { icon: ShoppingBag, label: "Compras", color: "bg-pink-200 dark:bg-pink-800/50", bodyColor: "bg-pink-50 dark:bg-pink-950/20" },
 };
 
 export const DailyTimeline = () => {
@@ -26,13 +25,7 @@ export const DailyTimeline = () => {
 
   const addDay = () => {
     if (!newDay.date) return;
-    const day: ItineraryDay = {
-      id: genId(),
-      tripId: newDay.tripId,
-      dayNumber: newDay.dayNumber,
-      date: newDay.date,
-      items: [],
-    };
+    const day: ItineraryDay = { id: genId(), tripId: newDay.tripId, dayNumber: newDay.dayNumber, date: newDay.date, items: [] };
     setDays(prev => [...prev, day]);
     setActiveDay(day.id);
     setNewDay(p => ({ ...p, dayNumber: p.dayNumber + 1, date: "" }));
@@ -42,15 +35,9 @@ export const DailyTimeline = () => {
   const addItem = (dayId: string) => {
     if (!itemForm.title) return;
     const item: TimelineItem = {
-      id: genId(),
-      time: itemForm.time || "",
-      title: itemForm.title || "",
-      location: itemForm.location || "",
-      mapsLink: itemForm.mapsLink || "",
-      estimatedCost: itemForm.estimatedCost || 0,
-      type: itemForm.type || "atividade",
-      done: false,
-      pinned: false,
+      id: genId(), time: itemForm.time || "", title: itemForm.title || "", location: itemForm.location || "",
+      mapsLink: itemForm.mapsLink || "", estimatedCost: itemForm.estimatedCost || 0,
+      type: itemForm.type || "atividade", done: false, pinned: false,
     };
     setDays(prev => prev.map(d => d.id === dayId ? { ...d, items: [...d.items, item] } : d));
     setItemForm({ type: "atividade", done: false, pinned: false });
@@ -58,24 +45,15 @@ export const DailyTimeline = () => {
   };
 
   const toggleDone = (dayId: string, itemId: string) => {
-    setDays(prev => prev.map(d => d.id === dayId ? {
-      ...d,
-      items: d.items.map(i => i.id === itemId ? { ...i, done: !i.done } : i),
-    } : d));
+    setDays(prev => prev.map(d => d.id === dayId ? { ...d, items: d.items.map(i => i.id === itemId ? { ...i, done: !i.done } : i) } : d));
   };
 
   const togglePin = (dayId: string, itemId: string) => {
-    setDays(prev => prev.map(d => d.id === dayId ? {
-      ...d,
-      items: d.items.map(i => i.id === itemId ? { ...i, pinned: !i.pinned } : i),
-    } : d));
+    setDays(prev => prev.map(d => d.id === dayId ? { ...d, items: d.items.map(i => i.id === itemId ? { ...i, pinned: !i.pinned } : i) } : d));
   };
 
   const removeItem = (dayId: string, itemId: string) => {
-    setDays(prev => prev.map(d => d.id === dayId ? {
-      ...d,
-      items: d.items.filter(i => i.id !== itemId),
-    } : d));
+    setDays(prev => prev.map(d => d.id === dayId ? { ...d, items: d.items.filter(i => i.id !== itemId) } : d));
   };
 
   const removeDay = (dayId: string) => {
@@ -91,21 +69,23 @@ export const DailyTimeline = () => {
       })
     : [];
   const dayTotal = currentDay?.items.reduce((s, i) => s + i.estimatedCost, 0) || 0;
-
-  // Detect "today" 
   const todayStr = new Date().toISOString().slice(0, 10);
   const todayDay = days.find(d => d.date === todayStr);
 
   return (
     <div className="space-y-4">
-      {/* Today highlight */}
+      {/* Today highlight - Notion-style */}
       {todayDay && (
         <button
           onClick={() => setActiveDay(todayDay.id)}
-          className="w-full rounded-2xl border-2 border-accent/40 bg-accent/5 p-3 text-left transition-all hover:bg-accent/10"
+          className="w-full rounded-xl border border-border overflow-hidden text-left transition-all hover:shadow-md"
         >
-          <p className="text-[10px] font-bold text-accent uppercase tracking-wide">📍 Hoje</p>
-          <p className="text-xs font-medium mt-0.5">Dia {todayDay.dayNumber} • {todayDay.items.length} atividades</p>
+          <div className="bg-teal-200 dark:bg-teal-800/50 px-3 py-1.5">
+            <span className="text-[10px] font-bold uppercase tracking-wider">📍 HOJE</span>
+          </div>
+          <div className="bg-teal-50 dark:bg-teal-950/20 p-3">
+            <p className="text-xs font-medium">Dia {todayDay.dayNumber} • {todayDay.items.length} atividades</p>
+          </div>
         </button>
       )}
 
@@ -115,21 +95,21 @@ export const DailyTimeline = () => {
           <button
             key={d.id}
             onClick={() => setActiveDay(d.id)}
-            className={`shrink-0 rounded-2xl px-4 py-2 border transition-all text-center min-w-[80px] ${
+            className={`shrink-0 rounded-xl px-4 py-2 border transition-all text-center min-w-[80px] ${
               activeDay === d.id
-                ? "border-accent bg-accent/10 shadow-sm"
+                ? "border-foreground bg-foreground text-background shadow-sm"
                 : d.date === todayStr
-                  ? "border-accent/40 bg-accent/5"
-                  : "border-border bg-card hover:border-accent/30"
+                  ? "border-teal-300 dark:border-teal-700 bg-teal-50 dark:bg-teal-950/20"
+                  : "border-border bg-card hover:border-foreground/30"
             }`}
           >
             <p className="text-xs font-bold">Dia {d.dayNumber}</p>
-            <p className="text-[9px] text-muted-foreground">{new Date(d.date + "T12:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}</p>
+            <p className="text-[9px] opacity-70">{new Date(d.date + "T12:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}</p>
           </button>
         ))}
         <button
           onClick={() => setShowAddDay(true)}
-          className="shrink-0 rounded-2xl px-4 py-2 border border-dashed border-border hover:border-accent/50 min-w-[80px] flex items-center justify-center text-muted-foreground"
+          className="shrink-0 rounded-xl px-4 py-2 border border-dashed border-border hover:border-foreground/50 min-w-[80px] flex items-center justify-center text-muted-foreground"
         >
           <Plus className="w-4 h-4" />
         </button>
@@ -152,69 +132,66 @@ export const DailyTimeline = () => {
       {/* Day detail */}
       {currentDay && (
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-sm font-bold">Dia {currentDay.dayNumber}</h3>
-              <p className="text-[10px] text-muted-foreground">
-                {new Date(currentDay.date + "T12:00").toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })}
-                {dayTotal > 0 && ` • Custo: ${formatCurrency(dayTotal)}`}
-              </p>
+          {/* Day header - Notion-style */}
+          <div className="rounded-xl border border-border overflow-hidden">
+            <div className="bg-sky-200 dark:bg-sky-800/50 px-3 py-2 flex items-center justify-between">
+              <span className="text-xs font-bold uppercase tracking-wider">
+                🗓️ DIA {currentDay.dayNumber} — {new Date(currentDay.date + "T12:00").toLocaleDateString("pt-BR", { weekday: "short", day: "numeric", month: "short" })}
+              </span>
+              <Button variant="ghost" size="sm" className="text-destructive text-[10px] h-6 px-2" onClick={() => removeDay(currentDay.id)}>
+                Excluir
+              </Button>
             </div>
-            <Button variant="ghost" size="sm" className="text-destructive text-xs h-7" onClick={() => removeDay(currentDay.id)}>
-              Excluir
-            </Button>
+            {dayTotal > 0 && (
+              <div className="bg-sky-50 dark:bg-sky-950/20 px-3 py-1.5">
+                <p className="text-[10px] text-muted-foreground">💰 Custo estimado: <span className="font-bold text-foreground">{formatCurrency(dayTotal)}</span></p>
+              </div>
+            )}
           </div>
 
-          {/* Timeline items */}
-          <div className="relative pl-6 space-y-1">
-            <div className="absolute left-2 top-0 bottom-0 w-px bg-border" />
-
+          {/* Timeline items - Notion-style cards */}
+          <div className="space-y-2">
             {sortedItems.map(item => {
               const config = TYPE_CONFIG[item.type];
               const Icon = config.icon;
               return (
-                <div
-                  key={item.id}
-                  className={`relative rounded-xl border p-3 transition-all group ${
-                    item.pinned ? "border-accent/40 bg-accent/5" : item.done ? "border-border bg-muted/30 opacity-70" : "border-border bg-card hover:border-accent/20"
-                  }`}
-                >
-                  {/* Timeline dot */}
-                  <div className={`absolute -left-[18px] top-4 w-2.5 h-2.5 rounded-full border-2 border-background ${
-                    item.done ? "bg-success" : item.pinned ? "bg-accent" : "bg-muted-foreground/30"
-                  }`} />
-
-                  <div className="flex items-start gap-2">
-                    <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${config.color}`} />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        {item.time && <span className="text-[10px] font-mono text-accent font-bold">{item.time}</span>}
-                        <h4 className={`text-xs font-medium ${item.done ? "line-through text-muted-foreground" : ""}`}>{item.title}</h4>
-                      </div>
-                      {item.location && (
-                        <p className="text-[9px] text-muted-foreground flex items-center gap-0.5 mt-0.5">
-                          <MapPin className="w-2.5 h-2.5" /> {item.location}
-                          {item.mapsLink && (
-                            <a href={item.mapsLink} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}>
-                              <ExternalLink className="w-2.5 h-2.5 ml-1 text-accent" />
-                            </a>
-                          )}
-                        </p>
-                      )}
-                      {item.estimatedCost > 0 && (
-                        <p className="text-[9px] text-muted-foreground mt-0.5">💰 {formatCurrency(item.estimatedCost)}</p>
-                      )}
+                <div key={item.id} className={`rounded-xl border border-border overflow-hidden transition-all group ${item.done ? "opacity-60" : "hover:shadow-md"}`}>
+                  <div className={`${config.color} px-3 py-1 flex items-center justify-between`}>
+                    <div className="flex items-center gap-1.5">
+                      <Icon className="w-3 h-3" />
+                      <span className="text-[9px] font-bold uppercase tracking-wider">{config.label}</span>
                     </div>
-                    <div className="flex items-center gap-1 shrink-0">
-                      <button onClick={() => togglePin(currentDay.id, item.id)} title="Fixar no topo">
-                        <Pin className={`w-3 h-3 ${item.pinned ? "text-accent fill-accent" : "text-muted-foreground"}`} />
-                      </button>
-                      <button onClick={() => toggleDone(currentDay.id, item.id)}>
-                        <Check className={`w-3.5 h-3.5 ${item.done ? "text-success" : "text-muted-foreground"}`} />
-                      </button>
-                      <button onClick={() => removeItem(currentDay.id, item.id)} className="opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Trash2 className="w-3 h-3 text-muted-foreground hover:text-destructive" />
-                      </button>
+                    {item.time && <span className="text-[10px] font-mono font-bold">{item.time}</span>}
+                  </div>
+                  <div className={`${config.bodyColor} p-3`}>
+                    <div className="flex items-start gap-2">
+                      <div className="flex-1 min-w-0">
+                        <h4 className={`text-xs font-semibold ${item.done ? "line-through text-muted-foreground" : ""}`}>{item.title}</h4>
+                        {item.location && (
+                          <p className="text-[9px] text-muted-foreground flex items-center gap-0.5 mt-0.5">
+                            <MapPin className="w-2.5 h-2.5" /> {item.location}
+                            {item.mapsLink && (
+                              <a href={item.mapsLink} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}>
+                                <ExternalLink className="w-2.5 h-2.5 ml-1 text-foreground" />
+                              </a>
+                            )}
+                          </p>
+                        )}
+                        {item.estimatedCost > 0 && (
+                          <p className="text-[9px] text-muted-foreground mt-0.5">💰 {formatCurrency(item.estimatedCost)}</p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <button onClick={() => togglePin(currentDay.id, item.id)} title="Fixar no topo">
+                          <Pin className={`w-3 h-3 ${item.pinned ? "text-foreground fill-foreground" : "text-muted-foreground"}`} />
+                        </button>
+                        <button onClick={() => toggleDone(currentDay.id, item.id)}>
+                          <Check className={`w-3.5 h-3.5 ${item.done ? "text-emerald-500" : "text-muted-foreground"}`} />
+                        </button>
+                        <button onClick={() => removeItem(currentDay.id, item.id)} className="opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Trash2 className="w-3 h-3 text-muted-foreground hover:text-destructive" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -222,17 +199,12 @@ export const DailyTimeline = () => {
             })}
           </div>
 
-          {/* Add item */}
-          <Button
-            variant="outline"
-            className="w-full rounded-xl h-8 text-xs border-dashed"
-            onClick={() => setShowAddItem(!showAddItem)}
-          >
+          <Button variant="outline" className="w-full rounded-xl h-8 text-xs border-dashed" onClick={() => setShowAddItem(!showAddItem)}>
             <Plus className="w-3 h-3 mr-1" /> Adicionar Atividade
           </Button>
 
           {showAddItem && (
-            <div className="rounded-xl border border-accent/30 bg-card p-3 space-y-2">
+            <div className="rounded-xl border border-border bg-card p-3 space-y-2">
               <div className="grid grid-cols-2 gap-2">
                 <Input placeholder="Título" value={itemForm.title || ""} onChange={e => setItemForm(p => ({ ...p, title: e.target.value }))} className="h-8 rounded-lg text-xs" />
                 <Input type="time" value={itemForm.time || ""} onChange={e => setItemForm(p => ({ ...p, time: e.target.value }))} className="h-8 rounded-lg text-xs" />
@@ -242,9 +214,7 @@ export const DailyTimeline = () => {
                 <Select value={itemForm.type || "atividade"} onValueChange={v => setItemForm(p => ({ ...p, type: v as TimelineItem["type"] }))}>
                   <SelectTrigger className="h-8 rounded-lg text-xs"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {Object.entries(TYPE_CONFIG).map(([k, c]) => (
-                      <SelectItem key={k} value={k}>{c.label}</SelectItem>
-                    ))}
+                    {Object.entries(TYPE_CONFIG).map(([k, c]) => (<SelectItem key={k} value={k}>{c.label}</SelectItem>))}
                   </SelectContent>
                 </Select>
               </div>
