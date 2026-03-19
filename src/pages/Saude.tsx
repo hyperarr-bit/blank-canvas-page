@@ -75,7 +75,7 @@ const Saude = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="saude-glass rounded-2xl p-5"
+          className="saude-card p-5"
         >
           <HealthScoreRing
             score={score}
