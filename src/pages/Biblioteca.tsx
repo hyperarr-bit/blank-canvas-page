@@ -294,7 +294,7 @@ const Biblioteca = () => {
         </div>
       </div>
 
-      <ModuleTip storageKey="tip-biblioteca" tip="📚 Adicione livros por link (Amazon, Goodreads) para importar capa e dados automaticamente!" />
+      <ModuleTip moduleId="biblioteca" tips={["📚 Adicione livros por link (Amazon, Goodreads) para importar capa e dados automaticamente!", "💡 Salve citações dos seus livros e filtre por tags depois!", "🏆 Defina sua meta anual de leitura na aba Desafio!"]} />
 
       {/* Stats */}
       <div className="px-4 py-2">
