@@ -38,8 +38,8 @@ export const SafetyCard = () => {
 
   const update = (key: keyof SafetyInfo, value: string) => setInfo(prev => ({ ...prev, [key]: value }));
 
-  const allFields = FIELD_GROUPS.flatMap(g => g.fields);
-  const filledCount = allFields.filter(f => info[f.key].trim()).length;
+  const allKeys: (keyof SafetyInfo)[] = ["insuranceNumber", "embassyPhone", "localEmergency", "emergencyContact", "emergencyContactPhone", "bloodType", "allergies", "medications"];
+  const filledCount = allKeys.filter(k => info[k].trim()).length;
 
   return (
     <div className="space-y-4">
