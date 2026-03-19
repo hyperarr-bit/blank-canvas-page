@@ -99,7 +99,7 @@ const Casa = () => {
           </div>
         </div>
 
-        <Tabs defaultValue="radar" className="w-full">
+          <Tabs defaultValue="comodos" className="w-full">
           <div className="overflow-x-auto scrollbar-hide -mx-4 px-4">
             <TabsList className="inline-flex w-auto min-w-full">
               {tabs.map(t => (
