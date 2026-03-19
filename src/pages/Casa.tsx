@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { ModuleTip } from "@/components/ModuleTip";
-import { ArrowLeft, Home, Droplets, ShoppingCart, UtensilsCrossed, Wrench, Leaf, Users, ShieldCheck, Settings, DoorOpen } from "lucide-react";
+import { ArrowLeft, Home, Droplets, ShoppingCart, UtensilsCrossed, Wrench, Leaf, Users, ShieldCheck, Settings, DoorOpen, Apple } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { usePersistedState } from "@/hooks/use-persisted-state";
@@ -13,9 +13,11 @@ import ChoreRotation from "@/components/casa/ChoreRotation";
 import SafetyChecks from "@/components/casa/SafetyChecks";
 import HomeUtilities from "@/components/casa/HomeUtilities";
 import RoomManager from "@/components/casa/RoomManager";
+import GroceryList from "@/components/casa/GroceryList";
 
 const tabs = [
   { v: "comodos", l: "Cômodos", icon: DoorOpen },
+  { v: "mercado", l: "Mercado", icon: Apple },
   { v: "radar", l: "Limpeza", icon: Droplets },
   { v: "despensa", l: "Despensa", icon: ShoppingCart },
   { v: "cardapio", l: "Cardápio", icon: UtensilsCrossed },
@@ -112,6 +114,7 @@ const Casa = () => {
           </div>
 
           <TabsContent value="comodos"><RoomManager /></TabsContent>
+          <TabsContent value="mercado"><GroceryList /></TabsContent>
           <TabsContent value="radar"><CleaningRadar /></TabsContent>
           <TabsContent value="despensa"><SmartPantry /></TabsContent>
           <TabsContent value="cardapio"><MealPlanner /></TabsContent>
