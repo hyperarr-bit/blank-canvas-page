@@ -17,6 +17,7 @@ import GroceryList from "@/components/casa/GroceryList";
 
 const tabs = [
   { v: "comodos", l: "Cômodos", icon: DoorOpen },
+  { v: "mercado", l: "Mercado", icon: Apple },
   { v: "radar", l: "Limpeza", icon: Droplets },
   { v: "despensa", l: "Despensa", icon: ShoppingCart },
   { v: "cardapio", l: "Cardápio", icon: UtensilsCrossed },
