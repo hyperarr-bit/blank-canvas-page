@@ -111,6 +111,7 @@ const Casa = () => {
             </TabsList>
           </div>
 
+          <TabsContent value="comodos"><RoomManager /></TabsContent>
           <TabsContent value="radar"><CleaningRadar /></TabsContent>
           <TabsContent value="despensa"><SmartPantry /></TabsContent>
           <TabsContent value="cardapio"><MealPlanner /></TabsContent>
