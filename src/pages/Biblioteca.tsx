@@ -255,14 +255,20 @@ const Biblioteca = () => {
             </SelectContent>
           </Select>
         </div>
-        <div className="grid grid-cols-2 gap-2">
-          <Input type="number" placeholder="Total de páginas" value={form.pages || ""} onChange={e => setForm(p => ({ ...p, pages: +e.target.value }))} className="h-9 text-sm" />
+        <Input type="number" placeholder="Total de páginas" value={form.pages || ""} onChange={e => setForm(p => ({ ...p, pages: +e.target.value }))} className="h-9 text-sm" />
+
+        {/* Only show current page for lendo status */}
+        {(form.status === "lendo" || form.status === "lido") && (
           <Input type="number" placeholder="Página atual" value={form.currentPage || ""} onChange={e => setForm(p => ({ ...p, currentPage: +e.target.value }))} className="h-9 text-sm" />
-        </div>
-        <div className="grid grid-cols-2 gap-2">
-          <div><label className="text-[10px] font-bold text-muted-foreground">INÍCIO</label><Input type="date" value={form.startDate || ""} onChange={e => setForm(p => ({ ...p, startDate: e.target.value }))} className="h-9 text-sm" /></div>
-          <div><label className="text-[10px] font-bold text-muted-foreground">FIM</label><Input type="date" value={form.endDate || ""} onChange={e => setForm(p => ({ ...p, endDate: e.target.value }))} className="h-9 text-sm" /></div>
-        </div>
+        )}
+
+        {/* Only show dates for lendo/lido */}
+        {(form.status === "lendo" || form.status === "lido") && (
+          <div className="grid grid-cols-2 gap-2">
+            <div><label className="text-[10px] font-bold text-muted-foreground">INÍCIO</label><Input type="date" value={form.startDate || ""} onChange={e => setForm(p => ({ ...p, startDate: e.target.value }))} className="h-9 text-sm" /></div>
+            {form.status === "lido" && <div><label className="text-[10px] font-bold text-muted-foreground">FIM</label><Input type="date" value={form.endDate || ""} onChange={e => setForm(p => ({ ...p, endDate: e.target.value }))} className="h-9 text-sm" /></div>}
+          </div>
+        )}
 
         {/* Loan fields */}
         <div className="rounded-lg border border-pink-200 dark:border-pink-800 p-2.5 space-y-2">
@@ -277,7 +283,12 @@ const Biblioteca = () => {
         </div>
 
         <Textarea placeholder="Anotações..." value={form.notes || ""} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} className="text-sm min-h-[60px]" />
-        <div className="flex items-center gap-2"><span className="text-xs text-muted-foreground">Nota:</span><StarRating value={form.rating || 0} onChange={v => setForm(p => ({ ...p, rating: v }))} /></div>
+
+        {/* Only show rating for lido status */}
+        {form.status === "lido" && (
+          <div className="flex items-center gap-2"><span className="text-xs text-muted-foreground">Nota:</span><StarRating value={form.rating || 0} onChange={v => setForm(p => ({ ...p, rating: v }))} /></div>
+        )}
+
         <Button size="sm" className="w-full bg-orange-500 hover:bg-orange-600 text-white" onClick={save}>Salvar Livro</Button>
       </div>
     </div>
