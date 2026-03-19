@@ -40,7 +40,7 @@ export const FastingTimer = () => {
   };
 
   return (
-    <div className="saude-glass rounded-2xl p-4">
+    <div className="saude-card rounded-2xl p-4">
       <div className="flex items-center gap-2 mb-4">
         <Timer className="w-4 h-4 text-saude-blue" />
         <span className="text-xs font-bold uppercase tracking-wider">Relógio de Jejum</span>

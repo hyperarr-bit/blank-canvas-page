@@ -42,7 +42,7 @@ export const ToolsEmergency = () => {
   return (
     <div className="space-y-4">
       {/* Sleep Debt */}
-      <div className="saude-glass rounded-2xl p-4">
+      <div className="saude-card rounded-2xl p-4">
         <div className="flex items-center gap-2 mb-3">
           <Moon className="w-4 h-4 text-saude-blue" />
           <span className="text-xs font-bold uppercase tracking-wider">Dívida de Sono</span>
@@ -73,7 +73,7 @@ export const ToolsEmergency = () => {
       </div>
 
       {/* Inventory & Shopping */}
-      <div className="saude-glass rounded-2xl p-4">
+      <div className="saude-card rounded-2xl p-4">
         <div className="flex items-center gap-2 mb-3">
           <ShoppingCart className="w-4 h-4 text-saude-yellow" />
           <span className="text-xs font-bold uppercase tracking-wider">Inventário & Compras</span>

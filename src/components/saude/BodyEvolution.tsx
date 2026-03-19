@@ -86,7 +86,7 @@ export const BodyEvolution = () => {
     <div className="space-y-4">
       {/* Before & After comparator */}
       {photos.length >= 2 && (
-        <div className="saude-glass rounded-2xl p-4">
+        <div className="saude-card rounded-2xl p-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <ArrowLeftRight className="w-4 h-4 text-saude-blue" />
@@ -125,7 +125,7 @@ export const BodyEvolution = () => {
       )}
 
       {/* Photo upload */}
-      <div className="saude-glass rounded-2xl p-4">
+      <div className="saude-card rounded-2xl p-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Camera className="w-4 h-4 text-saude-green" />
@@ -169,7 +169,7 @@ export const BodyEvolution = () => {
       </div>
 
       {/* Measurement table */}
-      <div className="saude-glass rounded-2xl p-4">
+      <div className="saude-card rounded-2xl p-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Ruler className="w-4 h-4 text-saude-blue" />
@@ -244,7 +244,7 @@ export const BodyEvolution = () => {
       </div>
 
       {/* Sentiment tracker */}
-      <div className="saude-glass rounded-2xl p-4">
+      <div className="saude-card rounded-2xl p-4">
         <p className="text-xs font-bold uppercase tracking-wider mb-3">😊 Como me sinto com isso hoje</p>
         <div className="flex gap-2 mb-3">
           {sentiments.map(s => (

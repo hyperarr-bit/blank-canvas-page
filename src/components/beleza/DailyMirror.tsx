@@ -47,7 +47,7 @@ export const DailyMirror = () => {
   return (
     <div className="space-y-4">
       {/* Consistency Ring + Check-in */}
-      <div className="sk-glass rounded-2xl p-4">
+      <div className="sk-card rounded-2xl p-4">
         <div className="flex items-center gap-4">
           {/* Ring */}
           <div className="relative shrink-0">
