@@ -76,9 +76,9 @@ export function useLifeHubData(): LifeHubData {
     const supplementsTaken = Array.isArray(todaySups) ? todaySups.length : 0;
 
     // Library
-    const books = get<any[]>("core-biblioteca-books", []);
-    const currentBook = books.find((b: any) => b.status === "reading");
-    const booksRead = books.filter((b: any) => b.status === "read").length;
+    const books = get<any[]>("lib-books", []);
+    const currentBook = books.find((b: any) => b.status === "lendo");
+    const booksRead = books.filter((b: any) => b.status === "lido").length;
 
     // Tasks / Habits
     const habits = get<any[]>("core-rotina-habits", []);

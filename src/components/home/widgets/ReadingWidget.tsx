@@ -12,7 +12,7 @@ export const ReadingWidget = ({ size = "small" }: { size?: WidgetSize }) => {
 
   const updateProgress = (newProgress: number, e: React.MouseEvent | React.ChangeEvent) => {
     e.stopPropagation();
-    const books = get<any[]>("core-biblioteca-books", []);
+    const books = get<any[]>("lib-books", []);
     const updated = books.map((b: any) =>
       b.status === "reading" ? { ...b, progress: Math.min(100, Math.max(0, newProgress)) } : b
     );
