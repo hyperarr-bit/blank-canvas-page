@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { ModuleTip } from "@/components/ModuleTip";
-import { ArrowLeft, Home, Droplets, ShoppingCart, UtensilsCrossed, Wrench, Leaf, Users, ShieldCheck, Settings, DoorOpen } from "lucide-react";
+import { ArrowLeft, Home, Droplets, ShoppingCart, UtensilsCrossed, Wrench, Leaf, Users, ShieldCheck, Settings, DoorOpen, Apple } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { usePersistedState } from "@/hooks/use-persisted-state";
