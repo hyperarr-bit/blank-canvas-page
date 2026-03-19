@@ -47,9 +47,9 @@ const Saude = () => {
   const [showSOS, setShowSOS] = usePersistedState<boolean>("core-saude-sos-visible", false);
 
   return (
-    <div className="saude-module min-h-screen pb-20">
+    <div className="min-h-screen pb-20 bg-background text-foreground">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-[hsl(var(--border))] bg-[hsl(var(--background))/0.95] backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
           <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="text-foreground hover:bg-[hsl(var(--saude-card))]">
             <ArrowLeft className="w-5 h-5" />
