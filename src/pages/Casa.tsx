@@ -117,6 +117,7 @@ const Casa = () => {
 
           <TabsContent value="comodos"><RoomManager /></TabsContent>
           <TabsContent value="mercado"><GroceryList /></TabsContent>
+          <TabsContent value="rotina"><CleaningRoutine /></TabsContent>
           <TabsContent value="radar"><CleaningRadar /></TabsContent>
           <TabsContent value="despensa"><SmartPantry /></TabsContent>
           <TabsContent value="cardapio"><MealPlanner /></TabsContent>
