@@ -31,65 +31,50 @@ export const CurrencyConverter = () => {
     setRates(prev => [...prev, { id: genId(), fromCurrency: c.from, toCurrency: c.to, rate: 0 }]);
   };
 
-  const updateRate = (id: string, rate: number) => {
-    setRates(prev => prev.map(r => r.id === id ? { ...r, rate } : r));
-  };
-
-  const removeRate = (id: string) => {
-    setRates(prev => prev.filter(r => r.id !== id));
-    if (selectedRate === id) setSelectedRate(null);
-  };
+  const updateRate = (id: string, rate: number) => setRates(prev => prev.map(r => r.id === id ? { ...r, rate } : r));
+  const removeRate = (id: string) => { setRates(prev => prev.filter(r => r.id !== id)); if (selectedRate === id) setSelectedRate(null); };
 
   const active = rates.find(r => r.id === selectedRate);
 
   return (
     <div className="space-y-4">
-      {/* Quick add common currencies */}
-      <div className="flex gap-1.5 flex-wrap">
-        {COMMON_CURRENCIES.map(c => {
-          const exists = rates.some(r => r.fromCurrency === c.from && r.toCurrency === c.to);
-          return (
-            <button
-              key={c.from}
-              onClick={() => !exists && addCommon(c)}
-              className={`rounded-full px-3 py-1.5 text-[10px] border transition-all ${
-                exists
-                  ? "border-accent/30 bg-accent/10 text-accent"
-                  : "border-border hover:border-accent/30 text-muted-foreground"
-              }`}
-            >
-              {c.label} {exists ? "✓" : "+"}
-            </button>
-          );
-        })}
+      {/* Quick add - Notion-style */}
+      <div className="rounded-xl border border-border overflow-hidden">
+        <div className="bg-cyan-200 dark:bg-cyan-800/50 px-3 py-1.5">
+          <span className="text-[10px] font-bold uppercase tracking-wider">💱 MOEDAS RÁPIDAS</span>
+        </div>
+        <div className="bg-cyan-50 dark:bg-cyan-950/20 p-3 flex gap-1.5 flex-wrap">
+          {COMMON_CURRENCIES.map(c => {
+            const exists = rates.some(r => r.fromCurrency === c.from && r.toCurrency === c.to);
+            return (
+              <button key={c.from} onClick={() => !exists && addCommon(c)}
+                className={`rounded-full px-3 py-1.5 text-[10px] border transition-all ${
+                  exists ? "border-foreground/20 bg-foreground/5 font-medium" : "border-border hover:border-foreground/30 text-muted-foreground"
+                }`}>
+                {c.label} {exists ? "✓" : "+"}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Rates list */}
+      {/* Rates list - Notion-style */}
       <div className="space-y-2">
         {rates.map(r => (
-          <div
-            key={r.id}
-            className={`rounded-xl border p-3 transition-all cursor-pointer ${
-              selectedRate === r.id ? "border-accent bg-accent/5" : "border-border bg-card hover:border-accent/30"
+          <div key={r.id}
+            className={`rounded-xl border overflow-hidden cursor-pointer transition-all ${
+              selectedRate === r.id ? "border-foreground shadow-sm" : "border-border hover:border-foreground/30"
             }`}
-            onClick={() => setSelectedRate(r.id)}
-          >
-            <div className="flex items-center justify-between">
+            onClick={() => setSelectedRate(r.id)}>
+            <div className={`${selectedRate === r.id ? "bg-yellow-200 dark:bg-yellow-800/50" : "bg-card"} px-3 py-2 flex items-center justify-between`}>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold">{r.fromCurrency}</span>
                 <ArrowRightLeft className="w-3 h-3 text-muted-foreground" />
                 <span className="text-xs font-bold">{r.toCurrency}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Input
-                  type="number"
-                  value={r.rate || ""}
-                  onChange={e => { e.stopPropagation(); updateRate(r.id, Number(e.target.value)); }}
-                  onClick={e => e.stopPropagation()}
-                  placeholder="Taxa"
-                  className="w-20 h-7 text-xs text-right rounded-lg"
-                  step="0.01"
-                />
+                <Input type="number" value={r.rate || ""} onChange={e => { e.stopPropagation(); updateRate(r.id, Number(e.target.value)); }}
+                  onClick={e => e.stopPropagation()} placeholder="Taxa" className="w-20 h-7 text-xs text-right rounded-lg" step="0.01" />
                 <button onClick={e => { e.stopPropagation(); removeRate(r.id); }}>
                   <Trash2 className="w-3 h-3 text-muted-foreground hover:text-destructive" />
                 </button>
@@ -99,38 +84,32 @@ export const CurrencyConverter = () => {
         ))}
       </div>
 
-      {/* Converter */}
+      {/* Converter - Notion-style */}
       {active && active.rate > 0 && (
-        <div className="rounded-2xl border-2 border-accent/30 bg-accent/5 p-4 space-y-3">
-          <p className="text-xs font-semibold text-center">
-            {active.fromCurrency} → {active.toCurrency} (Taxa: {active.rate})
-          </p>
-          <Input
-            type="number"
-            placeholder={`Valor em ${active.fromCurrency}`}
-            value={amount}
-            onChange={e => setAmount(e.target.value)}
-            className="h-10 rounded-xl text-center text-sm font-bold"
-          />
-          {amount && (
-            <div className="text-center">
-              <p className="text-2xl font-bold text-accent">
-                {convertCurrency(Number(amount), active.rate).toLocaleString("pt-BR", { style: "currency", currency: active.toCurrency === "BRL" ? "BRL" : "USD" })}
-              </p>
-              <p className="text-[9px] text-muted-foreground mt-1">
-                {Number(amount).toLocaleString()} {active.fromCurrency} × {active.rate} = {convertCurrency(Number(amount), active.rate).toLocaleString()} {active.toCurrency}
-              </p>
-            </div>
-          )}
+        <div className="rounded-xl border border-border overflow-hidden">
+          <div className="bg-green-200 dark:bg-green-800/50 px-3 py-1.5 text-center">
+            <span className="text-[10px] font-bold uppercase tracking-wider">
+              🔄 {active.fromCurrency} → {active.toCurrency} (Taxa: {active.rate})
+            </span>
+          </div>
+          <div className="bg-green-50 dark:bg-green-950/20 p-4 space-y-3">
+            <Input type="number" placeholder={`Valor em ${active.fromCurrency}`} value={amount}
+              onChange={e => setAmount(e.target.value)} className="h-10 rounded-xl text-center text-sm font-bold" />
+            {amount && (
+              <div className="text-center">
+                <p className="text-2xl font-black">
+                  {convertCurrency(Number(amount), active.rate).toLocaleString("pt-BR", { style: "currency", currency: active.toCurrency === "BRL" ? "BRL" : "USD" })}
+                </p>
+                <p className="text-[9px] text-muted-foreground mt-1">
+                  {Number(amount).toLocaleString()} {active.fromCurrency} × {active.rate} = {convertCurrency(Number(amount), active.rate).toLocaleString()} {active.toCurrency}
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
-      {/* Add custom */}
-      <Button
-        variant="outline"
-        className="w-full rounded-xl h-8 text-xs border-dashed"
-        onClick={() => setShowAdd(!showAdd)}
-      >
+      <Button variant="outline" className="w-full rounded-xl h-8 text-xs border-dashed" onClick={() => setShowAdd(!showAdd)}>
         <Plus className="w-3 h-3 mr-1" /> Moeda Personalizada
       </Button>
 
