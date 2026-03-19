@@ -65,33 +65,6 @@ const Viagens = () => {
           ]}
         />
 
-        {/* Stat Cards - Notion-style colored headers */}
-        <div className="grid grid-cols-3 gap-2">
-          <div className="rounded-xl border border-border overflow-hidden">
-            <div className="bg-teal-200 dark:bg-teal-800/50 px-3 py-1.5 text-center">
-              <span className="text-[10px] font-bold uppercase tracking-wider">📍 Destinos</span>
-            </div>
-            <div className="bg-teal-50 dark:bg-teal-950/20 p-3 text-center">
-              <div className="text-2xl font-black">{destinations.length}</div>
-            </div>
-          </div>
-          <div className="rounded-xl border border-border overflow-hidden">
-            <div className="bg-emerald-200 dark:bg-emerald-800/50 px-3 py-1.5 text-center">
-              <span className="text-[10px] font-bold uppercase tracking-wider">✅ Visitados</span>
-            </div>
-            <div className="bg-emerald-50 dark:bg-emerald-950/20 p-3 text-center">
-              <div className="text-2xl font-black">{visited}</div>
-            </div>
-          </div>
-          <div className="rounded-xl border border-border overflow-hidden">
-            <div className="bg-sky-200 dark:bg-sky-800/50 px-3 py-1.5 text-center">
-              <span className="text-[10px] font-bold uppercase tracking-wider">🌍 Países</span>
-            </div>
-            <div className="bg-sky-50 dark:bg-sky-950/20 p-3 text-center">
-              <div className="text-2xl font-black">{countries}</div>
-            </div>
-          </div>
-        </div>
 
         {/* Quick Stats */}
         <div className="flex items-center justify-between rounded-xl border border-border overflow-hidden">
