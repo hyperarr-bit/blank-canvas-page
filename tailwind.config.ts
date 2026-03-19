@@ -86,6 +86,12 @@ export default {
         "sk-mint": "hsl(var(--sk-mint, 120 100% 80%))",
         "sk-lavender": "hsl(var(--sk-lavender, 245 58% 90%))",
         "sk-coral": "hsl(var(--sk-coral, 6 100% 69%))",
+        "saude-green": "hsl(var(--saude-green))",
+        "saude-blue": "hsl(var(--saude-blue))",
+        "saude-yellow": "hsl(var(--saude-yellow))",
+        "saude-red": "hsl(var(--saude-red))",
+        "saude-card": "hsl(var(--saude-card))",
+        "saude-muted": "hsl(var(--saude-muted))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
