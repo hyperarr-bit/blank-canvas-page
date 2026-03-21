@@ -15,11 +15,32 @@ const TYPE_CONFIG = {
   compras: { icon: ShoppingBag, label: "Compras", color: "bg-pink-200 dark:bg-pink-800/50", bodyColor: "bg-pink-50 dark:bg-pink-950/20" },
 };
 
+const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+const dayAfter = new Date(Date.now() + 2 * 86400000).toISOString().slice(0, 10);
+
+const DEFAULT_DAYS: ItineraryDay[] = [
+  {
+    id: "ex-d1", tripId: "Viagem Exemplo", dayNumber: 1, date: tomorrow,
+    items: [
+      { id: "ex-i1", time: "06:00", title: "Voo GRU → LIS", location: "Aeroporto de Guarulhos", mapsLink: "", estimatedCost: 2500, type: "voo", done: false, pinned: true },
+      { id: "ex-i2", time: "14:00", title: "Check-in Hotel", location: "Hotel Lisboa Centro", mapsLink: "", estimatedCost: 350, type: "hotel", done: false, pinned: false },
+      { id: "ex-i3", time: "19:00", title: "Jantar Típico", location: "Restaurante Alfama", mapsLink: "", estimatedCost: 80, type: "restaurante", done: false, pinned: false },
+    ],
+  },
+  {
+    id: "ex-d2", tripId: "Viagem Exemplo", dayNumber: 2, date: dayAfter,
+    items: [
+      { id: "ex-i4", time: "09:00", title: "Torre de Belém", location: "Belém, Lisboa", mapsLink: "", estimatedCost: 10, type: "atividade", done: false, pinned: false },
+      { id: "ex-i5", time: "12:30", title: "Pastéis de Belém", location: "Antiga Confeitaria", mapsLink: "", estimatedCost: 15, type: "restaurante", done: false, pinned: false },
+    ],
+  },
+];
+
 export const DailyTimeline = () => {
-  const [days, setDays] = usePersistedState<ItineraryDay[]>("travel-timeline-v2", []);
+  const [days, setDays] = usePersistedState<ItineraryDay[]>("travel-timeline-v2", DEFAULT_DAYS);
   const [showAddDay, setShowAddDay] = useState(false);
-  const [newDay, setNewDay] = useState({ tripId: "", date: "", dayNumber: 1 });
-  const [activeDay, setActiveDay] = useState<string | null>(null);
+  const [newDay, setNewDay] = useState({ tripId: "", date: "", dayNumber: days.length + 1 });
+  const [activeDay, setActiveDay] = useState<string | null>(days.length > 0 ? days[0].id : null);
   const [showAddItem, setShowAddItem] = useState(false);
   const [itemForm, setItemForm] = useState<Partial<TimelineItem>>({ type: "atividade", done: false, pinned: false });
 
@@ -74,12 +95,9 @@ export const DailyTimeline = () => {
 
   return (
     <div className="space-y-4">
-      {/* Today highlight - Notion-style */}
       {todayDay && (
-        <button
-          onClick={() => setActiveDay(todayDay.id)}
-          className="w-full rounded-xl border border-border overflow-hidden text-left transition-all hover:shadow-md"
-        >
+        <button onClick={() => setActiveDay(todayDay.id)}
+          className="w-full rounded-xl border border-border overflow-hidden text-left transition-all hover:shadow-md">
           <div className="bg-teal-200 dark:bg-teal-800/50 px-3 py-1.5">
             <span className="text-[10px] font-bold uppercase tracking-wider">📍 HOJE</span>
           </div>
@@ -92,25 +110,18 @@ export const DailyTimeline = () => {
       {/* Day chips */}
       <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
         {days.sort((a, b) => a.date.localeCompare(b.date)).map(d => (
-          <button
-            key={d.id}
-            onClick={() => setActiveDay(d.id)}
+          <button key={d.id} onClick={() => setActiveDay(d.id)}
             className={`shrink-0 rounded-xl px-4 py-2 border transition-all text-center min-w-[80px] ${
-              activeDay === d.id
-                ? "border-foreground bg-foreground text-background shadow-sm"
-                : d.date === todayStr
-                  ? "border-teal-300 dark:border-teal-700 bg-teal-50 dark:bg-teal-950/20"
-                  : "border-border bg-card hover:border-foreground/30"
-            }`}
-          >
+              activeDay === d.id ? "border-foreground bg-foreground text-background shadow-sm"
+                : d.date === todayStr ? "border-teal-300 dark:border-teal-700 bg-teal-50 dark:bg-teal-950/20"
+                : "border-border bg-card hover:border-foreground/30"
+            }`}>
             <p className="text-xs font-bold">Dia {d.dayNumber}</p>
             <p className="text-[9px] opacity-70">{new Date(d.date + "T12:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}</p>
           </button>
         ))}
-        <button
-          onClick={() => setShowAddDay(true)}
-          className="shrink-0 rounded-xl px-4 py-2 border border-dashed border-border hover:border-foreground/50 min-w-[80px] flex items-center justify-center text-muted-foreground"
-        >
+        <button onClick={() => setShowAddDay(true)}
+          className="shrink-0 rounded-xl px-4 py-2 border border-dashed border-border hover:border-foreground/50 min-w-[80px] flex items-center justify-center text-muted-foreground">
           <Plus className="w-4 h-4" />
         </button>
       </div>
@@ -132,15 +143,12 @@ export const DailyTimeline = () => {
       {/* Day detail */}
       {currentDay && (
         <div className="space-y-3">
-          {/* Day header - Notion-style */}
           <div className="rounded-xl border border-border overflow-hidden">
             <div className="bg-sky-200 dark:bg-sky-800/50 px-3 py-2 flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider">
                 🗓️ DIA {currentDay.dayNumber} — {new Date(currentDay.date + "T12:00").toLocaleDateString("pt-BR", { weekday: "short", day: "numeric", month: "short" })}
               </span>
-              <Button variant="ghost" size="sm" className="text-destructive text-[10px] h-6 px-2" onClick={() => removeDay(currentDay.id)}>
-                Excluir
-              </Button>
+              <Button variant="ghost" size="sm" className="text-destructive text-[10px] h-6 px-2" onClick={() => removeDay(currentDay.id)}>Excluir</Button>
             </div>
             {dayTotal > 0 && (
               <div className="bg-sky-50 dark:bg-sky-950/20 px-3 py-1.5">
@@ -149,7 +157,6 @@ export const DailyTimeline = () => {
             )}
           </div>
 
-          {/* Timeline items - Notion-style cards */}
           <div className="space-y-2">
             {sortedItems.map(item => {
               const config = TYPE_CONFIG[item.type];
@@ -170,27 +177,15 @@ export const DailyTimeline = () => {
                         {item.location && (
                           <p className="text-[9px] text-muted-foreground flex items-center gap-0.5 mt-0.5">
                             <MapPin className="w-2.5 h-2.5" /> {item.location}
-                            {item.mapsLink && (
-                              <a href={item.mapsLink} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}>
-                                <ExternalLink className="w-2.5 h-2.5 ml-1 text-foreground" />
-                              </a>
-                            )}
+                            {item.mapsLink && <a href={item.mapsLink} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}><ExternalLink className="w-2.5 h-2.5 ml-1 text-foreground" /></a>}
                           </p>
                         )}
-                        {item.estimatedCost > 0 && (
-                          <p className="text-[9px] text-muted-foreground mt-0.5">💰 {formatCurrency(item.estimatedCost)}</p>
-                        )}
+                        {item.estimatedCost > 0 && <p className="text-[9px] text-muted-foreground mt-0.5">💰 {formatCurrency(item.estimatedCost)}</p>}
                       </div>
                       <div className="flex items-center gap-1 shrink-0">
-                        <button onClick={() => togglePin(currentDay.id, item.id)} title="Fixar no topo">
-                          <Pin className={`w-3 h-3 ${item.pinned ? "text-foreground fill-foreground" : "text-muted-foreground"}`} />
-                        </button>
-                        <button onClick={() => toggleDone(currentDay.id, item.id)}>
-                          <Check className={`w-3.5 h-3.5 ${item.done ? "text-emerald-500" : "text-muted-foreground"}`} />
-                        </button>
-                        <button onClick={() => removeItem(currentDay.id, item.id)} className="opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Trash2 className="w-3 h-3 text-muted-foreground hover:text-destructive" />
-                        </button>
+                        <button onClick={() => togglePin(currentDay.id, item.id)}><Pin className={`w-3 h-3 ${item.pinned ? "text-foreground fill-foreground" : "text-muted-foreground"}`} /></button>
+                        <button onClick={() => toggleDone(currentDay.id, item.id)}><Check className={`w-3.5 h-3.5 ${item.done ? "text-emerald-500" : "text-muted-foreground"}`} /></button>
+                        <button onClick={() => removeItem(currentDay.id, item.id)} className="opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="w-3 h-3 text-muted-foreground hover:text-destructive" /></button>
                       </div>
                     </div>
                   </div>
@@ -213,9 +208,7 @@ export const DailyTimeline = () => {
                 <Input placeholder="Local" value={itemForm.location || ""} onChange={e => setItemForm(p => ({ ...p, location: e.target.value }))} className="h-8 rounded-lg text-xs" />
                 <Select value={itemForm.type || "atividade"} onValueChange={v => setItemForm(p => ({ ...p, type: v as TimelineItem["type"] }))}>
                   <SelectTrigger className="h-8 rounded-lg text-xs"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(TYPE_CONFIG).map(([k, c]) => (<SelectItem key={k} value={k}>{c.label}</SelectItem>))}
-                  </SelectContent>
+                  <SelectContent>{Object.entries(TYPE_CONFIG).map(([k, c]) => (<SelectItem key={k} value={k}>{c.label}</SelectItem>))}</SelectContent>
                 </Select>
               </div>
               <div className="grid grid-cols-2 gap-2">
@@ -225,20 +218,6 @@ export const DailyTimeline = () => {
               <Button onClick={() => addItem(currentDay.id)} className="w-full rounded-lg h-7 text-xs">Adicionar</Button>
             </div>
           )}
-
-          {sortedItems.length === 0 && !showAddItem && (
-            <div className="text-center py-6">
-              <p className="text-xs text-muted-foreground">Sem atividades neste dia</p>
-            </div>
-          )}
-        </div>
-      )}
-
-      {days.length === 0 && !showAddDay && (
-        <div className="text-center py-12">
-          <Target className="w-10 h-10 mx-auto text-muted-foreground/30 mb-3" />
-          <p className="text-sm text-muted-foreground">Planeje dia a dia da viagem</p>
-          <p className="text-[10px] text-muted-foreground mt-1">Com horários, locais e custos estimados</p>
         </div>
       )}
     </div>

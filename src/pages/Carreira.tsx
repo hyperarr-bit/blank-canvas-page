@@ -3,7 +3,6 @@ import { usePersistedState } from "@/hooks/use-persisted-state";
 import { useNavigate } from "react-router-dom";
 import { ModuleTip } from "@/components/ModuleTip";
 import { ArrowLeft, Briefcase, Award, Users, Plus, Trash2, ExternalLink, Edit2, X, Star, CheckCircle, Clock, XCircle, Send, Trophy, Link2, Target, TrendingUp, BookOpen, Zap, DollarSign } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,20 +14,43 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 const genId = () => crypto.randomUUID();
 
-// ============= JOB TRACKER =============
+// ============= TYPES =============
 type JobApp = { id: string; company: string; role: string; link: string; status: "aplicado" | "entrevista" | "teste" | "oferta" | "rejeitado" | "desistiu"; date: string; salary: string; notes: string; favorite: boolean };
+type PortfolioItem = { id: string; title: string; description: string; link: string; category: string; date: string; highlight: boolean };
+type Contact = { id: string; name: string; company: string; role: string; linkedin: string; email: string; phone: string; notes: string; lastContact: string; category: string };
+type Skill = { id: string; name: string; category: string; level: number; targetLevel: number; notes: string };
 
 const statusConfig: Record<string, { label: string; emoji: string; color: string }> = {
-  aplicado: { label: "Aplicado", emoji: "📤", color: "bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-300" },
-  entrevista: { label: "Entrevista", emoji: "🎤", color: "bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-300" },
-  teste: { label: "Teste Técnico", emoji: "💻", color: "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-300" },
-  oferta: { label: "Oferta!", emoji: "🎉", color: "bg-green-500/15 text-green-700 dark:text-green-300 border-green-300" },
-  rejeitado: { label: "Rejeitado", emoji: "❌", color: "bg-red-500/15 text-red-700 dark:text-red-300 border-red-300" },
+  aplicado: { label: "Aplicado", emoji: "📤", color: "bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-blue-200" },
+  entrevista: { label: "Entrevista", emoji: "🎤", color: "bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 border-purple-200" },
+  teste: { label: "Teste Técnico", emoji: "💻", color: "bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 border-amber-200" },
+  oferta: { label: "Oferta!", emoji: "🎉", color: "bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-green-200" },
+  rejeitado: { label: "Rejeitado", emoji: "❌", color: "bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-red-200" },
   desistiu: { label: "Desistiu", emoji: "🚪", color: "bg-muted text-muted-foreground border-border" },
 };
 
+const DEFAULT_JOBS: JobApp[] = [
+  { id: "ex-1", company: "Tech Corp", role: "Dev Frontend", link: "", status: "aplicado", date: new Date().toISOString().slice(0, 10), salary: "R$ 8.000 - 12.000", notes: "Vaga remota, React + TypeScript", favorite: false },
+  { id: "ex-2", company: "StartupXYZ", role: "Fullstack Engineer", link: "", status: "entrevista", date: new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10), salary: "R$ 10.000 - 15.000", notes: "Entrevista técnica na próxima semana", favorite: true },
+];
+
+const DEFAULT_PORTFOLIO: PortfolioItem[] = [
+  { id: "ex-p1", title: "Landing Page E-commerce", description: "Redesign completo com React e Tailwind", link: "", category: "projeto", date: new Date().toISOString().slice(0, 10), highlight: true },
+];
+
+const DEFAULT_CONTACTS: Contact[] = [
+  { id: "ex-c1", name: "Maria Silva", company: "Tech Corp", role: "Head of Engineering", linkedin: "", email: "", phone: "", notes: "Conheci no meetup de React", lastContact: new Date(Date.now() - 15 * 86400000).toISOString().slice(0, 10), category: "profissional" },
+];
+
+const DEFAULT_SKILLS: Skill[] = [
+  { id: "ex-s1", name: "React", category: "técnica", level: 4, targetLevel: 5, notes: "" },
+  { id: "ex-s2", name: "TypeScript", category: "técnica", level: 3, targetLevel: 5, notes: "" },
+  { id: "ex-s3", name: "Inglês", category: "idioma", level: 3, targetLevel: 5, notes: "B2 - estudando para C1" },
+];
+
+// ============= JOB TRACKER =============
 const JobTracker = () => {
-  const [jobs, setJobs] = usePersistedState<JobApp[]>("career-jobs", []);
+  const [jobs, setJobs] = usePersistedState<JobApp[]>("career-jobs", DEFAULT_JOBS);
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<Partial<JobApp>>({ status: "aplicado", favorite: false });
@@ -46,35 +68,44 @@ const JobTracker = () => {
 
   return (
     <div className="space-y-4">
-      {/* Pipeline Visual */}
+      {/* Pipeline Visual — Notion-style */}
       {jobs.length > 0 && (
-        <div className="space-y-2">
-          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Pipeline de Candidaturas</p>
-          <div className="flex gap-1 h-3.5 rounded-full overflow-hidden bg-muted">
-            {Object.entries(statusConfig).map(([key, cfg]) => {
-              const count = jobs.filter(j => j.status === key).length; if (count === 0) return null;
-              const pct = (count / jobs.length) * 100;
-              const bgClass = key === "aplicado" ? "bg-blue-500" : key === "entrevista" ? "bg-purple-500" : key === "teste" ? "bg-amber-500" : key === "oferta" ? "bg-green-500" : key === "rejeitado" ? "bg-red-400" : "bg-muted-foreground/30";
-              return <div key={key} className={`${bgClass} transition-all`} style={{ width: `${pct}%` }} title={`${cfg.label}: ${count}`} />;
-            })}
+        <div className="rounded-xl border border-border overflow-hidden">
+          <div className="bg-indigo-200 dark:bg-indigo-800/50 px-4 py-2">
+            <span className="text-[10px] font-bold uppercase tracking-wider">📊 PIPELINE DE CANDIDATURAS</span>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {Object.entries(statusConfig).map(([key, cfg]) => {
-              const count = jobs.filter(j => j.status === key).length;
-              if (count === 0) return null;
-              return <span key={key} className="text-[9px] text-muted-foreground">{cfg.emoji} {cfg.label}: {count}</span>;
-            })}
+          <div className="bg-indigo-50 dark:bg-indigo-950/20 p-3 space-y-2">
+            <div className="flex gap-1 h-3.5 rounded-full overflow-hidden bg-muted">
+              {Object.entries(statusConfig).map(([key]) => {
+                const count = jobs.filter(j => j.status === key).length; if (count === 0) return null;
+                const pct = (count / jobs.length) * 100;
+                const bgClass = key === "aplicado" ? "bg-blue-500" : key === "entrevista" ? "bg-purple-500" : key === "teste" ? "bg-amber-500" : key === "oferta" ? "bg-green-500" : key === "rejeitado" ? "bg-red-400" : "bg-muted-foreground/30";
+                return <div key={key} className={`${bgClass} transition-all`} style={{ width: `${pct}%` }} />;
+              })}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(statusConfig).map(([key, cfg]) => {
+                const count = jobs.filter(j => j.status === key).length;
+                if (count === 0) return null;
+                return <span key={key} className="text-[9px] text-muted-foreground">{cfg.emoji} {cfg.label}: {count}</span>;
+              })}
+            </div>
           </div>
         </div>
       )}
 
       <div className="flex gap-2">
-        <Select value={filterStatus} onValueChange={setFilterStatus}><SelectTrigger className="flex-1 h-9 text-xs"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">Todas</SelectItem>{Object.entries(statusConfig).map(([k, v]) => <SelectItem key={k} value={k}>{v.emoji} {v.label}</SelectItem>)}</SelectContent></Select>
-        <Button size="sm" className="h-9" onClick={() => { setShowForm(true); setEditId(null); setForm({ status: "aplicado", favorite: false }); }}><Plus className="w-4 h-4" /></Button>
+        <Select value={filterStatus} onValueChange={setFilterStatus}>
+          <SelectTrigger className="flex-1 h-9 text-xs"><SelectValue /></SelectTrigger>
+          <SelectContent><SelectItem value="all">Todas</SelectItem>{Object.entries(statusConfig).map(([k, v]) => <SelectItem key={k} value={k}>{v.emoji} {v.label}</SelectItem>)}</SelectContent>
+        </Select>
+        <Button size="sm" className="h-9" onClick={() => { setShowForm(true); setEditId(null); setForm({ status: "aplicado", favorite: false }); }}>
+          <Plus className="w-4 h-4" />
+        </Button>
       </div>
 
       {showForm && (
-        <Card className="border-indigo-300 dark:border-indigo-500/30"><CardContent className="p-4 space-y-3">
+        <div className="rounded-xl border border-border bg-card p-4 space-y-3">
           <div className="flex justify-between items-center"><span className="font-semibold text-sm">{editId ? "Editar" : "Nova"} Candidatura</span><Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setShowForm(false)}><X className="w-4 h-4" /></Button></div>
           <div className="grid grid-cols-2 gap-2"><Input placeholder="Empresa" value={form.company || ""} onChange={e => setForm(p => ({ ...p, company: e.target.value }))} className="h-9 text-sm" /><Input placeholder="Cargo" value={form.role || ""} onChange={e => setForm(p => ({ ...p, role: e.target.value }))} className="h-9 text-sm" /></div>
           <Input placeholder="Link da vaga" value={form.link || ""} onChange={e => setForm(p => ({ ...p, link: e.target.value }))} className="h-9 text-sm" />
@@ -82,36 +113,46 @@ const JobTracker = () => {
           <Input type="date" value={form.date || ""} onChange={e => setForm(p => ({ ...p, date: e.target.value }))} className="h-9 text-sm" />
           <Textarea placeholder="Notas..." value={form.notes || ""} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} className="text-sm min-h-[50px]" />
           <Button size="sm" className="w-full" onClick={save}>Salvar</Button>
-        </CardContent></Card>
+        </div>
       )}
 
-      <div className="space-y-2">
-        {filtered.sort((a, b) => b.date.localeCompare(a.date)).map(job => (
-          <Card key={job.id} className="hover:shadow-sm transition-shadow"><CardContent className="p-3">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-100 to-indigo-50 dark:from-indigo-500/20 dark:to-indigo-500/5 flex items-center justify-center text-lg shrink-0">{statusConfig[job.status]?.emoji}</div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between"><div><h4 className="font-semibold text-sm">{job.role}</h4><p className="text-[11px] text-muted-foreground">{job.company}</p></div><Badge className={`text-[9px] px-1.5 py-0 shrink-0 ${statusConfig[job.status]?.color}`}>{statusConfig[job.status]?.label}</Badge></div>
-                <div className="flex items-center gap-2 mt-1 flex-wrap">{job.date && <span className="text-[10px] text-muted-foreground">📅 {job.date}</span>}{job.salary && <span className="text-[10px] text-muted-foreground">💰 {job.salary}</span>}</div>
+      {/* Jobs table — Notion-style */}
+      <div className="rounded-xl border border-border overflow-hidden">
+        <div className="bg-indigo-100 dark:bg-indigo-900/20 px-3 py-1.5 grid grid-cols-12 gap-1 text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
+          <span className="col-span-3">Empresa</span>
+          <span className="col-span-3">Cargo</span>
+          <span className="col-span-2">Status</span>
+          <span className="col-span-2">Data</span>
+          <span className="col-span-2 text-right">Ações</span>
+        </div>
+        <div className="divide-y divide-border bg-card">
+          {filtered.sort((a, b) => b.date.localeCompare(a.date)).map(job => (
+            <div key={job.id} className="px-3 py-2 grid grid-cols-12 gap-1 items-center hover:bg-muted/30 transition-colors group">
+              <div className="col-span-3 min-w-0">
+                <p className="text-xs font-medium truncate">{job.company}</p>
+                {job.salary && <p className="text-[9px] text-muted-foreground">💰 {job.salary}</p>}
               </div>
-              <div className="flex flex-col gap-1 shrink-0">
-                {job.link && <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => window.open(job.link, "_blank")}><ExternalLink className="w-3 h-3" /></Button>}
-                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => { setForm(job); setEditId(job.id); setShowForm(true); }}><Edit2 className="w-3 h-3" /></Button>
-                <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => setJobs(prev => prev.filter(j => j.id !== job.id))}><Trash2 className="w-3 h-3" /></Button>
+              <span className="col-span-3 text-xs truncate">{job.role}</span>
+              <div className="col-span-2">
+                <Badge className={`text-[8px] px-1.5 py-0 ${statusConfig[job.status]?.color}`}>{statusConfig[job.status]?.emoji} {statusConfig[job.status]?.label}</Badge>
+              </div>
+              <span className="col-span-2 text-[10px] text-muted-foreground">{job.date}</span>
+              <div className="col-span-2 flex justify-end gap-1 shrink-0">
+                {job.link && <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => window.open(job.link, "_blank")}><ExternalLink className="w-3 h-3" /></Button>}
+                <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => { setForm(job); setEditId(job.id); setShowForm(true); }}><Edit2 className="w-3 h-3" /></Button>
+                <Button variant="ghost" size="icon" className="h-5 w-5 text-destructive opacity-0 group-hover:opacity-100" onClick={() => setJobs(prev => prev.filter(j => j.id !== job.id))}><Trash2 className="w-3 h-3" /></Button>
               </div>
             </div>
-          </CardContent></Card>
-        ))}
+          ))}
+        </div>
       </div>
-      {filtered.length === 0 && <p className="text-center text-muted-foreground text-sm py-8">Nenhuma candidatura. Boa sorte! 🍀</p>}
     </div>
   );
 };
 
 // ============= PORTFOLIO =============
-type PortfolioItem = { id: string; title: string; description: string; link: string; category: string; date: string; highlight: boolean };
 const Portfolio = () => {
-  const [items, setItems] = usePersistedState<PortfolioItem[]>("career-portfolio", []);
+  const [items, setItems] = usePersistedState<PortfolioItem[]>("career-portfolio", DEFAULT_PORTFOLIO);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<Partial<PortfolioItem>>({ category: "projeto", highlight: false });
   const categories = ["projeto", "conquista", "certificado", "artigo", "link"];
@@ -123,45 +164,61 @@ const Portfolio = () => {
     setForm({ category: "projeto", highlight: false }); setShowForm(false);
   };
 
-  const thisMonth = new Date().toISOString().slice(0, 7);
-  const monthItems = items.filter(i => i.date.startsWith(thisMonth));
-
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center"><div><h3 className="font-semibold text-sm">Portfolio & Conquistas</h3><p className="text-[10px] text-muted-foreground">{items.length} itens</p></div><Button size="sm" onClick={() => setShowForm(true)}><Plus className="w-4 h-4 mr-1" /> Novo</Button></div>
-      {monthItems.length > 0 && (
-        <Card className="bg-gradient-to-br from-amber-50 to-amber-100/50 dark:from-amber-500/10 dark:to-amber-500/5 border-amber-200 dark:border-amber-500/20"><CardContent className="p-4">
-          <div className="flex items-center gap-2 mb-2"><Trophy className="w-4 h-4 text-amber-600" /><span className="font-semibold text-sm">Conquistas do Mês</span><Badge variant="secondary" className="text-[10px]">{monthItems.length}</Badge></div>
-          <div className="space-y-1">{monthItems.slice(0, 3).map(i => <div key={i.id} className="flex items-center gap-2"><span className="text-sm">{catEmoji[i.category]}</span><span className="text-xs">{i.title}</span></div>)}</div>
-        </CardContent></Card>
-      )}
+      <Button variant="outline" className="w-full rounded-xl h-9 text-xs border-dashed" onClick={() => setShowForm(!showForm)}>
+        <Plus className="w-3 h-3 mr-1" /> Nova Conquista
+      </Button>
+
       {showForm && (
-        <Card className="border-indigo-300 dark:border-indigo-500/30"><CardContent className="p-4 space-y-3">
+        <div className="rounded-xl border border-border bg-card p-4 space-y-3">
           <Input placeholder="Título" value={form.title || ""} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} className="h-9 text-sm" />
           <Textarea placeholder="Descrição..." value={form.description || ""} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} className="text-sm min-h-[50px]" />
-          <div className="grid grid-cols-2 gap-2"><Select value={form.category || "projeto"} onValueChange={v => setForm(p => ({ ...p, category: v }))}><SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger><SelectContent>{categories.map(c => <SelectItem key={c} value={c}>{catEmoji[c]} {c}</SelectItem>)}</SelectContent></Select><Input type="date" value={form.date || ""} onChange={e => setForm(p => ({ ...p, date: e.target.value }))} className="h-9 text-sm" /></div>
+          <div className="grid grid-cols-2 gap-2">
+            <Select value={form.category || "projeto"} onValueChange={v => setForm(p => ({ ...p, category: v }))}><SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger><SelectContent>{categories.map(c => <SelectItem key={c} value={c}>{catEmoji[c]} {c}</SelectItem>)}</SelectContent></Select>
+            <Input type="date" value={form.date || ""} onChange={e => setForm(p => ({ ...p, date: e.target.value }))} className="h-9 text-sm" />
+          </div>
           <Input placeholder="Link (opcional)" value={form.link || ""} onChange={e => setForm(p => ({ ...p, link: e.target.value }))} className="h-9 text-sm" />
           <Button size="sm" className="w-full" onClick={save}>Salvar</Button>
-        </CardContent></Card>
+        </div>
       )}
-      <div className="space-y-2">
-        {items.sort((a, b) => b.date.localeCompare(a.date)).map(item => (
-          <Card key={item.id}><CardContent className="p-3 flex items-start gap-3">
-            <span className="text-xl">{catEmoji[item.category]}</span>
-            <div className="flex-1 min-w-0"><h4 className="font-semibold text-sm">{item.title}</h4>{item.description && <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">{item.description}</p>}<div className="flex items-center gap-2 mt-1"><span className="text-[10px] text-muted-foreground">{item.date}</span><Badge variant="outline" className="text-[9px] px-1 py-0">{item.category}</Badge></div></div>
-            <div className="flex flex-col gap-1 shrink-0">{item.link && <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => window.open(item.link, "_blank")}><ExternalLink className="w-3 h-3" /></Button>}<Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => setItems(prev => prev.filter(i => i.id !== item.id))}><Trash2 className="w-3 h-3" /></Button></div>
-          </CardContent></Card>
-        ))}
+
+      <div className="rounded-xl border border-border overflow-hidden">
+        <div className="bg-amber-200 dark:bg-amber-800/50 px-4 py-2">
+          <span className="text-[10px] font-bold uppercase tracking-wider">🏆 CONQUISTAS & PORTFOLIO</span>
+        </div>
+        <div className="bg-amber-100 dark:bg-amber-900/20 px-3 py-1.5 grid grid-cols-12 gap-1 text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
+          <span className="col-span-1"></span>
+          <span className="col-span-4">Título</span>
+          <span className="col-span-3">Tipo</span>
+          <span className="col-span-2">Data</span>
+          <span className="col-span-2 text-right">Ações</span>
+        </div>
+        <div className="divide-y divide-border bg-card">
+          {items.sort((a, b) => b.date.localeCompare(a.date)).map(item => (
+            <div key={item.id} className="px-3 py-2 grid grid-cols-12 gap-1 items-center hover:bg-muted/30 transition-colors group">
+              <span className="col-span-1 text-sm">{catEmoji[item.category]}</span>
+              <div className="col-span-4 min-w-0">
+                <p className="text-xs font-medium truncate">{item.title}</p>
+                {item.description && <p className="text-[9px] text-muted-foreground truncate">{item.description}</p>}
+              </div>
+              <div className="col-span-3"><Badge variant="outline" className="text-[8px] px-1 py-0">{item.category}</Badge></div>
+              <span className="col-span-2 text-[10px] text-muted-foreground">{item.date}</span>
+              <div className="col-span-2 flex justify-end gap-1">
+                {item.link && <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => window.open(item.link, "_blank")}><ExternalLink className="w-3 h-3" /></Button>}
+                <Button variant="ghost" size="icon" className="h-5 w-5 text-destructive opacity-0 group-hover:opacity-100" onClick={() => setItems(prev => prev.filter(i => i.id !== item.id))}><Trash2 className="w-3 h-3" /></Button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-      {items.length === 0 && <p className="text-center text-muted-foreground text-sm py-8">Registre suas conquistas! 🏆</p>}
     </div>
   );
 };
 
 // ============= NETWORKING =============
-type Contact = { id: string; name: string; company: string; role: string; linkedin: string; email: string; phone: string; notes: string; lastContact: string; category: string };
 const Networking = () => {
-  const [contacts, setContacts] = usePersistedState<Contact[]>("career-contacts", []);
+  const [contacts, setContacts] = usePersistedState<Contact[]>("career-contacts", DEFAULT_CONTACTS);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<Partial<Contact>>({ category: "profissional" });
   const categories = ["profissional", "mentor", "recrutador", "colega", "cliente"];
@@ -177,14 +234,29 @@ const Networking = () => {
   return (
     <div className="space-y-4">
       {needsFollowUp.length > 0 && (
-        <Card className="bg-amber-50 dark:bg-amber-500/5 border-amber-200 dark:border-amber-500/20"><CardContent className="p-3">
-          <div className="flex items-center gap-2 mb-2"><Clock className="w-4 h-4 text-amber-600" /><span className="font-semibold text-xs text-amber-800 dark:text-amber-300">Follow-up pendente</span><Badge variant="secondary" className="text-[10px]">{needsFollowUp.length}</Badge></div>
-          <div className="space-y-1">{needsFollowUp.slice(0, 3).map(c => <div key={c.id} className="flex items-center justify-between"><span className="text-xs">{catEmoji[c.category]} {c.name}</span><Button size="sm" variant="outline" className="h-6 text-[10px]" onClick={() => setContacts(prev => prev.map(x => x.id === c.id ? { ...x, lastContact: new Date().toISOString().slice(0, 10) } : x))}>Contatei ✓</Button></div>)}</div>
-        </CardContent></Card>
+        <div className="rounded-xl border border-border overflow-hidden">
+          <div className="bg-amber-200 dark:bg-amber-800/50 px-3 py-1.5 flex items-center gap-2">
+            <Clock className="w-3 h-3" />
+            <span className="text-[10px] font-bold uppercase tracking-wider">⏰ FOLLOW-UP PENDENTE</span>
+            <Badge variant="secondary" className="text-[9px] px-1.5 h-4 bg-background/50 ml-auto">{needsFollowUp.length}</Badge>
+          </div>
+          <div className="bg-amber-50 dark:bg-amber-950/20 p-3 space-y-1">
+            {needsFollowUp.slice(0, 3).map(c => (
+              <div key={c.id} className="flex items-center justify-between">
+                <span className="text-xs">{catEmoji[c.category]} {c.name}</span>
+                <Button size="sm" variant="outline" className="h-6 text-[10px]" onClick={() => setContacts(prev => prev.map(x => x.id === c.id ? { ...x, lastContact: new Date().toISOString().slice(0, 10) } : x))}>Contatei ✓</Button>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
-      <div className="flex justify-between items-center"><div><h3 className="font-semibold text-sm">Rede de Contatos</h3><p className="text-[10px] text-muted-foreground">{contacts.length} conexões</p></div><Button size="sm" onClick={() => setShowForm(true)}><Plus className="w-4 h-4 mr-1" /> Novo</Button></div>
+
+      <Button variant="outline" className="w-full rounded-xl h-9 text-xs border-dashed" onClick={() => setShowForm(!showForm)}>
+        <Plus className="w-3 h-3 mr-1" /> Novo Contato
+      </Button>
+
       {showForm && (
-        <Card className="border-indigo-300 dark:border-indigo-500/30"><CardContent className="p-4 space-y-3">
+        <div className="rounded-xl border border-border bg-card p-4 space-y-3">
           <Input placeholder="Nome" value={form.name || ""} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} className="h-9 text-sm" />
           <div className="grid grid-cols-2 gap-2"><Input placeholder="Empresa" value={form.company || ""} onChange={e => setForm(p => ({ ...p, company: e.target.value }))} className="h-9 text-sm" /><Input placeholder="Cargo" value={form.role || ""} onChange={e => setForm(p => ({ ...p, role: e.target.value }))} className="h-9 text-sm" /></div>
           <Select value={form.category || "profissional"} onValueChange={v => setForm(p => ({ ...p, category: v }))}><SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger><SelectContent>{categories.map(c => <SelectItem key={c} value={c}>{catEmoji[c]} {c}</SelectItem>)}</SelectContent></Select>
@@ -192,26 +264,44 @@ const Networking = () => {
           <div className="grid grid-cols-2 gap-2"><Input placeholder="Email" value={form.email || ""} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} className="h-9 text-sm" /><Input placeholder="Telefone" value={form.phone || ""} onChange={e => setForm(p => ({ ...p, phone: e.target.value }))} className="h-9 text-sm" /></div>
           <Textarea placeholder="Notas..." value={form.notes || ""} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} className="text-sm min-h-[50px]" />
           <Button size="sm" className="w-full" onClick={save}>Salvar</Button>
-        </CardContent></Card>
+        </div>
       )}
-      <div className="space-y-2">
-        {contacts.map(c => (
-          <Card key={c.id}><CardContent className="p-3 flex items-start gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-100 to-purple-50 dark:from-indigo-500/20 dark:to-purple-500/10 flex items-center justify-center text-lg shrink-0">{catEmoji[c.category]}</div>
-            <div className="flex-1 min-w-0"><h4 className="font-semibold text-sm">{c.name}</h4><p className="text-[10px] text-muted-foreground">{c.role} {c.company ? `@ ${c.company}` : ""}</p><div className="flex items-center gap-2 mt-1"><Badge variant="outline" className="text-[9px] px-1 py-0">{c.category}</Badge>{c.lastContact && <span className="text-[9px] text-muted-foreground">Último: {c.lastContact}</span>}</div></div>
-            <div className="flex flex-col gap-1 shrink-0">{c.linkedin && <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => window.open(c.linkedin, "_blank")}><Link2 className="w-3 h-3" /></Button>}<Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => setContacts(prev => prev.filter(x => x.id !== c.id))}><Trash2 className="w-3 h-3" /></Button></div>
-          </CardContent></Card>
-        ))}
+
+      <div className="rounded-xl border border-border overflow-hidden">
+        <div className="bg-purple-200 dark:bg-purple-800/50 px-4 py-2">
+          <span className="text-[10px] font-bold uppercase tracking-wider">🤝 REDE DE CONTATOS</span>
+        </div>
+        <div className="bg-purple-100 dark:bg-purple-900/20 px-3 py-1.5 grid grid-cols-12 gap-1 text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
+          <span className="col-span-1"></span>
+          <span className="col-span-3">Nome</span>
+          <span className="col-span-3">Empresa / Cargo</span>
+          <span className="col-span-3">Último Contato</span>
+          <span className="col-span-2 text-right">Ações</span>
+        </div>
+        <div className="divide-y divide-border bg-card">
+          {contacts.map(c => (
+            <div key={c.id} className="px-3 py-2 grid grid-cols-12 gap-1 items-center hover:bg-muted/30 transition-colors group">
+              <span className="col-span-1 text-sm">{catEmoji[c.category]}</span>
+              <span className="col-span-3 text-xs font-medium truncate">{c.name}</span>
+              <div className="col-span-3 min-w-0">
+                <p className="text-[10px] text-muted-foreground truncate">{c.role}{c.company ? ` @ ${c.company}` : ""}</p>
+              </div>
+              <span className="col-span-3 text-[10px] text-muted-foreground">{c.lastContact || "—"}</span>
+              <div className="col-span-2 flex justify-end gap-1">
+                {c.linkedin && <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => window.open(c.linkedin, "_blank")}><Link2 className="w-3 h-3" /></Button>}
+                <Button variant="ghost" size="icon" className="h-5 w-5 text-destructive opacity-0 group-hover:opacity-100" onClick={() => setContacts(prev => prev.filter(x => x.id !== c.id))}><Trash2 className="w-3 h-3" /></Button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-      {contacts.length === 0 && <p className="text-center text-muted-foreground text-sm py-8">Construa sua rede! 🤝</p>}
     </div>
   );
 };
 
 // ============= SKILLS TRACKER =============
 const SkillsTracker = () => {
-  type Skill = { id: string; name: string; category: string; level: number; targetLevel: number; notes: string };
-  const [skills, setSkills] = usePersistedState<Skill[]>("career-skills", []);
+  const [skills, setSkills] = usePersistedState<Skill[]>("career-skills", DEFAULT_SKILLS);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<Partial<Skill>>({ category: "técnica", level: 1, targetLevel: 5 });
   const categories = ["técnica", "soft skill", "idioma", "ferramenta", "certificação"];
@@ -225,72 +315,60 @@ const SkillsTracker = () => {
     setForm({ category: "técnica", level: 1, targetLevel: 5 }); setShowForm(false);
   };
 
-  const avgLevel = skills.length > 0 ? (skills.reduce((s, sk) => s + sk.level, 0) / skills.length).toFixed(1) : "0";
-
   return (
     <div className="space-y-4">
-      {/* Skills Overview */}
-      <div className="grid grid-cols-3 gap-2">
-        <div className="bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 rounded-xl p-3 text-center">
-          <div className="text-2xl font-bold text-indigo-700 dark:text-indigo-300">{skills.length}</div>
-          <div className="text-[10px] text-muted-foreground">Skills</div>
-        </div>
-        <div className="bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/20 rounded-xl p-3 text-center">
-          <div className="text-2xl font-bold text-purple-700 dark:text-purple-300">{avgLevel}</div>
-          <div className="text-[10px] text-muted-foreground">Nível Médio</div>
-        </div>
-        <div className="bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 rounded-xl p-3 text-center">
-          <div className="text-2xl font-bold text-green-700 dark:text-green-300">{skills.filter(s => s.level >= 4).length}</div>
-          <div className="text-[10px] text-muted-foreground">Avançadas</div>
-        </div>
-      </div>
-
-      <div className="flex justify-between items-center"><div><h3 className="font-semibold text-sm">Skills & Competências</h3></div><Button size="sm" onClick={() => setShowForm(true)}><Plus className="w-4 h-4 mr-1" /> Nova</Button></div>
+      <Button variant="outline" className="w-full rounded-xl h-9 text-xs border-dashed" onClick={() => setShowForm(!showForm)}>
+        <Plus className="w-3 h-3 mr-1" /> Nova Skill
+      </Button>
 
       {showForm && (
-        <Card className="border-indigo-300 dark:border-indigo-500/30"><CardContent className="p-4 space-y-3">
+        <div className="rounded-xl border border-border bg-card p-4 space-y-3">
           <Input placeholder="Nome da skill" value={form.name || ""} onChange={e => setForm(p => ({...p, name: e.target.value}))} className="h-9 text-sm" />
           <div className="grid grid-cols-2 gap-2">
             <Select value={form.category || "técnica"} onValueChange={v => setForm(p => ({...p, category: v}))}><SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger><SelectContent>{categories.map(c => <SelectItem key={c} value={c}>{catEmoji[c]} {c}</SelectItem>)}</SelectContent></Select>
-            <div className="flex items-center gap-2"><span className="text-xs">Nível:</span>
-              <Select value={String(form.level || 1)} onValueChange={v => setForm(p => ({...p, level: Number(v)}))}><SelectTrigger className="h-9 text-xs flex-1"><SelectValue /></SelectTrigger><SelectContent>{[1,2,3,4,5].map(l => <SelectItem key={l} value={String(l)}>{l} - {levels[l-1]}</SelectItem>)}</SelectContent></Select>
-            </div>
+            <Select value={String(form.level || 1)} onValueChange={v => setForm(p => ({...p, level: Number(v)}))}><SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger><SelectContent>{[1,2,3,4,5].map(l => <SelectItem key={l} value={String(l)}>{l} - {levels[l-1]}</SelectItem>)}</SelectContent></Select>
           </div>
-          <Textarea placeholder="Notas (cursos planejados, recursos...)" value={form.notes || ""} onChange={e => setForm(p => ({...p, notes: e.target.value}))} className="text-sm min-h-[40px]" />
+          <Textarea placeholder="Notas..." value={form.notes || ""} onChange={e => setForm(p => ({...p, notes: e.target.value}))} className="text-sm min-h-[40px]" />
           <Button size="sm" className="w-full" onClick={save}>Salvar</Button>
-        </CardContent></Card>
+        </div>
       )}
 
-      {categories.map(cat => {
-        const catSkills = skills.filter(s => s.category === cat);
-        if (catSkills.length === 0) return null;
-        return (
-          <div key={cat}>
-            <p className="text-xs font-bold text-muted-foreground mb-2">{catEmoji[cat]} {cat.toUpperCase()}</p>
-            <div className="space-y-2">
-              {catSkills.map(skill => (
-                <Card key={skill.id}><CardContent className="p-3">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <h4 className="font-medium text-sm">{skill.name}</h4>
-                    <div className="flex items-center gap-1">
-                      <Badge className={`text-[9px] px-1.5 py-0 text-white ${levelColors[skill.level - 1]}`}>{levels[skill.level - 1]}</Badge>
-                      <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setSkills(prev => prev.map(s => s.id === skill.id ? {...s, level: Math.min(s.level + 1, 5)} : s))}><TrendingUp className="w-3 h-3 text-green-500" /></Button>
-                      <Button variant="ghost" size="icon" className="h-5 w-5 text-destructive" onClick={() => setSkills(prev => prev.filter(s => s.id !== skill.id))}><Trash2 className="w-3 h-3" /></Button>
-                    </div>
-                  </div>
-                  <div className="flex gap-1">
-                    {[1,2,3,4,5].map(l => (
-                      <div key={l} className={`h-2 flex-1 rounded-full transition-all ${l <= skill.level ? levelColors[skill.level - 1] : "bg-muted"}`} />
-                    ))}
-                  </div>
-                  {skill.notes && <p className="text-[10px] text-muted-foreground mt-1.5">{skill.notes}</p>}
-                </CardContent></Card>
-              ))}
+      <div className="rounded-xl border border-border overflow-hidden">
+        <div className="bg-green-200 dark:bg-green-800/50 px-4 py-2">
+          <span className="text-[10px] font-bold uppercase tracking-wider">💻 SKILLS & COMPETÊNCIAS</span>
+        </div>
+        <div className="bg-green-100 dark:bg-green-900/20 px-3 py-1.5 grid grid-cols-12 gap-1 text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
+          <span className="col-span-1"></span>
+          <span className="col-span-3">Skill</span>
+          <span className="col-span-2">Tipo</span>
+          <span className="col-span-4">Nível</span>
+          <span className="col-span-2 text-right">Ações</span>
+        </div>
+        <div className="divide-y divide-border bg-card">
+          {skills.map(skill => (
+            <div key={skill.id} className="px-3 py-2 grid grid-cols-12 gap-1 items-center hover:bg-muted/30 transition-colors group">
+              <span className="col-span-1 text-sm">{catEmoji[skill.category]}</span>
+              <div className="col-span-3 min-w-0">
+                <p className="text-xs font-medium truncate">{skill.name}</p>
+                {skill.notes && <p className="text-[8px] text-muted-foreground truncate">{skill.notes}</p>}
+              </div>
+              <span className="col-span-2 text-[10px] text-muted-foreground">{skill.category}</span>
+              <div className="col-span-4 flex items-center gap-2">
+                <div className="flex gap-0.5 flex-1">
+                  {[1,2,3,4,5].map(l => (
+                    <div key={l} className={`h-2 flex-1 rounded-full transition-all ${l <= skill.level ? levelColors[skill.level - 1] : "bg-muted"}`} />
+                  ))}
+                </div>
+                <Badge className={`text-[7px] px-1 py-0 text-white ${levelColors[skill.level - 1]}`}>{levels[skill.level - 1]}</Badge>
+              </div>
+              <div className="col-span-2 flex justify-end gap-1">
+                <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setSkills(prev => prev.map(s => s.id === skill.id ? {...s, level: Math.min(s.level + 1, 5)} : s))}><TrendingUp className="w-3 h-3 text-green-500" /></Button>
+                <Button variant="ghost" size="icon" className="h-5 w-5 text-destructive opacity-0 group-hover:opacity-100" onClick={() => setSkills(prev => prev.filter(s => s.id !== skill.id))}><Trash2 className="w-3 h-3" /></Button>
+              </div>
             </div>
-          </div>
-        );
-      })}
-      {skills.length === 0 && <p className="text-center text-muted-foreground text-sm py-8">Adicione suas habilidades! 💪</p>}
+          ))}
+        </div>
+      </div>
     </div>
   );
 };
@@ -310,17 +388,16 @@ const InterviewPrep = () => {
 
   return (
     <div className="space-y-4">
-      {/* Prep Progress Card */}
-      <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-500/10 dark:to-emerald-500/5 border-green-200 dark:border-green-500/20">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2"><BookOpen className="w-4 h-4 text-green-600" /><span className="font-semibold text-sm">Progresso de Preparação</span></div>
-            <span className="text-lg font-bold text-green-700 dark:text-green-300">{pct}%</span>
-          </div>
-          <Progress value={pct} className="h-2.5" />
-          <p className="text-[10px] text-muted-foreground mt-1.5">{practiced} de {questions.length} perguntas praticadas</p>
-        </CardContent>
-      </Card>
+      <div className="rounded-xl border border-border overflow-hidden">
+        <div className="bg-sky-200 dark:bg-sky-800/50 px-4 py-2 flex items-center justify-between">
+          <span className="text-[10px] font-bold uppercase tracking-wider">📝 PREPARAÇÃO PARA ENTREVISTA</span>
+          <span className="text-xs font-bold">{pct}%</span>
+        </div>
+        <div className="bg-sky-50 dark:bg-sky-950/20 p-3">
+          <Progress value={pct} className="h-2" />
+          <p className="text-[10px] text-muted-foreground mt-1">{practiced} de {questions.length} perguntas praticadas</p>
+        </div>
+      </div>
 
       <div className="flex gap-2">
         <Input value={newQuestion} onChange={e => setNewQuestion(e.target.value)} placeholder="Nova pergunta..." className="h-8 text-xs" />
@@ -331,19 +408,17 @@ const InterviewPrep = () => {
 
       <div className="space-y-2">
         {questions.map((q, i) => (
-          <Card key={q.id} className={q.practiced ? "border-green-200 dark:border-green-500/20 bg-green-50/50 dark:bg-green-500/5" : ""}>
-            <CardContent className="p-3 space-y-2">
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex items-start gap-2">
-                  <Checkbox checked={q.practiced} onCheckedChange={() => setQuestions(prev => prev.map(x => x.id === q.id ? {...x, practiced: !x.practiced} : x))} className="mt-0.5" />
-                  <p className={`text-sm font-medium ${q.practiced ? "line-through text-muted-foreground" : ""}`}>{q.question}</p>
-                </div>
-                <Button variant="ghost" size="icon" className="h-5 w-5 text-destructive shrink-0" onClick={() => setQuestions(prev => prev.filter(x => x.id !== q.id))}><Trash2 className="w-3 h-3" /></Button>
+          <div key={q.id} className={`rounded-xl border overflow-hidden ${q.practiced ? "border-green-200 dark:border-green-800/30" : "border-border"}`}>
+            <div className={`px-3 py-2 flex items-start gap-2 ${q.practiced ? "bg-green-50 dark:bg-green-950/20" : "bg-card"}`}>
+              <Checkbox checked={q.practiced} onCheckedChange={() => setQuestions(prev => prev.map(x => x.id === q.id ? {...x, practiced: !x.practiced} : x))} className="mt-0.5" />
+              <div className="flex-1">
+                <p className={`text-xs font-medium ${q.practiced ? "line-through text-muted-foreground" : ""}`}>{q.question}</p>
+                <Textarea value={q.answer} onChange={e => { const u = [...questions]; u[i] = {...q, answer: e.target.value}; setQuestions(u); }}
+                  placeholder="Sua resposta preparada..." className="text-xs min-h-[40px] mt-2" />
               </div>
-              <Textarea value={q.answer} onChange={e => { const u = [...questions]; u[i] = {...q, answer: e.target.value}; setQuestions(u); }}
-                placeholder="Sua resposta preparada..." className="text-xs min-h-[40px]" />
-            </CardContent>
-          </Card>
+              <Button variant="ghost" size="icon" className="h-5 w-5 text-destructive shrink-0" onClick={() => setQuestions(prev => prev.filter(x => x.id !== q.id))}><Trash2 className="w-3 h-3" /></Button>
+            </div>
+          </div>
         ))}
       </div>
     </div>
@@ -353,10 +428,10 @@ const InterviewPrep = () => {
 // ============= MAIN =============
 const Carreira = () => {
   const navigate = useNavigate();
-  const [jobs] = usePersistedState<JobApp[]>("career-jobs", []);
-  const [skills] = usePersistedState<{id: string; level: number}[]>("career-skills", []);
-  const [contacts] = usePersistedState<{id: string}[]>("career-contacts", []);
-  const [portfolio] = usePersistedState<{id: string}[]>("career-portfolio", []);
+  const [jobs] = usePersistedState<JobApp[]>("career-jobs", DEFAULT_JOBS);
+  const [skills] = usePersistedState<Skill[]>("career-skills", DEFAULT_SKILLS);
+  const [contacts] = usePersistedState<Contact[]>("career-contacts", DEFAULT_CONTACTS);
+  const [portfolio] = usePersistedState<PortfolioItem[]>("career-portfolio", DEFAULT_PORTFOLIO);
 
   const activeJobs = jobs.filter(j => !["rejeitado", "desistiu"].includes(j.status)).length;
   const interviews = jobs.filter(j => j.status === "entrevista").length;
@@ -364,7 +439,7 @@ const Carreira = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur">
+      <header className="sticky top-0 z-50 border-b border-border bg-card">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate("/")}>
             <ArrowLeft className="w-4 h-4" />
@@ -389,33 +464,31 @@ const Carreira = () => {
           ]}
         />
 
-        {/* Stat Cards - Colored like other modules */}
+        {/* Stat Cards — Notion-style */}
         <div className="grid grid-cols-4 gap-2">
-          <div className="bg-indigo-100 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 rounded-xl p-3 text-center">
-            <div className="text-lg">📊</div>
-            <div className="text-xl font-bold text-foreground">{jobs.length}</div>
-            <div className="text-[10px] text-muted-foreground">Total</div>
-          </div>
-          <div className="bg-purple-100 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/20 rounded-xl p-3 text-center">
-            <div className="text-lg">🎯</div>
-            <div className="text-xl font-bold text-foreground">{activeJobs}</div>
-            <div className="text-[10px] text-muted-foreground">Ativas</div>
-          </div>
-          <div className="bg-amber-100 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-xl p-3 text-center">
-            <div className="text-lg">🎤</div>
-            <div className="text-xl font-bold text-foreground">{interviews}</div>
-            <div className="text-[10px] text-muted-foreground">Entrevistas</div>
-          </div>
-          <div className="bg-green-100 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 rounded-xl p-3 text-center">
-            <div className="text-lg">🎉</div>
-            <div className="text-xl font-bold text-foreground">{offers}</div>
-            <div className="text-[10px] text-muted-foreground">Ofertas</div>
-          </div>
+          {[
+            { label: "TOTAL", value: jobs.length, emoji: "📊", headerColor: "bg-indigo-200 dark:bg-indigo-800/50", bodyColor: "bg-indigo-50 dark:bg-indigo-950/20" },
+            { label: "ATIVAS", value: activeJobs, emoji: "🎯", headerColor: "bg-purple-200 dark:bg-purple-800/50", bodyColor: "bg-purple-50 dark:bg-purple-950/20" },
+            { label: "ENTREVISTAS", value: interviews, emoji: "🎤", headerColor: "bg-amber-200 dark:bg-amber-800/50", bodyColor: "bg-amber-50 dark:bg-amber-950/20" },
+            { label: "OFERTAS", value: offers, emoji: "🎉", headerColor: "bg-green-200 dark:bg-green-800/50", bodyColor: "bg-green-50 dark:bg-green-950/20" },
+          ].map(s => (
+            <div key={s.label} className="rounded-xl border border-border overflow-hidden">
+              <div className={`${s.headerColor} px-2 py-1 text-center`}>
+                <span className="text-[8px] font-bold uppercase tracking-wider">{s.emoji} {s.label}</span>
+              </div>
+              <div className={`${s.bodyColor} p-2 text-center`}>
+                <p className="text-xl font-black">{s.value}</p>
+              </div>
+            </div>
+          ))}
         </div>
 
-        {/* Quick Stats Bar */}
-        <div className="flex items-center justify-between bg-muted/50 rounded-xl px-4 py-2.5">
-          <div className="flex items-center gap-4 text-[11px]">
+        {/* Quick Stats */}
+        <div className="rounded-xl border border-border overflow-hidden">
+          <div className="bg-gray-200 dark:bg-gray-800/50 px-3 py-1.5">
+            <span className="text-[10px] font-bold uppercase tracking-wider">📋 RESUMO</span>
+          </div>
+          <div className="bg-gray-50 dark:bg-gray-950/20 px-4 py-2 flex items-center gap-4 text-[11px]">
             <span className="flex items-center gap-1"><Zap className="w-3 h-3 text-amber-500" /> {skills.length} skills</span>
             <span className="flex items-center gap-1"><Users className="w-3 h-3 text-indigo-500" /> {contacts.length} contatos</span>
             <span className="flex items-center gap-1"><Trophy className="w-3 h-3 text-purple-500" /> {portfolio.length} conquistas</span>

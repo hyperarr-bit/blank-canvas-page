@@ -17,8 +17,14 @@ const priorityConfig: Record<string, { emoji: string; label: string; color: stri
   "próximo": { emoji: "🔜", label: "Próximo", color: "bg-green-200 dark:bg-green-800/50", bodyColor: "bg-green-50 dark:bg-green-950/20" },
 };
 
+const DEFAULT_DESTINATIONS: Destination[] = [
+  { id: "ex-1", name: "Tokyo", country: "Japão", continent: "Ásia", notes: "Shibuya, Akihabara, templos", visited: false, rating: 0, photoUrl: "", priority: "sonho" },
+  { id: "ex-2", name: "Lisboa", country: "Portugal", continent: "Europa", notes: "Pastéis de Belém, Alfama", visited: false, rating: 0, photoUrl: "", priority: "planejando" },
+  { id: "ex-3", name: "Buenos Aires", country: "Argentina", continent: "América do Sul", notes: "Caminito, La Boca, asado", visited: true, rating: 4, photoUrl: "", priority: "sonho" },
+];
+
 export const BucketList = () => {
-  const [destinations, setDestinations] = usePersistedState<Destination[]>("travel-bucket", []);
+  const [destinations, setDestinations] = usePersistedState<Destination[]>("travel-bucket", DEFAULT_DESTINATIONS);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<Partial<Destination>>({ visited: false, priority: "sonho", rating: 0 });
   const [filter, setFilter] = useState<string>("all");
@@ -26,15 +32,8 @@ export const BucketList = () => {
   const save = () => {
     if (!form.name) return;
     setDestinations(prev => [...prev, {
-      id: genId(),
-      name: form.name || "",
-      country: form.country || "",
-      continent: form.continent || "Europa",
-      notes: form.notes || "",
-      visited: form.visited || false,
-      rating: form.rating || 0,
-      photoUrl: form.photoUrl || "",
-      priority: form.priority || "sonho",
+      id: genId(), name: form.name || "", country: form.country || "", continent: form.continent || "Europa",
+      notes: form.notes || "", visited: form.visited || false, rating: form.rating || 0, photoUrl: form.photoUrl || "", priority: form.priority || "sonho",
     }]);
     setForm({ visited: false, priority: "sonho", rating: 0 });
     setShowForm(false);
@@ -44,17 +43,12 @@ export const BucketList = () => {
   const setRating = (id: string, rating: number) => setDestinations(prev => prev.map(d => d.id === id ? { ...d, rating } : d));
   const remove = (id: string) => setDestinations(prev => prev.filter(d => d.id !== id));
 
-  const stats = {
-    total: destinations.length,
-    visited: destinations.filter(d => d.visited).length,
-    countries: new Set(destinations.map(d => d.country).filter(Boolean)).size,
-  };
-
+  const stats = { total: destinations.length, visited: destinations.filter(d => d.visited).length, countries: new Set(destinations.map(d => d.country).filter(Boolean)).size };
   const filtered = filter === "all" ? destinations : destinations.filter(d => d.priority === filter);
 
   return (
     <div className="space-y-4">
-      {/* Stats - Notion-style */}
+      {/* Stats */}
       <div className="grid grid-cols-3 gap-2">
         {[
           { label: "DESTINOS", value: stats.total, emoji: "📍", color: "bg-teal-200 dark:bg-teal-800/50", body: "bg-teal-50 dark:bg-teal-950/20" },
@@ -98,13 +92,8 @@ export const BucketList = () => {
           </div>
           <Select value={form.priority || "sonho"} onValueChange={v => setForm(p => ({ ...p, priority: v as Destination["priority"] }))}>
             <SelectTrigger className="h-9 rounded-xl text-xs"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {Object.entries(priorityConfig).map(([k, c]) => (
-                <SelectItem key={k} value={k}>{c.emoji} {c.label}</SelectItem>
-              ))}
-            </SelectContent>
+            <SelectContent>{Object.entries(priorityConfig).map(([k, c]) => (<SelectItem key={k} value={k}>{c.emoji} {c.label}</SelectItem>))}</SelectContent>
           </Select>
-          <Input placeholder="URL da foto (opcional)" value={form.photoUrl || ""} onChange={e => setForm(p => ({ ...p, photoUrl: e.target.value }))} className="h-9 rounded-xl text-xs" />
           <Textarea placeholder="Notas..." value={form.notes || ""} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} className="text-sm min-h-[50px] rounded-xl" />
           <div className="flex gap-2">
             <Button onClick={save} className="flex-1 rounded-xl h-9 text-xs">Salvar</Button>
@@ -113,56 +102,55 @@ export const BucketList = () => {
         </div>
       )}
 
-      {/* Destination cards - Notion-style with colored bands */}
-      <div className="space-y-2">
-        {filtered.map(d => {
-          const pCfg = priorityConfig[d.priority];
-          return (
-            <div key={d.id} className={`rounded-xl border border-border overflow-hidden transition-all group ${d.visited ? "opacity-60" : "hover:shadow-md"}`}>
-              {d.photoUrl && (
-                <div className="h-28 bg-cover bg-center" style={{ backgroundImage: `url(${d.photoUrl})` }}>
-                  <div className="h-full w-full bg-gradient-to-t from-black/70 to-transparent" />
+      {/* Destinations table — Notion-style */}
+      <div className="rounded-xl border border-border overflow-hidden">
+        <div className="bg-teal-200 dark:bg-teal-800/50 px-4 py-2">
+          <span className="text-[10px] font-bold uppercase tracking-wider">🗺️ BUCKET LIST</span>
+        </div>
+        <div className="bg-teal-100 dark:bg-teal-900/20 px-3 py-1.5 grid grid-cols-12 gap-1 text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
+          <span className="col-span-1">✓</span>
+          <span className="col-span-3">Destino</span>
+          <span className="col-span-2">País</span>
+          <span className="col-span-2">Continente</span>
+          <span className="col-span-2">Prioridade</span>
+          <span className="col-span-2 text-right">Nota</span>
+        </div>
+        <div className="divide-y divide-border bg-card">
+          {filtered.map(d => {
+            const pCfg = priorityConfig[d.priority];
+            return (
+              <div key={d.id} className={`px-3 py-2 grid grid-cols-12 gap-1 items-center hover:bg-muted/30 transition-colors group ${d.visited ? "opacity-60" : ""}`}>
+                <div className="col-span-1">
+                  <Checkbox checked={d.visited} onCheckedChange={() => toggleVisited(d.id)} />
                 </div>
-              )}
-              {/* Colored header band */}
-              <div className={`${pCfg.color} px-3 py-1.5 flex items-center justify-between`}>
-                <span className="text-[10px] font-bold uppercase tracking-wider">{pCfg.emoji} {pCfg.label}</span>
-                {d.country && <span className="text-[9px] font-medium">{d.country}</span>}
-              </div>
-              <div className={`${pCfg.bodyColor} p-3`}>
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-2">
-                    <Checkbox checked={d.visited} onCheckedChange={() => toggleVisited(d.id)} className="mt-0.5" />
-                    <div>
-                      <h4 className={`text-sm font-bold ${d.visited ? "line-through text-muted-foreground" : ""}`}>{d.name}</h4>
+                <div className="col-span-3 min-w-0">
+                  <p className={`text-xs font-medium truncate ${d.visited ? "line-through text-muted-foreground" : ""}`}>{d.name}</p>
+                  {d.notes && <p className="text-[8px] text-muted-foreground truncate">{d.notes}</p>}
+                </div>
+                <span className="col-span-2 text-[10px] text-muted-foreground">{d.country}</span>
+                <span className="col-span-2 text-[10px] text-muted-foreground">{continentEmoji[d.continent]} {d.continent?.split(" ")[0]}</span>
+                <div className="col-span-2">
+                  <Badge variant="secondary" className="text-[8px] px-1 py-0">{pCfg?.emoji} {pCfg?.label}</Badge>
+                </div>
+                <div className="col-span-2 flex justify-end items-center gap-1">
+                  {d.visited && (
+                    <div className="flex gap-0.5">
+                      {[1,2,3,4,5].map(s => (
+                        <button key={s} onClick={() => setRating(d.id, s)}>
+                          <Star className={`w-2.5 h-2.5 ${s <= d.rating ? "fill-warning text-warning" : "text-muted-foreground/30"}`} />
+                        </button>
+                      ))}
                     </div>
-                  </div>
+                  )}
                   <button onClick={() => remove(d.id)} className="opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Trash2 className="w-3.5 h-3.5 text-muted-foreground hover:text-destructive" />
+                    <Trash2 className="w-3 h-3 text-muted-foreground hover:text-destructive" />
                   </button>
                 </div>
-                {d.visited && (
-                  <div className="flex gap-0.5 mt-2">
-                    {[1, 2, 3, 4, 5].map(s => (
-                      <button key={s} onClick={() => setRating(d.id, s)}>
-                        <Star className={`w-3.5 h-3.5 ${s <= d.rating ? "fill-warning text-warning" : "text-muted-foreground/30"}`} />
-                      </button>
-                    ))}
-                  </div>
-                )}
-                {d.notes && <p className="text-[9px] text-muted-foreground mt-1.5 line-clamp-2">{d.notes}</p>}
               </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {filtered.length === 0 && !showForm && (
-        <div className="text-center py-10">
-          <MapPin className="w-8 h-8 mx-auto text-muted-foreground/30 mb-2" />
-          <p className="text-xs text-muted-foreground">Comece a sonhar! ✈️</p>
+            );
+          })}
         </div>
-      )}
+      </div>
     </div>
   );
 };
