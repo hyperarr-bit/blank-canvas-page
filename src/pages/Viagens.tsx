@@ -30,16 +30,16 @@ const TABS = [
 
 const Viagens = () => {
   const navigate = useNavigate();
-  const [destinations] = usePersistedState<{id: string; status: string; country?: string}[]>("travel-bucket-list", []);
-  const [places] = usePersistedState<{id: string; status: string}[]>("travel-places", []);
-  const [diary] = usePersistedState<{id: string}[]>("travel-diary", []);
+  const [destinations] = usePersistedState<{id: string; status: string; country?: string}[]>("travel-bucket", []);
+  const [places] = usePersistedState<{id: string; status: string}[]>("travel-places-v2", []);
+  const [diary] = usePersistedState<{id: string}[]>("travel-diary-v2", []);
 
-  const visited = destinations.filter(d => d.status === "visitado").length;
+  const visited = destinations.filter(d => (d as any).visited).length;
   const countries = new Set(destinations.filter(d => d.country).map(d => d.country)).size;
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur">
+      <header className="sticky top-0 z-50 border-b border-border bg-card">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate("/")}>
             <ArrowLeft className="w-4 h-4" />
@@ -65,16 +65,23 @@ const Viagens = () => {
           ]}
         />
 
-
-        {/* Quick Stats */}
-        <div className="flex items-center justify-between rounded-xl border border-border overflow-hidden">
-          <div className="bg-orange-200 dark:bg-orange-800/50 px-3 py-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider">📊 RESUMO</span>
-          </div>
-          <div className="flex items-center gap-4 text-[11px] px-4 py-2 flex-1 bg-orange-50 dark:bg-orange-950/20">
-            <span className="flex items-center gap-1"><MapPin className="w-3 h-3 text-teal-500" /> {places.length} lugares salvos</span>
-            <span className="flex items-center gap-1"><BookOpen className="w-3 h-3 text-orange-500" /> {diary.length} memórias</span>
-          </div>
+        {/* Quick Stats — Notion-style */}
+        <div className="grid grid-cols-4 gap-2">
+          {[
+            { label: "DESTINOS", value: destinations.length, emoji: "📍", headerColor: "bg-teal-200 dark:bg-teal-800/50", bodyColor: "bg-teal-50 dark:bg-teal-950/20" },
+            { label: "VISITADOS", value: visited, emoji: "✅", headerColor: "bg-emerald-200 dark:bg-emerald-800/50", bodyColor: "bg-emerald-50 dark:bg-emerald-950/20" },
+            { label: "LUGARES", value: places.length, emoji: "📌", headerColor: "bg-orange-200 dark:bg-orange-800/50", bodyColor: "bg-orange-50 dark:bg-orange-950/20" },
+            { label: "MEMÓRIAS", value: diary.length, emoji: "📖", headerColor: "bg-pink-200 dark:bg-pink-800/50", bodyColor: "bg-pink-50 dark:bg-pink-950/20" },
+          ].map(s => (
+            <div key={s.label} className="rounded-xl border border-border overflow-hidden">
+              <div className={`${s.headerColor} px-2 py-1 text-center`}>
+                <span className="text-[8px] font-bold uppercase tracking-wider">{s.emoji} {s.label}</span>
+              </div>
+              <div className={`${s.bodyColor} p-2 text-center`}>
+                <p className="text-lg font-black">{s.value}</p>
+              </div>
+            </div>
+          ))}
         </div>
 
         <Tabs defaultValue="destinos">

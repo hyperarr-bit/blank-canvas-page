@@ -45,14 +45,12 @@ export const SkinDiary = () => {
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
-
     setUploading(true);
     try {
       const ext = file.name.split(".").pop() || "jpg";
       const path = `${user.id}/${genId()}.${ext}`;
       const { error } = await supabase.storage.from("skin-photos").upload(path, file, { upsert: true });
       if (error) throw error;
-
       const { data: urlData } = supabase.storage.from("skin-photos").getPublicUrl(path);
       setForm(prev => ({ ...prev, photoUrl: urlData.publicUrl }));
       toast.success("Foto carregada!");
@@ -64,73 +62,63 @@ export const SkinDiary = () => {
   };
 
   const save = () => {
-    if (!form.photoUrl && !form.notes) {
-      toast.error("Adicione uma foto ou observação");
-      return;
-    }
+    if (!form.photoUrl && !form.notes) { toast.error("Adicione uma foto ou observação"); return; }
     setEntries(prev => [{ id: genId(), date: today, ...form }, ...prev]);
     setForm({ notes: "", skinStatus: "boa", mood: "😊", photoUrl: "" });
     setShowForm(false);
   };
 
-  const deleteEntry = (id: string) => {
-    setEntries(prev => prev.filter(x => x.id !== id));
-  };
+  const deleteEntry = (id: string) => setEntries(prev => prev.filter(x => x.id !== id));
 
   const toggleCompare = (entry: DiaryEntry) => {
-    if (compareEntries[0]?.id === entry.id) {
-      setCompareEntries([null, compareEntries[1]]);
-    } else if (compareEntries[1]?.id === entry.id) {
-      setCompareEntries([compareEntries[0], null]);
-    } else if (!compareEntries[0]) {
-      setCompareEntries([entry, compareEntries[1]]);
-    } else if (!compareEntries[1]) {
-      setCompareEntries([compareEntries[0], entry]);
-    }
+    if (compareEntries[0]?.id === entry.id) setCompareEntries([null, compareEntries[1]]);
+    else if (compareEntries[1]?.id === entry.id) setCompareEntries([compareEntries[0], null]);
+    else if (!compareEntries[0]) setCompareEntries([entry, compareEntries[1]]);
+    else if (!compareEntries[1]) setCompareEntries([compareEntries[0], entry]);
   };
 
   const photosEntries = entries.filter(e => e.photoUrl);
 
   return (
     <div className="space-y-4 mt-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="font-bold text-sm">Câmera do Tempo</h3>
-          <p className="text-[10px] text-muted-foreground">{entries.length} registros • {photosEntries.length} fotos</p>
+      {/* Header — Notion-style */}
+      <div className="rounded-xl border border-border overflow-hidden">
+        <div className="bg-amber-200 dark:bg-amber-800/50 px-4 py-2 flex items-center justify-between">
+          <span className="text-[10px] font-bold uppercase tracking-wider">📸 DIÁRIO DE PELE</span>
+          <div className="flex gap-2">
+            {photosEntries.length >= 2 && (
+              <button onClick={() => setCompareMode(!compareMode)}
+                className={`text-[10px] font-medium flex items-center gap-1 ${compareMode ? "text-foreground" : "text-foreground/60"}`}>
+                <ArrowLeftRight className="w-3 h-3" /> Comparar
+              </button>
+            )}
+          </div>
         </div>
-        <div className="flex gap-2">
-          {photosEntries.length >= 2 && (
-            <Button size="sm" variant="ghost" onClick={() => setCompareMode(!compareMode)}
-              className={compareMode ? "text-sk-mint" : "text-muted-foreground"}>
-              <ArrowLeftRight className="w-3.5 h-3.5 mr-1" /> Comparar
-            </Button>
-          )}
-          {!todayEntry && (
-            <Button size="sm" className="bg-sk-mint/20 text-sk-mint hover:bg-sk-mint/30 border-0" onClick={() => setShowForm(true)}>
-              <Plus className="w-4 h-4 mr-1" /> Hoje
-            </Button>
+        <div className="bg-amber-50 dark:bg-amber-950/20 px-4 py-2 flex items-center justify-between">
+          <p className="text-[10px] text-muted-foreground">{entries.length} registros • {photosEntries.length} fotos</p>
+          {todayEntry && (
+            <Badge variant="secondary" className="text-[9px]">
+              ✅ Registro de hoje feito
+            </Badge>
           )}
         </div>
       </div>
 
-      {/* Today done */}
-      {todayEntry && (
-        <div className="sk-card rounded-xl p-3 border-sk-mint/20">
-          <p className="text-xs font-bold text-sk-mint">✅ Registro de hoje feito!</p>
-          <p className="text-[10px] text-muted-foreground">
-            {skinStatuses.find(s => s.id === todayEntry.skinStatus)?.emoji} {todayEntry.skinStatus} • {todayEntry.mood}
-          </p>
-        </div>
+      {!todayEntry && (
+        <Button variant="outline" className="w-full rounded-xl h-9 text-xs border-dashed" onClick={() => setShowForm(true)}>
+          <Plus className="w-3 h-3 mr-1" /> Registrar Hoje
+        </Button>
       )}
 
       {/* Compare mode */}
       {compareMode && (
-        <div className="sk-card rounded-2xl p-4">
-          <p className="text-xs font-bold text-sk-mint mb-3">📸 Selecione 2 fotos para comparar</p>
-          <div className="grid grid-cols-2 gap-3">
+        <div className="rounded-xl border border-border overflow-hidden">
+          <div className="bg-amber-100 dark:bg-amber-900/20 px-3 py-1.5">
+            <span className="text-[10px] font-bold text-muted-foreground">📸 Selecione 2 fotos para comparar</span>
+          </div>
+          <div className="bg-card p-3 grid grid-cols-2 gap-3">
             {[0, 1].map(i => (
-              <div key={i} className="aspect-square rounded-xl border-2 border-dashed border-border/50 flex items-center justify-center overflow-hidden">
+              <div key={i} className="aspect-square rounded-xl border-2 border-dashed border-border flex items-center justify-center overflow-hidden">
                 {compareEntries[i] ? (
                   <div className="relative w-full h-full">
                     <img src={compareEntries[i]!.photoUrl} alt="" className="w-full h-full object-cover rounded-xl" />
@@ -151,116 +139,108 @@ export const SkinDiary = () => {
 
       {/* Form */}
       {showForm && (
-        <div className="sk-card rounded-2xl p-4 space-y-3">
-          {/* Photo upload */}
+        <div className="rounded-xl border border-border bg-card p-4 space-y-3">
           <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
-
           {form.photoUrl ? (
             <div className="relative">
               <img src={form.photoUrl} alt="" className="w-full h-48 object-cover rounded-xl" />
-              <button onClick={() => setForm(p => ({ ...p, photoUrl: "" }))}
-                className="absolute top-2 right-2 bg-black/50 text-white rounded-full p-1">
+              <button onClick={() => setForm(p => ({ ...p, photoUrl: "" }))} className="absolute top-2 right-2 bg-black/50 text-white rounded-full p-1">
                 <Trash2 className="w-3 h-3" />
               </button>
             </div>
           ) : (
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
-              className="w-full h-32 rounded-xl border-2 border-dashed border-border/50 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-sk-mint/30 hover:text-sk-mint transition-colors"
-            >
-              {uploading ? (
-                <p className="text-xs">Carregando...</p>
-              ) : (
-                <>
-                  <ImagePlus className="w-6 h-6" />
-                  <p className="text-xs font-medium">Tirar foto ou escolher da galeria</p>
-                </>
+            <button onClick={() => fileInputRef.current?.click()} disabled={uploading}
+              className="w-full h-32 rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-emerald-300 hover:text-emerald-600 transition-colors">
+              {uploading ? <p className="text-xs">Carregando...</p> : (
+                <><ImagePlus className="w-6 h-6" /><p className="text-xs font-medium">Tirar foto ou escolher da galeria</p></>
               )}
             </button>
           )}
-
-          {/* Skin status */}
           <div>
             <p className="text-xs font-medium mb-1.5">Pele hoje</p>
             <div className="flex gap-1.5 flex-wrap">
               {skinStatuses.map(s => (
                 <button key={s.id} onClick={() => setForm(p => ({ ...p, skinStatus: s.id }))}
-                  className={`px-2.5 py-1.5 rounded-xl text-[10px] font-medium border transition-all ${
-                    form.skinStatus === s.id
-                      ? "bg-sk-mint/20 border-sk-mint/40 text-sk-mint"
-                      : "border-border/50 text-muted-foreground"
+                  className={`px-2.5 py-1.5 rounded-lg text-[10px] font-medium border transition-all ${
+                    form.skinStatus === s.id ? "bg-emerald-100 dark:bg-emerald-800/30 border-emerald-300 text-emerald-700 dark:text-emerald-300" : "border-border text-muted-foreground"
                   }`}>
                   {s.emoji} {s.label}
                 </button>
               ))}
             </div>
           </div>
-
-          {/* Mood */}
           <div>
             <p className="text-xs font-medium mb-1.5">Humor</p>
             <div className="flex gap-2">
               {moods.map(m => (
                 <button key={m} onClick={() => setForm(p => ({ ...p, mood: m }))}
                   className={`text-xl p-1.5 rounded-xl border transition-all ${
-                    form.mood === m ? "border-sk-lavender bg-sk-lavender/10 scale-110" : "border-transparent"
+                    form.mood === m ? "border-foreground bg-muted scale-110" : "border-transparent"
                   }`}>{m}</button>
               ))}
             </div>
           </div>
-
-          {/* Notes */}
           <Textarea value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))}
-            placeholder="Observações (irritações, melhorias, produtos usados...)"
-            className="text-xs min-h-[60px] bg-muted/30 border-border/50" />
-
+            placeholder="Observações (irritações, melhorias, produtos usados...)" className="text-xs min-h-[60px]" />
           <div className="flex gap-2">
-            <Button size="sm" className="flex-1 bg-sk-mint/20 text-sk-mint hover:bg-sk-mint/30 border-0" onClick={save}>Salvar Registro</Button>
+            <Button size="sm" className="flex-1" onClick={save}>Salvar Registro</Button>
             <Button size="sm" variant="ghost" onClick={() => setShowForm(false)}>Cancelar</Button>
           </div>
         </div>
       )}
 
-      {/* Timeline */}
-      <div className="space-y-2">
-        {entries.slice(0, 30).map(e => {
-          const isSelected = compareEntries[0]?.id === e.id || compareEntries[1]?.id === e.id;
-          return (
-            <div key={e.id}
-              className={`sk-card rounded-xl p-3 flex items-start gap-3 transition-all ${
-                compareMode && e.photoUrl ? "cursor-pointer hover:bg-muted/10" : ""
-              } ${isSelected ? "ring-1 ring-sk-mint" : ""}`}
-              onClick={() => compareMode && e.photoUrl && toggleCompare(e)}
-            >
-              {e.photoUrl ? (
-                <img src={e.photoUrl} alt="" className="w-12 h-12 rounded-lg object-cover shrink-0" />
-              ) : (
-                <span className="text-2xl w-12 text-center shrink-0">
-                  {skinStatuses.find(s => s.id === e.skinStatus)?.emoji || "✨"}
-                </span>
-              )}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
+      {/* Timeline — Notion-style rows */}
+      <div className="rounded-xl border border-border overflow-hidden">
+        <div className="bg-amber-100 dark:bg-amber-900/20 px-3 py-1.5 grid grid-cols-12 gap-1 text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
+          <span className="col-span-2">Foto</span>
+          <span className="col-span-3">Data</span>
+          <span className="col-span-3">Pele</span>
+          <span className="col-span-3">Notas</span>
+          <span className="col-span-1"></span>
+        </div>
+        <div className="divide-y divide-border bg-card">
+          {entries.slice(0, 30).map(e => {
+            const isSelected = compareEntries[0]?.id === e.id || compareEntries[1]?.id === e.id;
+            return (
+              <div key={e.id}
+                className={`px-3 py-2 grid grid-cols-12 gap-1 items-center transition-all group ${
+                  compareMode && e.photoUrl ? "cursor-pointer hover:bg-muted/30" : ""
+                } ${isSelected ? "bg-amber-50 dark:bg-amber-950/20" : ""}`}
+                onClick={() => compareMode && e.photoUrl && toggleCompare(e)}>
+                <div className="col-span-2">
+                  {e.photoUrl ? (
+                    <img src={e.photoUrl} alt="" className="w-10 h-10 rounded-lg object-cover" />
+                  ) : (
+                    <span className="text-xl">{skinStatuses.find(s => s.id === e.skinStatus)?.emoji || "✨"}</span>
+                  )}
+                </div>
+                <div className="col-span-3">
                   <span className="text-xs font-medium">
                     {new Date(e.date + "T12:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
                   </span>
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-muted/50 text-muted-foreground">
+                  <span className="text-sm ml-1">{e.mood}</span>
+                </div>
+                <div className="col-span-3">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
                     {skinStatuses.find(s => s.id === e.skinStatus)?.emoji} {e.skinStatus}
                   </span>
-                  <span className="text-sm">{e.mood}</span>
                 </div>
-                {e.notes && <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">{e.notes}</p>}
+                <div className="col-span-3">
+                  {e.notes && <p className="text-[10px] text-muted-foreground line-clamp-1">{e.notes}</p>}
+                </div>
+                <div className="col-span-1 flex justify-end">
+                  {!compareMode && (
+                    <button onClick={() => deleteEntry(e.id)} className="text-muted-foreground hover:text-red-500 opacity-0 group-hover:opacity-100">
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  )}
+                </div>
               </div>
-              {!compareMode && (
-                <button onClick={() => deleteEntry(e.id)} className="text-muted-foreground hover:text-sk-coral shrink-0">
-                  <Trash2 className="w-3 h-3" />
-                </button>
-              )}
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
+
       {entries.length === 0 && !showForm && (
         <div className="text-center py-10">
           <Camera className="w-10 h-10 mx-auto text-muted-foreground/30 mb-3" />
