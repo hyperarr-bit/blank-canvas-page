@@ -13,7 +13,6 @@ import { CurrencyConverter } from "@/components/travel/CurrencyConverter";
 import { TravelDiary } from "@/components/travel/TravelDiary";
 import { TravelBudget } from "@/components/travel/TravelBudget";
 import { BucketList } from "@/components/travel/BucketList";
-import { usePersistedState } from "@/hooks/use-persisted-state";
 
 const TABS = [
   { value: "destinos", label: "Destinos", icon: Compass },
@@ -30,12 +29,6 @@ const TABS = [
 
 const Viagens = () => {
   const navigate = useNavigate();
-  const [destinations] = usePersistedState<{id: string; status: string; country?: string}[]>("travel-bucket", []);
-  const [places] = usePersistedState<{id: string; status: string}[]>("travel-places-v2", []);
-  const [diary] = usePersistedState<{id: string}[]>("travel-diary-v2", []);
-
-  const visited = destinations.filter(d => (d as any).visited).length;
-  const countries = new Set(destinations.filter(d => d.country).map(d => d.country)).size;
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -46,7 +39,7 @@ const Viagens = () => {
           </Button>
           <div className="flex-1">
             <h1 className="text-lg font-bold tracking-tight flex items-center gap-2">
-              <Plane className="w-5 h-5 text-teal-500" /> MINHAS VIAGENS
+              <Plane className="w-5 h-5 text-teal-600" /> MINHAS VIAGENS
             </h1>
             <p className="text-[11px] text-muted-foreground">Planeje, viva e eternize suas viagens</p>
           </div>
@@ -64,25 +57,6 @@ const Viagens = () => {
             "Defina taxas de câmbio e converta offline"
           ]}
         />
-
-        {/* Quick Stats — Notion-style */}
-        <div className="grid grid-cols-4 gap-2">
-          {[
-            { label: "DESTINOS", value: destinations.length, emoji: "📍", headerColor: "bg-teal-200 dark:bg-teal-800/50", bodyColor: "bg-teal-50 dark:bg-teal-950/20" },
-            { label: "VISITADOS", value: visited, emoji: "✅", headerColor: "bg-emerald-200 dark:bg-emerald-800/50", bodyColor: "bg-emerald-50 dark:bg-emerald-950/20" },
-            { label: "LUGARES", value: places.length, emoji: "📌", headerColor: "bg-orange-200 dark:bg-orange-800/50", bodyColor: "bg-orange-50 dark:bg-orange-950/20" },
-            { label: "MEMÓRIAS", value: diary.length, emoji: "📖", headerColor: "bg-pink-200 dark:bg-pink-800/50", bodyColor: "bg-pink-50 dark:bg-pink-950/20" },
-          ].map(s => (
-            <div key={s.label} className="rounded-xl border border-border overflow-hidden">
-              <div className={`${s.headerColor} px-2 py-1 text-center`}>
-                <span className="text-[8px] font-bold uppercase tracking-wider">{s.emoji} {s.label}</span>
-              </div>
-              <div className={`${s.bodyColor} p-2 text-center`}>
-                <p className="text-lg font-black">{s.value}</p>
-              </div>
-            </div>
-          ))}
-        </div>
 
         <Tabs defaultValue="destinos">
           <div className="overflow-x-auto scrollbar-hide -mx-4 px-4">
