@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import { Quote } from "lucide-react";
 
 const quotes = [
   { text: "Disciplina é liberdade.", author: "Jocko Willink" },
@@ -23,18 +22,13 @@ export const MotivationalQuoteWidget = () => {
   const quote = quotes[dayOfYear % quotes.length];
 
   return (
-    <motion.div
-      className="bg-card rounded-2xl p-4 border border-border/50 shadow-sm"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.6 }}
-    >
-      <div className="flex gap-3">
-        <Quote className="w-5 h-5 text-primary/30 flex-shrink-0 mt-0.5" />
-        <div>
-          <p className="text-sm font-medium italic leading-relaxed">"{quote.text}"</p>
-          <p className="text-[10px] text-muted-foreground mt-1">— {quote.author}</p>
-        </div>
+    <motion.div className="rounded-xl border border-border overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}>
+      <div className="bg-purple-200 dark:bg-purple-800/50 px-4 py-2">
+        <h4 className="text-[11px] font-black uppercase tracking-wider text-purple-900 dark:text-purple-200">💬 FRASE DO DIA</h4>
+      </div>
+      <div className="bg-purple-50 dark:bg-purple-950/20 p-4">
+        <p className="text-sm font-medium italic leading-relaxed">"{quote.text}"</p>
+        <p className="text-[10px] text-muted-foreground mt-1">— {quote.author}</p>
       </div>
     </motion.div>
   );

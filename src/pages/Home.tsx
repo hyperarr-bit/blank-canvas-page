@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { useUserData } from "@/hooks/use-user-data";
 import { AnimatePresence, motion } from "framer-motion";
-import { Plus, LayoutGrid } from "lucide-react";
+import { Plus } from "lucide-react";
 import { DndContext, closestCenter, PointerSensor, TouchSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, rectSortingStrategy } from "@dnd-kit/sortable";
 import { OnboardingWizard } from "@/components/OnboardingWizard";
@@ -103,16 +103,27 @@ const HomePage = () => {
       </AnimatePresence>
 
       <div className="min-h-screen bg-background" onClick={() => editingWidgets && setEditingWidgets(false)}>
-        <div className="max-w-lg mx-auto px-4 py-5 space-y-6">
+        <div className="max-w-lg mx-auto px-4 py-5 space-y-4">
           <GreetingHeader data={lifeData} onNameChange={handleNameChange} />
 
-          <div className="bg-card rounded-2xl p-5 border border-border/50 shadow-sm">
-            <DayScoreRing score={lifeData.dayScore} streak={lifeData.streak} />
+          {/* Day Score — Notion card */}
+          <div className="rounded-xl border border-border overflow-hidden">
+            <div className="bg-violet-200 dark:bg-violet-800/50 px-4 py-2">
+              <h3 className="text-[11px] font-black uppercase tracking-wider text-violet-900 dark:text-violet-200">🏆 SCORE DO DIA</h3>
+            </div>
+            <div className="bg-violet-50 dark:bg-violet-950/20 p-4">
+              <DayScoreRing score={lifeData.dayScore} streak={lifeData.streak} />
+            </div>
           </div>
 
-          <div>
-            <h3 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Ações rápidas</h3>
-            <QuickActions />
+          {/* Quick Actions — Notion card */}
+          <div className="rounded-xl border border-border overflow-hidden">
+            <div className="bg-slate-200 dark:bg-slate-800/50 px-4 py-2">
+              <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-900 dark:text-slate-200">⚡ AÇÕES RÁPIDAS</h3>
+            </div>
+            <div className="bg-slate-50 dark:bg-slate-950/20 p-4">
+              <QuickActions />
+            </div>
           </div>
 
           {/* Widgets */}
@@ -153,11 +164,11 @@ const HomePage = () => {
             </div>
           )}
 
-          {/* Add widget button - always visible when not editing */}
+          {/* Add widget button */}
           {!editingWidgets && (
             <motion.button
               onClick={() => setShowWidgetPicker(true)}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border-2 border-dashed border-border/50 text-muted-foreground hover:text-foreground hover:border-primary/30 hover:bg-primary/5 transition-all"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-dashed border-border/50 text-muted-foreground hover:text-foreground hover:border-primary/30 hover:bg-primary/5 transition-all"
               whileTap={{ scale: 0.98 }}
             >
               <Plus className="w-4 h-4" />
@@ -197,7 +208,6 @@ const WidgetGrid = ({
   onRemove: (id: WidgetId) => void;
   onToggleSize: (id: WidgetId) => void;
 }) => {
-  // Build rows: small widgets pair up, large take full width
   const rows: ActiveWidget[][] = [];
   let smallBuffer: ActiveWidget[] = [];
 
@@ -220,7 +230,7 @@ const WidgetGrid = ({
 
   return (
     <div className="space-y-3">
-      {rows.map((row, rowIndex) => (
+      {rows.map((row) => (
         <div
           key={row.map(w => w.id).join("-")}
           className={`grid gap-3 ${row.length === 2 && row.every(w => w.size === "small") ? "grid-cols-2" : "grid-cols-1"}`}

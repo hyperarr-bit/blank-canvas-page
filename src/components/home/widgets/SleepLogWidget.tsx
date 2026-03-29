@@ -19,23 +19,27 @@ export const SleepLogWidget = () => {
   const quality = hours >= 7 ? "Ótimo 😊" : hours >= 5 ? "Regular 😐" : hours > 0 ? "Pouco 😴" : "Não registrado";
 
   return (
-    <div className="bg-card rounded-2xl p-4 border border-border/50 shadow-sm">
-      <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-3">😴 Sono de Hoje</h4>
-      <div className="flex items-center gap-4">
-        <Moon className="w-5 h-5 text-indigo-400 flex-shrink-0" />
-        <div className="flex items-center gap-3">
-          <button onClick={() => update(hours - 0.5)} className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center hover:bg-muted/80">
-            <Minus className="w-3 h-3" />
-          </button>
-          <div className="text-center min-w-[3rem]">
-            <span className="text-lg font-bold">{hours}</span>
-            <span className="text-[10px] text-muted-foreground ml-0.5">h</span>
+    <div className="rounded-xl border border-border overflow-hidden">
+      <div className="bg-indigo-200 dark:bg-indigo-800/50 px-4 py-2">
+        <h4 className="text-[11px] font-black uppercase tracking-wider text-indigo-900 dark:text-indigo-200">😴 SONO DE HOJE</h4>
+      </div>
+      <div className="bg-indigo-50 dark:bg-indigo-950/20 p-4">
+        <div className="flex items-center gap-4">
+          <span className="text-xl">🌙</span>
+          <div className="flex items-center gap-3">
+            <button onClick={() => update(hours - 0.5)} className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center hover:bg-muted/80">
+              <Minus className="w-3 h-3" />
+            </button>
+            <div className="text-center min-w-[3rem]">
+              <span className="text-lg font-bold">{hours}</span>
+              <span className="text-[10px] text-muted-foreground ml-0.5">h</span>
+            </div>
+            <button onClick={() => update(hours + 0.5)} className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center hover:bg-muted/80">
+              <Plus className="w-3 h-3" />
+            </button>
           </div>
-          <button onClick={() => update(hours + 0.5)} className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center hover:bg-muted/80">
-            <Plus className="w-3 h-3" />
-          </button>
+          <span className="text-[10px] text-muted-foreground ml-auto">{quality}</span>
         </div>
-        <span className="text-[10px] text-muted-foreground ml-auto">{quality}</span>
       </div>
     </div>
   );
