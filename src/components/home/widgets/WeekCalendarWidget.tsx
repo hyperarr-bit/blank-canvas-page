@@ -44,39 +44,33 @@ export const WeekCalendarWidget = ({ size = "large" }: { size?: "small" | "large
   const isSmall = size === "small";
 
   return (
-    <div className="bg-card rounded-2xl p-3 border border-border/50 shadow-sm overflow-hidden w-full min-w-0">
-      <h4 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2 truncate">
-        📅 {isSmall ? "Semana" : "Visão da Semana"}
-      </h4>
-      <div className="flex gap-1 w-full min-w-0">
-        {weekDays.map((day, i) => (
-          <motion.div
-            key={day.date}
-            className="flex-1 flex flex-col items-center gap-0.5 min-w-0"
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.04 }}
-          >
-            <span className="text-[7px] font-medium text-muted-foreground">
-              {isSmall ? day.label : day.labelFull}
-            </span>
-            <div
-              className={`${isSmall ? "w-5 h-5 text-[8px]" : "w-7 h-7 text-[10px]"} rounded-md flex items-center justify-center font-bold ${
-                day.isToday ? "ring-1.5 ring-primary ring-offset-1 ring-offset-background " : ""
-              }${statusColors[getDayStatus(day.date)]}`}
-            >
-              {day.dayNum}
-            </div>
-          </motion.div>
-        ))}
+    <div className="rounded-xl border border-border overflow-hidden w-full min-w-0">
+      <div className="bg-pink-200 dark:bg-pink-800/50 px-4 py-2">
+        <h4 className="text-[10px] font-black uppercase tracking-wider text-pink-900 dark:text-pink-200">
+          📅 {isSmall ? "SEMANA" : "VISÃO DA SEMANA"}
+        </h4>
       </div>
-      {!isSmall && (
-        <div className="flex items-center gap-3 mt-2 justify-center">
-          <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-emerald-500" /><span className="text-[8px] text-muted-foreground">Completo</span></div>
-          <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-amber-400/50" /><span className="text-[8px] text-muted-foreground">Parcial</span></div>
-          <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-muted" /><span className="text-[8px] text-muted-foreground">Vazio</span></div>
+      <div className="bg-pink-50 dark:bg-pink-950/20 p-3">
+        <div className="flex gap-1 w-full min-w-0">
+          {weekDays.map((day, i) => (
+            <motion.div key={day.date} className="flex-1 flex flex-col items-center gap-0.5 min-w-0"
+              initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
+            >
+              <span className="text-[7px] font-medium text-muted-foreground">{isSmall ? day.label : day.labelFull}</span>
+              <div className={`${isSmall ? "w-5 h-5 text-[8px]" : "w-7 h-7 text-[10px]"} rounded-md flex items-center justify-center font-bold ${day.isToday ? "ring-1.5 ring-primary ring-offset-1 ring-offset-background " : ""}${statusColors[getDayStatus(day.date)]}`}>
+                {day.dayNum}
+              </div>
+            </motion.div>
+          ))}
         </div>
-      )}
+        {!isSmall && (
+          <div className="flex items-center gap-3 mt-2 justify-center">
+            <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-emerald-500" /><span className="text-[8px] text-muted-foreground">Completo</span></div>
+            <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-amber-400/50" /><span className="text-[8px] text-muted-foreground">Parcial</span></div>
+            <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-muted" /><span className="text-[8px] text-muted-foreground">Vazio</span></div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
