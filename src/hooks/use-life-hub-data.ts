@@ -29,7 +29,11 @@ export interface LifeHubData {
 }
 
 const todayStr = () => new Date().toISOString().slice(0, 10);
-const dayOfWeek = () => ["dom", "seg", "ter", "qua", "qui", "sex", "sab"][new Date().getDay()];
+
+const weekDayMap: Record<number, string> = {
+  0: "DOMINGO", 1: "SEGUNDA", 2: "TERÇA", 3: "QUARTA",
+  4: "QUINTA", 5: "SEXTA", 6: "SÁBADO"
+};
 
 export function useLifeHubData(): LifeHubData {
   const { get, set } = useUserData();
@@ -48,12 +52,26 @@ export function useLifeHubData(): LifeHubData {
     const upcoming = bills.filter((b: any) => b.date >= tStr && !b.paid).sort((a: any, b: any) => a.date.localeCompare(b.date));
     const nextBill = upcoming[0] || null;
 
-    // Workout
-    const workoutDays = get<any>("core-treino-active-days", {});
-    const dow = dayOfWeek();
-    const todayGroup = workoutDays[dow] || null;
-    const workoutLog = get<any>("core-treino-log", {});
-    const workoutDone = !!workoutLog[tStr];
+    // Workout — read from actual keys used by Treino page
+    const workoutPlan = get<any>("saude-workouts-v2", {});
+    const activeDays = get<string[]>("treino-active-days", []);
+    const todayDayName = weekDayMap[new Date().getDay()];
+    const todayPlan = workoutPlan[todayDayName];
+
+    // Support both old (muscle: string) and new (muscles: string[]) format
+    let todayGroup: string | null = null;
+    if (todayPlan) {
+      if (todayPlan.muscles && todayPlan.muscles.length > 0) {
+        todayGroup = todayPlan.muscles.join(" + ");
+      } else if (todayPlan.muscle && todayPlan.muscle !== "Descanso") {
+        todayGroup = todayPlan.muscle;
+      }
+    }
+    // Only show if it's an active day
+    if (!activeDays.includes(todayDayName)) todayGroup = null;
+
+    const workoutLog = get<string[]>("saude-workout-log", []);
+    const workoutDone = workoutLog.includes(tStr);
 
     // Diet
     const dietMeals = get<any[]>("core-dieta-meals", []);

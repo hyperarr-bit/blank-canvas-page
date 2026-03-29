@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { usePersistedState } from "@/hooks/use-persisted-state";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, Plus, X, Trash2, Check, Timer, Play, Pause, RotateCcw,
   Trophy, Flame, Dumbbell, TrendingUp, Target, Zap, BarChart3, Calendar,
-  Award, Star, Clock, Volume2, VolumeX, ChevronDown, ChevronUp, Settings
+  Award, Star, Clock, Volume2, VolumeX, ChevronDown, ChevronUp, Settings,
+  FileText, MessageSquare, ArrowUpRight, ArrowDownRight, Minus, Copy
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ModuleTip } from "@/components/ModuleTip";
-
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
 const weekDays = ["SEGUNDA", "TERÇA", "QUARTA", "QUINTA", "SEXTA", "SÁBADO", "DOMINGO"];
 const dayColors: Record<string, string> = {
@@ -35,35 +36,143 @@ const exerciseColors: string[] = [
 
 const muscleGroups = [
   "Peito", "Costas", "Ombros", "Bíceps", "Tríceps", "Pernas", "Glúteos",
-  "Abdômen", "Quadríceps", "Posterior", "Panturrilha", "Cardio", "Full Body", "Descanso"
+  "Abdômen", "Quadríceps", "Posterior", "Panturrilha", "Cardio", "Full Body"
 ];
 
 const muscleGroupIcons: Record<string, string> = {
   "Peito": "🫁", "Costas": "💪", "Ombros": "🏋️", "Bíceps": "💪", "Tríceps": "💪",
   "Pernas": "🦵", "Glúteos": "🍑", "Abdômen": "🫁", "Quadríceps": "🦵",
-  "Posterior": "🦵", "Panturrilha": "🦵", "Cardio": "🏃", "Full Body": "🏋️", "Descanso": "😴",
-  "Quadríceps e Posterior": "🦵", "Costas e Bíceps": "💪", "Ombros e Tríceps": "🏋️",
-  "Peito e Abdômen": "🫁", "Cardio + Full Body": "🏃"
+  "Posterior": "🦵", "Panturrilha": "🦵", "Cardio": "🏃", "Full Body": "🏋️",
 };
 
-const defaultWorkoutPlan: Record<string, { muscle: string; exercises: { name: string; sets: string; reps: string; carga: string; done: boolean }[] }> = {
-  SEGUNDA: { muscle: "", exercises: [] },
-  TERÇA: { muscle: "", exercises: [] },
-  QUARTA: { muscle: "", exercises: [] },
-  QUINTA: { muscle: "", exercises: [] },
-  SEXTA: { muscle: "", exercises: [] },
-  SÁBADO: { muscle: "", exercises: [] },
-  DOMINGO: { muscle: "Descanso", exercises: [] },
+interface Exercise {
+  name: string;
+  sets: string;
+  reps: string;
+  carga: string;
+  done: boolean;
+  obs: string;
+}
+
+interface DayPlan {
+  muscles: string[];
+  exercises: Exercise[];
+}
+
+type WorkoutPlan = Record<string, DayPlan>;
+
+const defaultWorkoutPlan: WorkoutPlan = {
+  SEGUNDA: { muscles: [], exercises: [] },
+  TERÇA: { muscles: [], exercises: [] },
+  QUARTA: { muscles: [], exercises: [] },
+  QUINTA: { muscles: [], exercises: [] },
+  SEXTA: { muscles: [], exercises: [] },
+  SÁBADO: { muscles: [], exercises: [] },
+  DOMINGO: { muscles: [], exercises: [] },
 };
+
+// Templates
+const templates: { name: string; emoji: string; plan: Record<string, string[]> }[] = [
+  {
+    name: "Push / Pull / Legs",
+    emoji: "💪",
+    plan: {
+      SEGUNDA: ["Peito", "Ombros", "Tríceps"],
+      TERÇA: ["Costas", "Bíceps"],
+      QUARTA: ["Quadríceps", "Posterior", "Glúteos", "Panturrilha"],
+      QUINTA: ["Peito", "Ombros", "Tríceps"],
+      SEXTA: ["Costas", "Bíceps"],
+      SÁBADO: ["Quadríceps", "Posterior", "Glúteos", "Panturrilha"],
+      DOMINGO: [],
+    }
+  },
+  {
+    name: "Upper / Lower",
+    emoji: "🏋️",
+    plan: {
+      SEGUNDA: ["Peito", "Costas", "Ombros", "Bíceps", "Tríceps"],
+      TERÇA: ["Quadríceps", "Posterior", "Glúteos", "Panturrilha"],
+      QUARTA: [],
+      QUINTA: ["Peito", "Costas", "Ombros", "Bíceps", "Tríceps"],
+      SEXTA: ["Quadríceps", "Posterior", "Glúteos", "Panturrilha"],
+      SÁBADO: [],
+      DOMINGO: [],
+    }
+  },
+  {
+    name: "ABC Clássico",
+    emoji: "🔥",
+    plan: {
+      SEGUNDA: ["Peito", "Tríceps"],
+      TERÇA: ["Costas", "Bíceps"],
+      QUARTA: ["Ombros", "Pernas"],
+      QUINTA: ["Peito", "Tríceps"],
+      SEXTA: ["Costas", "Bíceps"],
+      SÁBADO: ["Ombros", "Pernas"],
+      DOMINGO: [],
+    }
+  },
+  {
+    name: "Full Body 3x",
+    emoji: "⚡",
+    plan: {
+      SEGUNDA: ["Full Body"],
+      TERÇA: [],
+      QUARTA: ["Full Body"],
+      QUINTA: [],
+      SEXTA: ["Full Body"],
+      SÁBADO: [],
+      DOMINGO: [],
+    }
+  },
+];
+
+// Migrate old format (muscle: string → muscles: string[])
+function migratePlan(plan: any): WorkoutPlan {
+  const result: WorkoutPlan = {};
+  for (const day of weekDays) {
+    const d = plan[day];
+    if (!d) { result[day] = { muscles: [], exercises: [] }; continue; }
+    const muscles = d.muscles
+      ? d.muscles
+      : d.muscle && d.muscle !== "Descanso"
+        ? [d.muscle]
+        : [];
+    const exercises = (d.exercises || []).map((ex: any) => ({
+      name: ex.name || "",
+      sets: ex.sets || "3",
+      reps: ex.reps || "12",
+      carga: ex.carga || "—",
+      done: ex.done || false,
+      obs: ex.obs || "",
+    }));
+    result[day] = { muscles, exercises };
+  }
+  return result;
+}
+
+// Epley 1RM formula
+function estimate1RM(weight: number, reps: number): number {
+  if (reps <= 0 || weight <= 0) return 0;
+  if (reps === 1) return weight;
+  return Math.round(weight * (1 + reps / 30));
+}
 
 const Treino = () => {
   const navigate = useNavigate();
   const today = new Date().toISOString().split("T")[0];
   const todayDayName = weekDays[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1];
 
-  const [workoutPlan, setWorkoutPlan] = usePersistedState("saude-workouts-v2", defaultWorkoutPlan);
+  const [rawPlan, setRawPlan] = usePersistedState("saude-workouts-v2", defaultWorkoutPlan);
+  const workoutPlan = useMemo(() => migratePlan(rawPlan), [rawPlan]);
+  const setWorkoutPlan = (p: WorkoutPlan | ((prev: WorkoutPlan) => WorkoutPlan)) => {
+    if (typeof p === "function") setRawPlan((prev: any) => p(migratePlan(prev)));
+    else setRawPlan(p);
+  };
+
   const [activeDays, setActiveDays] = usePersistedState<string[]>("treino-active-days", ["SEGUNDA", "TERÇA", "QUARTA", "QUINTA", "SEXTA"]);
   const [showDayConfig, setShowDayConfig] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
   const [newExName, setNewExName] = useState("");
   const [workoutLog, setWorkoutLog] = usePersistedState<string[]>("saude-workout-log", []);
   const [workoutNotes, setWorkoutNotes] = usePersistedState<Record<string, string>>("saude-workout-notes", {});
@@ -78,31 +187,53 @@ const Treino = () => {
   const [soundEnabled, setSoundEnabled] = usePersistedState("treino-sound", true);
   const restRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Workout session timer
+  // Session timer
   const [sessionStart, setSessionStart] = usePersistedState<string | null>("treino-session-start", null);
   const [sessionElapsed, setSessionElapsed] = useState(0);
 
-  // Weekly volume tracker
+  // Volume
   const [weeklyVolume, setWeeklyVolume] = usePersistedState<Record<string, number>>("treino-weekly-volume", {});
+  const [exerciseHistory, setExerciseHistory] = usePersistedState<{date: string; exercise: string; sets: string; reps: string; carga: string; obs?: string}[]>("treino-exercise-history", []);
 
-  // Exercise history
-  const [exerciseHistory, setExerciseHistory] = usePersistedState<{date: string; exercise: string; sets: string; reps: string; carga: string}[]>("treino-exercise-history", []);
-
-  // Expanded day for mobile
   const [expandedDay, setExpandedDay] = useState<string | null>(todayDayName);
-
-  // Selected view
   const [viewMode, setViewMode] = usePersistedState<"grid" | "today">("treino-view", "today");
+  const [showObsFor, setShowObsFor] = useState<string | null>(null);
+
+  // 1RM calculator
+  const [rmWeight, setRmWeight] = useState("");
+  const [rmReps, setRmReps] = useState("");
+
+  // Progression chart filter
+  const [selectedExercise, setSelectedExercise] = useState("");
 
   const toggleDay = (day: string) => {
     setActiveDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]);
   };
 
-  const setMuscleForDay = (day: string, muscle: string) => {
-    setWorkoutPlan(prev => ({ ...prev, [day]: { ...prev[day], muscle } }));
+  const toggleMuscleForDay = (day: string, muscle: string) => {
+    setWorkoutPlan(prev => {
+      const current = prev[day].muscles;
+      const newMuscles = current.includes(muscle)
+        ? current.filter(m => m !== muscle)
+        : [...current, muscle];
+      return { ...prev, [day]: { ...prev[day], muscles: newMuscles } };
+    });
   };
 
-  // Streak calculation
+  const applyTemplate = (template: typeof templates[0]) => {
+    const newPlan: WorkoutPlan = {};
+    const newActiveDays: string[] = [];
+    for (const day of weekDays) {
+      const muscles = template.plan[day] || [];
+      newPlan[day] = { muscles, exercises: workoutPlan[day]?.exercises || [] };
+      if (muscles.length > 0) newActiveDays.push(day);
+    }
+    setWorkoutPlan(() => newPlan);
+    setActiveDays(newActiveDays);
+    setShowTemplates(false);
+  };
+
+  // Streak
   const streak = (() => {
     if (workoutLog.length === 0) return 0;
     const sorted = [...workoutLog].sort((a, b) => b.localeCompare(a));
@@ -117,18 +248,56 @@ const Treino = () => {
     return count;
   })();
 
-  // Total weekly sets
   const totalWeeklySets = Object.values(workoutPlan).reduce((total, day) =>
     total + day.exercises.reduce((s, ex) => s + (Number(ex.sets) || 0), 0), 0
   );
 
-  // Muscle group distribution
-  const muscleDistribution = weekDays.map(day => ({
-    day: day.slice(0, 3),
-    muscle: workoutPlan[day]?.muscle || "",
-    exercises: workoutPlan[day]?.exercises.length || 0,
-    volume: workoutPlan[day]?.exercises.reduce((s, ex) => s + (Number(ex.sets) || 0) * (Number(ex.reps) || 0), 0) || 0
-  }));
+  // Weekly volume comparison
+  const thisWeekVolume = useMemo(() => {
+    const now = new Date();
+    const dayOfWeek = now.getDay() === 0 ? 7 : now.getDay();
+    let total = 0;
+    for (let i = 0; i < dayOfWeek; i++) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      total += weeklyVolume[d.toISOString().split("T")[0]] || 0;
+    }
+    return total;
+  }, [weeklyVolume]);
+
+  const lastWeekVolume = useMemo(() => {
+    const now = new Date();
+    const dayOfWeek = now.getDay() === 0 ? 7 : now.getDay();
+    let total = 0;
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - dayOfWeek - i);
+      total += weeklyVolume[d.toISOString().split("T")[0]] || 0;
+    }
+    return total;
+  }, [weeklyVolume]);
+
+  const volumeDiff = lastWeekVolume > 0 ? Math.round(((thisWeekVolume - lastWeekVolume) / lastWeekVolume) * 100) : 0;
+
+  // Unique exercises for progression chart
+  const uniqueExercises = useMemo(() => {
+    const set = new Set(exerciseHistory.map(h => h.exercise));
+    return Array.from(set).sort();
+  }, [exerciseHistory]);
+
+  // Progression data for selected exercise
+  const progressionData = useMemo(() => {
+    if (!selectedExercise) return [];
+    return exerciseHistory
+      .filter(h => h.exercise === selectedExercise && h.carga && h.carga !== "—")
+      .reverse()
+      .map(h => ({
+        date: new Date(h.date + "T12:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }),
+        carga: parseFloat(h.carga) || 0,
+        volume: (Number(h.sets) || 0) * (Number(h.reps) || 0) * (parseFloat(h.carga) || 0),
+      }))
+      .slice(-20);
+  }, [exerciseHistory, selectedExercise]);
 
   // Rest timer logic
   useEffect(() => {
@@ -159,16 +328,14 @@ const Treino = () => {
 
   const logWorkoutToday = () => {
     if (!workoutLog.includes(today)) setWorkoutLog([...workoutLog, today]);
-    // Calculate volume
-    const todayWorkout = workoutPlan[todayDayName];
-    if (todayWorkout) {
-      const vol = todayWorkout.exercises.reduce((s, ex) => s + (Number(ex.sets) || 0) * (Number(ex.reps) || 0) * (parseFloat(ex.carga) || 0), 0);
+    const todayW = workoutPlan[todayDayName];
+    if (todayW) {
+      const vol = todayW.exercises.reduce((s, ex) => s + (Number(ex.sets) || 0) * (Number(ex.reps) || 0) * (parseFloat(ex.carga) || 0), 0);
       setWeeklyVolume(prev => ({ ...prev, [today]: vol }));
     }
-    // Save exercise history
     const todayExercises = workoutPlan[todayDayName]?.exercises || [];
     const newHistory = todayExercises.filter(ex => ex.done).map(ex => ({
-      date: today, exercise: ex.name, sets: ex.sets, reps: ex.reps, carga: ex.carga
+      date: today, exercise: ex.name, sets: ex.sets, reps: ex.reps, carga: ex.carga, obs: ex.obs
     }));
     if (newHistory.length > 0) setExerciseHistory(prev => [...newHistory, ...prev].slice(0, 500));
     setSessionStart(null);
@@ -177,10 +344,33 @@ const Treino = () => {
   const todayWorkout = workoutPlan[todayDayName];
   const todayProgress = todayWorkout ? todayWorkout.exercises.filter(e => e.done).length / Math.max(todayWorkout.exercises.length, 1) * 100 : 0;
 
+  const muscleDistribution = weekDays.map(day => ({
+    day: day.slice(0, 3),
+    muscles: workoutPlan[day]?.muscles || [],
+    exercises: workoutPlan[day]?.exercises.length || 0,
+    volume: workoutPlan[day]?.exercises.reduce((s, ex) => s + (Number(ex.sets) || 0) * (Number(ex.reps) || 0), 0) || 0
+  }));
+
+  // Badges
+  const badges = [
+    { name: "Primeiro Treino", desc: "Registrou o primeiro treino", unlocked: workoutLog.length >= 1, icon: "🎯" },
+    { name: "Sequência 7", desc: "7 dias seguidos", unlocked: streak >= 7, icon: "🔥" },
+    { name: "Sequência 30", desc: "30 dias seguidos!", unlocked: streak >= 30, icon: "⚡" },
+    { name: "Centurião", desc: "100 treinos registrados", unlocked: workoutLog.length >= 100, icon: "💯" },
+    { name: "PR Hunter", desc: "5+ recordes pessoais", unlocked: personalRecords.length >= 5, icon: "🏆" },
+    { name: "4 Semanas", desc: "4 semanas consecutivas", unlocked: streak >= 28, icon: "📅" },
+    { name: "Volume 50k", desc: "50k+ volume em uma semana", unlocked: thisWeekVolume >= 50000, icon: "💎" },
+    { name: "Dedicação", desc: "Treinou 200+ dias", unlocked: workoutLog.length >= 200, icon: "👑" },
+  ];
+
   const renderWorkoutDay = (day: string) => {
     const workout = workoutPlan[day];
     const isActive = activeDays.includes(day);
     if (!workout) return null;
+
+    const muscleLabel = workout.muscles.length > 0 ? workout.muscles.join(" + ") : "";
+    const muscleEmoji = workout.muscles.length > 0 ? (muscleGroupIcons[workout.muscles[0]] || "💪") : "😴";
+
     if (!isActive && workout.exercises.length === 0) return (
       <div key={day} className="bg-card rounded-xl border border-border overflow-hidden opacity-50">
         <div className={`${dayColors[day]} text-white p-3 font-bold text-sm flex items-center justify-between`}>
@@ -190,37 +380,41 @@ const Treino = () => {
         <div className="p-4 text-center"><p className="text-xs text-muted-foreground">Dia de descanso</p></div>
       </div>
     );
+
     if (workout.exercises.length === 0) return (
       <div key={day} className="bg-card rounded-xl border border-border overflow-hidden">
         <div className={`${dayColors[day]} text-white p-3 font-bold text-sm flex items-center justify-between`}>
-          <span>{day}</span>
-          <div className="flex items-center gap-2">
-            <Select value={workout.muscle || ""} onValueChange={v => setMuscleForDay(day, v)}>
-              <SelectTrigger className="h-6 w-28 text-[10px] bg-white/20 border-white/30 text-white"><SelectValue placeholder="Grupo muscular" /></SelectTrigger>
-              <SelectContent>{muscleGroups.filter(m => m !== "Descanso").map(m => <SelectItem key={m} value={m}>{muscleGroupIcons[m] || "💪"} {m}</SelectItem>)}</SelectContent>
-            </Select>
-          </div>
+          <span>{day} {day === todayDayName ? "⬅️ HOJE" : ""}</span>
+          <span className="text-xs opacity-80">{muscleLabel || "Configurar"}</span>
         </div>
         <div className="p-4">
+          {muscleLabel && <p className="text-xs text-muted-foreground mb-2">{muscleEmoji} {muscleLabel}</p>}
           <p className="text-xs text-muted-foreground text-center mb-3">
-            {workout.muscle ? `Adicione exercícios de ${workout.muscle}` : "Selecione o grupo muscular e adicione exercícios"}
+            {muscleLabel ? `Adicione exercícios de ${muscleLabel}` : "Configure os músculos no ⚙️ acima"}
           </p>
           <div className="flex gap-1">
             <Input value={day === expandedDay ? newExName : ""} onChange={e => { setExpandedDay(day); setNewExName(e.target.value); }} placeholder="+ Novo exercício..." className="text-xs h-7 flex-1 bg-transparent" />
             <Button size="sm" className="h-7 px-2" onClick={() => {
-              if (newExName.trim()) { const u = { ...workoutPlan }; u[day].exercises.push({ name: newExName.trim(), sets: "3", reps: "12", carga: "—", done: false }); setWorkoutPlan({...u}); setNewExName(""); }
+              if (newExName.trim()) {
+                setWorkoutPlan(prev => ({
+                  ...prev,
+                  [day]: { ...prev[day], exercises: [...prev[day].exercises, { name: newExName.trim(), sets: "3", reps: "12", carga: "—", done: false, obs: "" }] }
+                }));
+                setNewExName("");
+              }
             }}><Plus className="w-3 h-3" /></Button>
           </div>
         </div>
       </div>
     );
+
     return (
       <div key={day} className="bg-card rounded-xl border border-border overflow-hidden">
         <div className={`${dayColors[day]} text-white p-3`}>
           <div className="flex items-center justify-between">
             <div>
               <p className="font-bold text-sm">{day} {day === todayDayName ? "⬅️ HOJE" : ""}</p>
-              <p className="text-xs opacity-80">{muscleGroupIcons[workout.muscle]} {workout.muscle}</p>
+              <p className="text-xs opacity-80">{muscleEmoji} {muscleLabel}</p>
             </div>
             <div className="text-right">
               <p className="text-xs opacity-80">{workout.exercises.filter(e => e.done).length}/{workout.exercises.length}</p>
@@ -232,43 +426,92 @@ const Treino = () => {
         </div>
         <div className="p-3">
           <div className="grid grid-cols-[20px_1fr_auto_28px] gap-2 text-[10px] font-bold text-muted-foreground uppercase border-b border-border pb-1 mb-2">
-            <span></span><span>Exercício</span><span className="text-center">Séries - Reps - Carga</span><span className="text-center">✓</span>
+            <span></span><span>Exercício</span><span className="text-center">S × R × Carga</span><span className="text-center">✓</span>
           </div>
           {workout.exercises.map((ex, i) => (
-            <div key={i} className={`grid grid-cols-[20px_1fr_auto_28px] gap-2 items-center py-1.5 ${i < workout.exercises.length - 1 ? "border-b border-border/30" : ""} ${ex.done ? "opacity-60" : ""}`}>
-              <span className="text-[10px] text-muted-foreground">{i + 1}</span>
-              <div>
-                <span className={`inline-block px-2 py-0.5 rounded text-[11px] font-medium ${exerciseColors[i % exerciseColors.length]} ${ex.done ? "line-through" : ""}`}>
-                  {ex.name}
-                </span>
+            <div key={i}>
+              <div className={`grid grid-cols-[20px_1fr_auto_28px] gap-2 items-center py-1.5 ${ex.done ? "opacity-60" : ""}`}>
+                <span className="text-[10px] text-muted-foreground">{i + 1}</span>
+                <div className="flex items-center gap-1">
+                  <span className={`inline-block px-2 py-0.5 rounded text-[11px] font-medium ${exerciseColors[i % exerciseColors.length]} ${ex.done ? "line-through" : ""}`}>
+                    {ex.name}
+                  </span>
+                  <button onClick={() => setShowObsFor(showObsFor === `${day}-${i}` ? null : `${day}-${i}`)} className="text-muted-foreground hover:text-foreground">
+                    <MessageSquare className={`w-3 h-3 ${ex.obs ? "text-amber-500" : ""}`} />
+                  </button>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Input value={ex.sets} onChange={e => {
+                    setWorkoutPlan(prev => {
+                      const u = { ...prev }; u[day] = { ...u[day], exercises: [...u[day].exercises] };
+                      u[day].exercises[i] = { ...u[day].exercises[i], sets: e.target.value }; return u;
+                    });
+                  }} className="text-xs h-6 w-8 text-center border-none bg-transparent p-0" />
+                  <span className="text-muted-foreground text-xs">×</span>
+                  <Input value={ex.reps} onChange={e => {
+                    setWorkoutPlan(prev => {
+                      const u = { ...prev }; u[day] = { ...u[day], exercises: [...u[day].exercises] };
+                      u[day].exercises[i] = { ...u[day].exercises[i], reps: e.target.value }; return u;
+                    });
+                  }} className="text-xs h-6 w-8 text-center border-none bg-transparent p-0" />
+                  <span className="text-muted-foreground text-xs">×</span>
+                  <Input value={ex.carga} onChange={e => {
+                    setWorkoutPlan(prev => {
+                      const u = { ...prev }; u[day] = { ...u[day], exercises: [...u[day].exercises] };
+                      u[day].exercises[i] = { ...u[day].exercises[i], carga: e.target.value }; return u;
+                    });
+                  }} className="text-xs h-6 w-16 text-center border-none bg-transparent p-0 font-medium" />
+                </div>
+                <button onClick={() => {
+                  setWorkoutPlan(prev => {
+                    const u = { ...prev }; u[day] = { ...u[day], exercises: [...u[day].exercises] };
+                    u[day].exercises[i] = { ...u[day].exercises[i], done: !ex.done }; return u;
+                  });
+                  if (!ex.done) { setRestCountdown(restTime); setRestRunning(true); }
+                }} className={`w-5 h-5 rounded border-2 flex items-center justify-center mx-auto transition-all ${ex.done ? "bg-green-500 border-green-500 scale-110" : "border-muted-foreground/30 hover:border-green-400"}`}>
+                  {ex.done && <Check className="w-3 h-3 text-white" />}
+                </button>
               </div>
-              <div className="flex items-center gap-1">
-                <Input value={ex.sets} onChange={e => { const u = { ...workoutPlan }; u[day].exercises[i].sets = e.target.value; setWorkoutPlan({...u}); }}
-                  className="text-xs h-6 w-8 text-center border-none bg-transparent p-0" />
-                <span className="text-muted-foreground text-xs">-</span>
-                <Input value={ex.reps} onChange={e => { const u = { ...workoutPlan }; u[day].exercises[i].reps = e.target.value; setWorkoutPlan({...u}); }}
-                  className="text-xs h-6 w-8 text-center border-none bg-transparent p-0" />
-                <span className="text-muted-foreground text-xs">-</span>
-                <Input value={ex.carga} onChange={e => { const u = { ...workoutPlan }; u[day].exercises[i].carga = e.target.value; setWorkoutPlan({...u}); }}
-                  className="text-xs h-6 w-16 text-center border-none bg-transparent p-0 font-medium" />
-              </div>
-              <button onClick={() => {
-                const u = { ...workoutPlan }; u[day].exercises[i].done = !ex.done; setWorkoutPlan({...u});
-                if (!ex.done) { setRestCountdown(restTime); setRestRunning(true); }
-              }} className={`w-5 h-5 rounded border-2 flex items-center justify-center mx-auto transition-all ${ex.done ? "bg-green-500 border-green-500 scale-110" : "border-muted-foreground/30 hover:border-green-400"}`}>
-                {ex.done && <Check className="w-3 h-3 text-white" />}
-              </button>
+              {/* Observation field */}
+              {showObsFor === `${day}-${i}` && (
+                <div className="ml-5 mr-7 mb-2">
+                  <Input value={ex.obs} onChange={e => {
+                    setWorkoutPlan(prev => {
+                      const u = { ...prev }; u[day] = { ...u[day], exercises: [...u[day].exercises] };
+                      u[day].exercises[i] = { ...u[day].exercises[i], obs: e.target.value }; return u;
+                    });
+                  }} placeholder="Obs: execução, dores, ajustes..." className="text-[10px] h-6 bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30" />
+                </div>
+              )}
+              {ex.obs && showObsFor !== `${day}-${i}` && (
+                <p className="ml-5 mr-7 text-[9px] text-amber-600 dark:text-amber-400 mb-1">💬 {ex.obs}</p>
+              )}
+              {i < workout.exercises.length - 1 && <div className="border-b border-border/30" />}
             </div>
           ))}
           <div className="flex gap-1 mt-2 pt-2 border-t border-border/30">
             <Input value={day === expandedDay ? newExName : ""} onChange={e => { setExpandedDay(day); setNewExName(e.target.value); }} placeholder="+ Novo exercício..." className="text-xs h-6 flex-1 bg-transparent" />
             <Button size="sm" className="h-6 px-2" onClick={() => {
-              if (newExName.trim()) { const u = { ...workoutPlan }; u[day].exercises.push({ name: newExName.trim(), sets: "3", reps: "12", carga: "—", done: false }); setWorkoutPlan({...u}); setNewExName(""); }
+              if (newExName.trim()) {
+                setWorkoutPlan(prev => ({
+                  ...prev,
+                  [day]: { ...prev[day], exercises: [...prev[day].exercises, { name: newExName.trim(), sets: "3", reps: "12", carga: "—", done: false, obs: "" }] }
+                }));
+                setNewExName("");
+              }
             }}><Plus className="w-3 h-3" /></Button>
+            {workout.exercises.length > 0 && (
+              <Button size="sm" variant="ghost" className="h-6 px-2 text-red-400" onClick={() => {
+                setWorkoutPlan(prev => ({
+                  ...prev,
+                  [day]: { ...prev[day], exercises: prev[day].exercises.slice(0, -1) }
+                }));
+              }}><Trash2 className="w-3 h-3" /></Button>
+            )}
           </div>
           <div className="mt-2 pt-2 border-t border-border/30">
             <Input value={workoutNotes[day] || ""} onChange={e => setWorkoutNotes({ ...workoutNotes, [day]: e.target.value })}
-              placeholder="📝 Obs do dia..." className="text-[10px] h-6 bg-muted/20 border-none" />
+              placeholder="📝 Notas da sessão (sono, energia, dores...)" className="text-[10px] h-6 bg-muted/20 border-none" />
           </div>
         </div>
       </div>
@@ -305,23 +548,24 @@ const Treino = () => {
         <ModuleTip
           moduleId="treino"
           tips={[
-            "Primeiro, escolha os dias que você vai treinar clicando em ⚙️ Configurar Dias",
-            "Defina o grupo muscular de cada dia e adicione exercícios",
-            "Durante o treino, marque os exercícios feitos e use o timer de descanso",
-            "Registre seus recordes pessoais na aba 🏆 RECORDES"
+            "Use os templates para começar rápido (Push/Pull/Legs, ABC, etc.)",
+            "Cada dia pode ter múltiplos grupos musculares (ex: Peito + Bíceps + Tríceps)",
+            "Adicione observações em cada exercício para anotar execução e dores",
+            "Acompanhe sua progressão de carga na aba 📈 PROGRESSÃO"
           ]}
         />
         <Tabs defaultValue="treino" className="w-full">
           <TabsList className="w-full flex overflow-x-auto gap-1 bg-muted/50 p-1 mb-4 h-auto flex-wrap">
             <TabsTrigger value="treino" className="text-xs px-3 py-1.5">🏋️ TREINO</TabsTrigger>
+            <TabsTrigger value="progressao" className="text-xs px-3 py-1.5">📈 PROGRESSÃO</TabsTrigger>
             <TabsTrigger value="records" className="text-xs px-3 py-1.5">🏆 RECORDES</TabsTrigger>
             <TabsTrigger value="stats" className="text-xs px-3 py-1.5">📊 ESTATÍSTICAS</TabsTrigger>
             <TabsTrigger value="history" className="text-xs px-3 py-1.5">📅 HISTÓRICO</TabsTrigger>
           </TabsList>
 
-          {/* ========== TREINO DO DIA + PLANILHA ========== */}
+          {/* ========== TREINO ========== */}
           <TabsContent value="treino" className="space-y-4">
-            {/* Today's quick stats */}
+            {/* Stats row */}
             <div className="grid grid-cols-4 gap-2">
               <div className="bg-blue-50 dark:bg-blue-500/10 rounded-xl p-3 text-center border border-blue-200 dark:border-blue-500/30">
                 <Dumbbell className="w-5 h-5 mx-auto text-blue-500 mb-1" />
@@ -342,6 +586,32 @@ const Treino = () => {
                 <Flame className="w-5 h-5 mx-auto text-orange-500 mb-1" />
                 <p className="text-lg font-bold">{workoutLog.length}</p>
                 <p className="text-[9px] text-muted-foreground">Total treinos</p>
+              </div>
+            </div>
+
+            {/* Weekly comparison */}
+            <div className="bg-card rounded-xl border border-border p-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-muted-foreground" />
+                <span className="text-xs font-bold">VOLUME SEMANAL</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="text-right">
+                  <p className="text-xs text-muted-foreground">Esta semana</p>
+                  <p className="text-sm font-bold">{(thisWeekVolume / 1000).toFixed(1)}k</p>
+                </div>
+                <div className={`flex items-center gap-0.5 px-2 py-1 rounded-full text-[10px] font-bold ${
+                  volumeDiff > 0 ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400" :
+                  volumeDiff < 0 ? "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400" :
+                  "bg-muted text-muted-foreground"
+                }`}>
+                  {volumeDiff > 0 ? <ArrowUpRight className="w-3 h-3" /> : volumeDiff < 0 ? <ArrowDownRight className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
+                  {Math.abs(volumeDiff)}%
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-muted-foreground">Semana passada</p>
+                  <p className="text-sm font-bold text-muted-foreground">{(lastWeekVolume / 1000).toFixed(1)}k</p>
+                </div>
               </div>
             </div>
 
@@ -377,40 +647,69 @@ const Treino = () => {
               </div>
             </div>
 
-            {/* Day configuration */}
+            {/* Day config + Templates */}
             <div className="bg-card rounded-xl border border-border p-4">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-xs font-bold flex items-center gap-2"><Settings className="w-4 h-4" /> DIAS DE TREINO</h3>
-                <Button size="sm" variant={showDayConfig ? "default" : "outline"} className="text-xs h-7" onClick={() => setShowDayConfig(!showDayConfig)}>
-                  <Settings className="w-3 h-3 mr-1" /> {showDayConfig ? "Fechar" : "Configurar"}
-                </Button>
+                <div className="flex gap-1">
+                  <Button size="sm" variant="outline" className="text-xs h-7" onClick={() => setShowTemplates(!showTemplates)}>
+                    <Copy className="w-3 h-3 mr-1" /> Templates
+                  </Button>
+                  <Button size="sm" variant={showDayConfig ? "default" : "outline"} className="text-xs h-7" onClick={() => setShowDayConfig(!showDayConfig)}>
+                    <Settings className="w-3 h-3 mr-1" /> {showDayConfig ? "Fechar" : "Configurar"}
+                  </Button>
+                </div>
               </div>
+
+              {/* Templates */}
+              {showTemplates && (
+                <div className="mb-4 space-y-2">
+                  <p className="text-[10px] text-muted-foreground mb-2">Escolha um template para configurar sua semana automaticamente:</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {templates.map(t => (
+                      <button key={t.name} onClick={() => applyTemplate(t)}
+                        className="text-left p-3 rounded-lg border border-border hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-all">
+                        <p className="text-sm font-bold">{t.emoji} {t.name}</p>
+                        <p className="text-[10px] text-muted-foreground mt-1">
+                          {Object.entries(t.plan).filter(([_, v]) => v.length > 0).map(([d, v]) => `${d.slice(0, 3)}: ${v.join("+")}`).join(" | ")}
+                        </p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="flex gap-1.5 flex-wrap">
                 {weekDays.map(day => (
-                  <button
-                    key={day}
-                    onClick={() => showDayConfig && toggleDay(day)}
+                  <button key={day} onClick={() => showDayConfig && toggleDay(day)}
                     className={`px-3 py-1.5 rounded-lg text-[10px] font-bold border transition-all ${
-                      activeDays.includes(day)
-                        ? `${dayColors[day]} text-white border-transparent`
-                        : "bg-muted/30 text-muted-foreground border-border"
-                    } ${showDayConfig ? "cursor-pointer hover:scale-105" : "cursor-default"} ${day === todayDayName ? "ring-2 ring-primary ring-offset-1" : ""}`}
-                  >
+                      activeDays.includes(day) ? `${dayColors[day]} text-white border-transparent` : "bg-muted/30 text-muted-foreground border-border"
+                    } ${showDayConfig ? "cursor-pointer hover:scale-105" : "cursor-default"} ${day === todayDayName ? "ring-2 ring-primary ring-offset-1" : ""}`}>
                     {day.slice(0, 3)}
                     {showDayConfig && activeDays.includes(day) && <Check className="w-3 h-3 inline ml-1" />}
                   </button>
                 ))}
               </div>
+
               {showDayConfig && (
-                <div className="mt-3 space-y-2">
-                  <p className="text-[10px] text-muted-foreground">Clique nos dias para ativar/desativar. Configure o grupo muscular de cada dia ativo:</p>
+                <div className="mt-3 space-y-3">
+                  <p className="text-[10px] text-muted-foreground">Selecione múltiplos grupos musculares para cada dia:</p>
                   {activeDays.sort((a, b) => weekDays.indexOf(a) - weekDays.indexOf(b)).map(day => (
-                    <div key={day} className="flex items-center gap-2">
-                      <span className={`text-[10px] font-bold w-12 ${dayColors[day]} text-white px-1.5 py-0.5 rounded text-center`}>{day.slice(0, 3)}</span>
-                      <Select value={workoutPlan[day]?.muscle || ""} onValueChange={v => setMuscleForDay(day, v)}>
-                        <SelectTrigger className="h-7 flex-1 text-xs"><SelectValue placeholder="Selecionar grupo muscular" /></SelectTrigger>
-                        <SelectContent>{muscleGroups.map(m => <SelectItem key={m} value={m}>{muscleGroupIcons[m] || "💪"} {m}</SelectItem>)}</SelectContent>
-                      </Select>
+                    <div key={day} className="space-y-1">
+                      <span className={`text-[10px] font-bold ${dayColors[day]} text-white px-2 py-0.5 rounded inline-block`}>{day}</span>
+                      <div className="flex flex-wrap gap-1 ml-1">
+                        {muscleGroups.map(m => {
+                          const isSelected = workoutPlan[day]?.muscles.includes(m);
+                          return (
+                            <button key={m} onClick={() => toggleMuscleForDay(day, m)}
+                              className={`px-2 py-1 rounded text-[10px] border transition-all ${
+                                isSelected ? "bg-blue-500 text-white border-blue-500" : "border-border hover:border-blue-300 text-muted-foreground"
+                              }`}>
+                              {muscleGroupIcons[m] || "💪"} {m}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -425,7 +724,7 @@ const Treino = () => {
                     <Play className="w-3 h-3" /> Iniciar Sessão
                   </Button>
                 ) : (
-                  <Button size="sm" variant="outline" className="gap-1" onClick={() => { logWorkoutToday(); }}>
+                  <Button size="sm" variant="outline" className="gap-1" onClick={() => logWorkoutToday()}>
                     <Check className="w-3 h-3" /> Finalizar Treino
                   </Button>
                 )}
@@ -444,14 +743,91 @@ const Treino = () => {
 
             {/* Workout grid */}
             {viewMode === "today" ? (
-              <div className="space-y-4">
-                {renderWorkoutDay(todayDayName)}
-              </div>
+              <div className="space-y-4">{renderWorkoutDay(todayDayName)}</div>
             ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {weekDays.map(day => renderWorkoutDay(day))}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">{weekDays.map(day => renderWorkoutDay(day))}</div>
+            )}
+          </TabsContent>
+
+          {/* ========== PROGRESSÃO ========== */}
+          <TabsContent value="progressao" className="space-y-4">
+            {/* Progression Chart */}
+            <div className="bg-card rounded-xl border border-border p-4">
+              <h3 className="text-xs font-bold mb-3 flex items-center gap-2"><TrendingUp className="w-4 h-4 text-green-500" /> PROGRESSÃO DE CARGA</h3>
+              <p className="text-[10px] text-muted-foreground mb-3">Selecione um exercício para ver a evolução da carga ao longo do tempo</p>
+              <Select value={selectedExercise} onValueChange={setSelectedExercise}>
+                <SelectTrigger className="h-8 text-xs mb-3"><SelectValue placeholder="Selecionar exercício" /></SelectTrigger>
+                <SelectContent>
+                  {uniqueExercises.map(e => <SelectItem key={e} value={e}>{e}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              {progressionData.length > 1 ? (
+                <ResponsiveContainer width="100%" height={200}>
+                  <LineChart data={progressionData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="date" tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
+                    <YAxis tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
+                    <Tooltip contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid hsl(var(--border))" }} />
+                    <Line type="monotone" dataKey="carga" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} name="Carga (kg)" />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <p className="text-xs text-muted-foreground text-center py-8">
+                  {selectedExercise ? "Precisa de pelo menos 2 registros para gerar o gráfico" : "Selecione um exercício acima"}
+                </p>
+              )}
+            </div>
+
+            {/* Volume Progression */}
+            {selectedExercise && progressionData.length > 1 && (
+              <div className="bg-card rounded-xl border border-border p-4">
+                <h3 className="text-xs font-bold mb-3 flex items-center gap-2"><BarChart3 className="w-4 h-4 text-purple-500" /> VOLUME TOTAL ({selectedExercise})</h3>
+                <ResponsiveContainer width="100%" height={160}>
+                  <LineChart data={progressionData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="date" tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
+                    <YAxis tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
+                    <Tooltip contentStyle={{ fontSize: 11, borderRadius: 8 }} />
+                    <Line type="monotone" dataKey="volume" stroke="#a855f7" strokeWidth={2} dot={{ r: 3 }} name="Volume (kg)" />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
             )}
+
+            {/* 1RM Calculator */}
+            <div className="bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-500/10 dark:to-yellow-500/10 rounded-xl border border-amber-200 dark:border-amber-500/30 p-4">
+              <h3 className="text-xs font-bold mb-2 flex items-center gap-2"><Target className="w-4 h-4 text-amber-500" /> CALCULADORA DE 1RM (Epley)</h3>
+              <p className="text-[10px] text-muted-foreground mb-3">Estime sua repetição máxima com base no peso e reps realizadas</p>
+              <div className="flex gap-2 items-end">
+                <div className="flex-1">
+                  <label className="text-[10px] text-muted-foreground">Peso (kg)</label>
+                  <Input value={rmWeight} onChange={e => setRmWeight(e.target.value)} placeholder="80" className="text-sm h-8" type="number" />
+                </div>
+                <div className="flex-1">
+                  <label className="text-[10px] text-muted-foreground">Reps</label>
+                  <Input value={rmReps} onChange={e => setRmReps(e.target.value)} placeholder="8" className="text-sm h-8" type="number" />
+                </div>
+                <div className="flex-1 text-center">
+                  <label className="text-[10px] text-muted-foreground">1RM Estimado</label>
+                  <p className="text-2xl font-black text-amber-600">
+                    {rmWeight && rmReps ? `${estimate1RM(parseFloat(rmWeight), parseInt(rmReps))}kg` : "—"}
+                  </p>
+                </div>
+              </div>
+              {rmWeight && rmReps && (
+                <div className="mt-3 grid grid-cols-5 gap-1">
+                  {[100, 90, 80, 70, 60].map(pct => {
+                    const rm = estimate1RM(parseFloat(rmWeight), parseInt(rmReps));
+                    return (
+                      <div key={pct} className="text-center bg-white/50 dark:bg-background/30 rounded p-1.5">
+                        <p className="text-[10px] text-muted-foreground">{pct}%</p>
+                        <p className="text-xs font-bold">{Math.round(rm * pct / 100)}kg</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </TabsContent>
 
           {/* ========== RECORDES ========== */}
@@ -484,19 +860,12 @@ const Treino = () => {
               </div>
             </div>
 
-            {/* Achievements */}
+            {/* Badges */}
             <div className="bg-card rounded-xl border border-border p-4">
-              <h3 className="text-xs font-bold mb-3 flex items-center gap-2"><Award className="w-4 h-4 text-purple-500" /> CONQUISTAS</h3>
+              <h3 className="text-xs font-bold mb-3 flex items-center gap-2"><Award className="w-4 h-4 text-purple-500" /> CONQUISTAS ({badges.filter(b => b.unlocked).length}/{badges.length})</h3>
               <div className="grid grid-cols-2 gap-2">
-                {[
-                  { name: "Primeiro Treino", desc: "Registrou o primeiro treino", unlocked: workoutLog.length >= 1, icon: "🎯" },
-                  { name: "Sequência 7", desc: "7 dias seguidos", unlocked: streak >= 7, icon: "🔥" },
-                  { name: "Sequência 30", desc: "30 dias seguidos!", unlocked: streak >= 30, icon: "⚡" },
-                  { name: "Centurião", desc: "100 treinos registrados", unlocked: workoutLog.length >= 100, icon: "💯" },
-                  { name: "PR Hunter", desc: "5+ recordes pessoais", unlocked: personalRecords.length >= 5, icon: "🏆" },
-                  { name: "Madrugador", desc: "Treinou antes das 7h", unlocked: false, icon: "🌅" },
-                ].map(a => (
-                  <div key={a.name} className={`rounded-xl border p-3 text-center ${a.unlocked ? "bg-gradient-to-br from-amber-50 to-yellow-50 border-amber-200" : "bg-muted/30 border-border opacity-50"}`}>
+                {badges.map(a => (
+                  <div key={a.name} className={`rounded-xl border p-3 text-center ${a.unlocked ? "bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-500/10 dark:to-yellow-500/10 border-amber-200 dark:border-amber-500/30" : "bg-muted/30 border-border opacity-50"}`}>
                     <span className="text-2xl">{a.icon}</span>
                     <p className="text-xs font-bold mt-1">{a.name}</p>
                     <p className="text-[9px] text-muted-foreground">{a.desc}</p>
@@ -509,7 +878,6 @@ const Treino = () => {
 
           {/* ========== ESTATÍSTICAS ========== */}
           <TabsContent value="stats" className="space-y-4">
-            {/* Muscle Group Distribution */}
             <div className="bg-card rounded-xl border border-border p-4">
               <h3 className="text-xs font-bold mb-3 flex items-center gap-2"><BarChart3 className="w-4 h-4 text-purple-500" /> DISTRIBUIÇÃO SEMANAL</h3>
               <div className="space-y-2">
@@ -519,7 +887,7 @@ const Treino = () => {
                     <div className="flex-1 h-6 bg-muted/30 rounded-full overflow-hidden relative">
                       <div className="h-full bg-gradient-to-r from-blue-400 to-purple-400 rounded-full transition-all"
                         style={{ width: `${Math.min((d.volume / Math.max(...muscleDistribution.map(x => x.volume), 1)) * 100, 100)}%` }} />
-                      <span className="absolute inset-0 flex items-center px-2 text-[10px] font-medium">{d.muscle}</span>
+                      <span className="absolute inset-0 flex items-center px-2 text-[10px] font-medium">{d.muscles.join(" + ")}</span>
                     </div>
                     <span className="text-[10px] text-muted-foreground w-12 text-right">{d.exercises} ex</span>
                   </div>
@@ -539,7 +907,7 @@ const Treino = () => {
                   const maxVol = Math.max(...Object.values(weeklyVolume), 1);
                   return (
                     <div key={i} className="flex-1 flex flex-col items-center gap-0.5">
-                      {vol > 0 && <span className="text-[7px] font-bold">{(vol/1000).toFixed(0)}k</span>}
+                      {vol > 0 && <span className="text-[7px] font-bold">{(vol / 1000).toFixed(0)}k</span>}
                       <div className={`w-full rounded-t transition-all ${trained ? "bg-green-400" : "bg-muted/30"}`}
                         style={{ height: `${vol > 0 ? Math.max((vol / maxVol) * 80, 10) : 4}%` }} />
                       <span className="text-[7px] text-muted-foreground">{d.getDate()}</span>
@@ -549,7 +917,7 @@ const Treino = () => {
               </div>
             </div>
 
-            {/* Streak Heatmap */}
+            {/* Heatmap */}
             <div className="bg-card rounded-xl border border-border p-4">
               <h3 className="text-xs font-bold mb-3 flex items-center gap-2"><Flame className="w-4 h-4 text-orange-500" /> HEATMAP — {streak} dias de sequência 🔥</h3>
               <div className="flex flex-wrap gap-1 mb-3">
@@ -577,11 +945,12 @@ const Treino = () => {
                 <div className="space-y-1">
                   {exerciseHistory.slice(0, 50).map((h, i) => (
                     <div key={i} className="flex items-center justify-between bg-muted/30 rounded-md px-3 py-1.5 text-xs border border-border/50">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-muted-foreground">{new Date(h.date + "T12:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}</span>
-                        <span className="font-medium">{h.exercise}</span>
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <span className="text-[10px] text-muted-foreground flex-shrink-0">{new Date(h.date + "T12:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}</span>
+                        <span className="font-medium truncate">{h.exercise}</span>
+                        {h.obs && <span className="text-[9px] text-amber-500 flex-shrink-0">💬</span>}
                       </div>
-                      <span className="text-muted-foreground">{h.sets}×{h.reps} — {h.carga}</span>
+                      <span className="text-muted-foreground flex-shrink-0 ml-2">{h.sets}×{h.reps} — {h.carga}</span>
                     </div>
                   ))}
                 </div>
