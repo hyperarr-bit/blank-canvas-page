@@ -20,26 +20,26 @@ export const WeekProgressWidget = () => {
   const scores = getWeekScores();
 
   return (
-    <div className="rounded-xl border border-border overflow-hidden">
-      <div className="bg-indigo-200 dark:bg-indigo-800/50 px-4 py-2">
-        <h4 className="text-[11px] font-black uppercase tracking-wider text-indigo-900 dark:text-indigo-200">📊 PROGRESSO SEMANAL</h4>
-      </div>
-      <div className="bg-indigo-50 dark:bg-indigo-950/20 p-4">
-        <div className="flex items-end gap-1.5 h-16">
-          {scores.map((score, i) => (
-            <div key={i} className="flex-1 flex flex-col items-center gap-1">
-              <motion.div
-                className="w-full rounded-t-md bg-indigo-200/50 dark:bg-indigo-700/30 relative overflow-hidden"
-                style={{ height: `${Math.max((score / 100) * 100, 4)}%` }}
-                initial={{ scaleY: 0 }} animate={{ scaleY: 1 }}
-                transition={{ delay: i * 0.05, duration: 0.4 }}
-              >
-                <div className="absolute inset-0 bg-indigo-500 dark:bg-indigo-400 rounded-t-md" style={{ opacity: score > 0 ? 0.6 + (score / 100) * 0.4 : 0.15 }} />
-              </motion.div>
-              <span className="text-[8px] text-muted-foreground font-medium">{DAYS[i]}</span>
-            </div>
-          ))}
-        </div>
+    <div className="bg-card rounded-2xl p-4 border border-border/50 shadow-sm">
+      <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-3">📊 Progresso Semanal</h4>
+      <div className="flex items-end gap-1.5 h-16">
+        {scores.map((score, i) => (
+          <div key={i} className="flex-1 flex flex-col items-center gap-1">
+            <motion.div
+              className="w-full rounded-t-md bg-primary/20 relative overflow-hidden"
+              style={{ height: `${Math.max((score / 100) * 100, 4)}%` }}
+              initial={{ scaleY: 0 }}
+              animate={{ scaleY: 1 }}
+              transition={{ delay: i * 0.05, duration: 0.4 }}
+            >
+              <div
+                className="absolute inset-0 bg-primary rounded-t-md"
+                style={{ opacity: score > 0 ? 0.6 + (score / 100) * 0.4 : 0.15 }}
+              />
+            </motion.div>
+            <span className="text-[8px] text-muted-foreground font-medium">{DAYS[i]}</span>
+          </div>
+        ))}
       </div>
     </div>
   );

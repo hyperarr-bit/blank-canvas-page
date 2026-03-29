@@ -26,32 +26,28 @@ export const MacroBalanceWidget = () => {
   ];
 
   return (
-    <div className="rounded-xl border border-border overflow-hidden">
-      <div className="bg-cyan-200 dark:bg-cyan-800/50 px-4 py-2">
-        <h4 className="text-[11px] font-black uppercase tracking-wider text-cyan-900 dark:text-cyan-200">🥩 MACROS DO DIA</h4>
-      </div>
-      <div className="bg-cyan-50 dark:bg-cyan-950/20 p-4">
-        {total === 0 ? (
-          <p className="text-xs text-muted-foreground">Registre refeições para ver os macros</p>
-        ) : (
-          <>
-            <div className="flex h-3 rounded-full overflow-hidden mb-3">
-              {macros.map(m => (
-                <motion.div key={m.label} className={m.color} initial={{ width: 0 }} animate={{ width: `${m.pct}%` }} transition={{ duration: 0.6 }} />
-              ))}
-            </div>
-            <div className="flex justify-between">
-              {macros.map(m => (
-                <div key={m.label} className="text-center">
-                  <div className={`w-2 h-2 rounded-full ${m.color} mx-auto mb-0.5`} />
-                  <p className="text-[10px] font-medium">{m.value}g</p>
-                  <p className="text-[8px] text-muted-foreground">{m.label}</p>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-      </div>
+    <div className="bg-card rounded-2xl p-4 border border-border/50 shadow-sm">
+      <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-3">🥩 Macros do Dia</h4>
+      {total === 0 ? (
+        <p className="text-xs text-muted-foreground">Registre refeições para ver os macros</p>
+      ) : (
+        <>
+          <div className="flex h-3 rounded-full overflow-hidden mb-3">
+            {macros.map(m => (
+              <motion.div key={m.label} className={m.color} initial={{ width: 0 }} animate={{ width: `${m.pct}%` }} transition={{ duration: 0.6 }} />
+            ))}
+          </div>
+          <div className="flex justify-between">
+            {macros.map(m => (
+              <div key={m.label} className="text-center">
+                <div className={`w-2 h-2 rounded-full ${m.color} mx-auto mb-0.5`} />
+                <p className="text-[10px] font-medium">{m.value}g</p>
+                <p className="text-[8px] text-muted-foreground">{m.label}</p>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 };
