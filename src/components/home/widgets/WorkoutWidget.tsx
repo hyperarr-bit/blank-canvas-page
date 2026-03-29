@@ -13,12 +13,11 @@ export const WorkoutWidget = ({ size = "small" }: { size?: WidgetSize }) => {
 
   const toggleWorkoutDone = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const log = get<any>("core-treino-log", {});
-    if (log[todayStr]) {
-      const { [todayStr]: _, ...rest } = log;
-      set("core-treino-log", rest);
+    const log = get<string[]>("saude-workout-log", []);
+    if (log.includes(todayStr)) {
+      set("saude-workout-log", log.filter(d => d !== todayStr));
     } else {
-      set("core-treino-log", { ...log, [todayStr]: true });
+      set("saude-workout-log", [...log, todayStr]);
     }
   };
 
@@ -33,7 +32,7 @@ export const WorkoutWidget = ({ size = "small" }: { size?: WidgetSize }) => {
             <h3 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5">Treino</h3>
             {data.todayWorkoutGroup ? (
               <>
-                <p className="text-sm font-bold">{data.todayWorkoutGroup}</p>
+                <p className="text-sm font-bold truncate">{data.todayWorkoutGroup}</p>
                 <p className={`text-[10px] ${data.workoutDone ? "text-emerald-600" : "text-muted-foreground"}`}>
                   {data.workoutDone ? "✓ Concluído" : "Pendente"}
                 </p>
