@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { usePersistedState } from "@/hooks/use-persisted-state";
 import { useNavigate } from "react-router-dom";
 import { ModuleTip } from "@/components/ModuleTip";
