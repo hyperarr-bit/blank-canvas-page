@@ -195,6 +195,7 @@ const Index = () => {
               <MonthlySheet month={openMonth} onClose={() => setOpenMonth(null)} />
             ) : (
               <>
+                <MonthTurnover onOpenMonth={setOpenMonth} />
                 <FinancialSummary
                   totalIncome={totalIncome}
                   totalExpenses={totalExpenses}
