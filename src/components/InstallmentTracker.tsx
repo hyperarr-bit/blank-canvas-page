@@ -120,7 +120,7 @@ export const InstallmentTracker = ({ installments, setInstallments, variableExpe
   // Merge into unified card totals
   const allCardTotals = { ...cardTotals };
   Object.entries(variableCardSpending).forEach(([card, amount]) => {
-    allCardTotals[card] = (allCardTotals[card] || 0) + amount;
+    allCardTotals[card] = (allCardTotals[card] || 0) + (amount as number);
   });
 
   return (
