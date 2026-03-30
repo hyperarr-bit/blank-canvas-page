@@ -57,7 +57,7 @@ export const UserDataProvider = ({ children }: { children: ReactNode }) => {
 
     // Upsert each key
     entries.forEach(async ([key, value]) => {
-      await supabase
+      await (supabase as any)
         .from("user_data")
         .upsert(
           { user_id: user.id, key, value },
