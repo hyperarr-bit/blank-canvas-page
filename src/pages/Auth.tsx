@@ -144,8 +144,13 @@ const Auth = () => {
           </Button>
         </form>
 
-        {/* Toggle */}
-        <div className="text-center">
+        {/* Forgot password + Toggle */}
+        <div className="text-center space-y-2">
+          {isLogin && (
+            <Link to="/reset-password" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Esqueci minha senha
+            </Link>
+          )}
           <button
             onClick={() => setIsLogin(!isLogin)}
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
