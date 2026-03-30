@@ -29,7 +29,7 @@ export const AnnualBudget = ({ data, setData }: AnnualBudgetProps) => {
     <div className="bg-card rounded-lg overflow-hidden border border-border animate-fade-in">
       <div className="table-header-dark rounded-t-lg">ORÇAMENTO E BALANÇO ANUAL</div>
       <div className="overflow-x-auto">
-        <table className="w-full text-xs">
+        <table className="w-full text-xs min-w-[550px]">
           <thead>
             <tr className="border-b border-border bg-muted/30">
               <th className="px-3 py-2 text-left font-medium text-muted-foreground">Mês</th>

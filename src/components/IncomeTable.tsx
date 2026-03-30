@@ -45,7 +45,8 @@ export const IncomeTable = ({ incomes, setIncomes }: IncomeTableProps) => {
         <span className="font-bold text-sm text-income-foreground tracking-wide">RECEITAS</span>
       </div>
 
-      <table className="w-full text-sm">
+      <div className="overflow-x-auto">
+      <table className="w-full text-sm min-w-[360px]">
         <thead>
           <tr className="border-b border-border bg-muted/30">
             <th className="px-3 py-2 text-left font-medium text-muted-foreground text-xs">Descrição</th>
@@ -123,6 +124,7 @@ export const IncomeTable = ({ incomes, setIncomes }: IncomeTableProps) => {
           </tr>
         </tfoot>
       </table>
+      </div>
     </div>
   );
 };
