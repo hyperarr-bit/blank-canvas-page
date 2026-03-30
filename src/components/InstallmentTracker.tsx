@@ -54,7 +54,7 @@ const getCardLabel = (v: string) => cardOptions.find((c) => c.value === v)?.labe
 const getCatStyle = (v: string) => installmentCategories.find((c) => c.value === v)?.color || "bg-gray-500/15 text-gray-700";
 const getCatLabel = (v: string) => installmentCategories.find((c) => c.value === v)?.label || v;
 
-export const InstallmentTracker = ({ installments, setInstallments }: InstallmentTrackerProps) => {
+export const InstallmentTracker = ({ installments, setInstallments, variableExpenses = [] }: InstallmentTrackerProps) => {
   const [showForm, setShowForm] = useState(false);
   const [newItem, setNewItem] = useState({
     description: "", totalValue: "", totalInstallments: "", paidInstallments: "", cardName: "", category: "", date: "",
