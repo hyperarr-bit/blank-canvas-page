@@ -5,64 +5,30 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { motion, AnimatePresence } from "framer-motion";
 import { TrendingUp, TrendingDown, ArrowRight, Copy, Sparkles, Calendar } from "lucide-react";
+import { getMonthTotals, getFinanceStorageKeys, getCurrentMonthName, getMonthKey } from "@/components/finance/storage-keys";
 
 const months = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 
-const getMonthKey = (month: string) =>
-  month.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-
-const getMonthData = (month: string) => {
-  const key = getMonthKey(month);
-  const parse = (k: string) => {
-    try {
-      const raw = localStorage.getItem(k);
-      return raw ? JSON.parse(raw) : [];
-    } catch { return []; }
-  };
-  const incomes = parse(`finance-month-${key}-incomes`);
-  const expenses = parse(`finance-month-${key}-expenses`);
-  const fixed = parse(`finance-month-${key}-fixed`);
-  const installments = parse(`finance-month-${key}-installments`);
-  const dueDays = parse(`finance-month-${key}-dueDays`);
-
-  const totalIncome = incomes.reduce((s: number, i: any) => s + (i.value || 0), 0);
-  const totalFixed = fixed.reduce((s: number, e: any) => s + (e.value || 0), 0);
-  const totalExpenses = expenses.reduce((s: number, e: any) => s + (e.value || 0), 0);
-  const totalDebts = installments.reduce(
-    (s: number, i: any) => s + ((i.totalInstallments - i.paidInstallments) * i.installmentValue || 0), 0
-  );
-  const allBills = dueDays.flatMap((d: any) => d.bills || []);
-  const billsPaid = allBills.filter((b: any) => b.paid).length;
-
-  return {
-    totalIncome, totalFixed, totalExpenses, totalDebts,
-    balance: totalIncome - totalFixed - totalExpenses - totalDebts,
-    billsPaid, totalBills: allBills.length,
-    hasData: totalIncome + totalFixed + totalExpenses > 0,
-    fixed, dueDays, incomes,
-  };
-};
-
 const copyToMonth = (fromMonth: string, toMonth: string, options: { fixed: boolean; bills: boolean }) => {
-  const fromKey = getMonthKey(fromMonth);
-  const toKey = getMonthKey(toMonth);
+  const fromKeys = getFinanceStorageKeys(fromMonth);
+  const toKeys = getFinanceStorageKeys(toMonth);
 
   if (options.fixed) {
-    const fixed = localStorage.getItem(`finance-month-${fromKey}-fixed`);
+    const fixed = localStorage.getItem(fromKeys.fixed);
     if (fixed) {
       const items = JSON.parse(fixed).map((i: any) => ({ ...i, id: Date.now().toString() + Math.random() }));
-      localStorage.setItem(`finance-month-${toKey}-fixed`, JSON.stringify(items));
+      localStorage.setItem(toKeys.fixed, JSON.stringify(items));
     }
   }
 
   if (options.bills) {
-    const dueDays = localStorage.getItem(`finance-month-${fromKey}-dueDays`);
+    const dueDays = localStorage.getItem(fromKeys.dueDays);
     if (dueDays) {
       const days = JSON.parse(dueDays).map((d: any) => ({
         ...d,
         bills: d.bills.map((b: any) => ({ ...b, id: Date.now().toString() + Math.random(), paid: false })),
       }));
-      localStorage.setItem(`finance-month-${toKey}-dueDays`, JSON.stringify(days));
+      localStorage.setItem(toKeys.dueDays, JSON.stringify(days));
     }
   }
 };
@@ -79,41 +45,62 @@ export const MonthTurnover = ({ onOpenMonth }: MonthTurnoverProps) => {
   const [copyBills, setCopyBills] = useState(true);
   const [copied, setCopied] = useState(false);
 
-  const now = new Date();
-  const currentMonthIdx = now.getMonth();
-  const currentMonth = months[currentMonthIdx];
+  const currentMonth = getCurrentMonthName();
+  const currentMonthIdx = months.indexOf(currentMonth);
   const prevMonthIdx = currentMonthIdx === 0 ? 11 : currentMonthIdx - 1;
   const prevMonth = months[prevMonthIdx];
 
+  const prevData = getMonthTotals(prevMonth);
+  const prevHasData = prevData.receitas + prevData.custosFixos + prevData.custosVariaveis > 0;
+
+  // Count fixed expenses for the copy wizard
+  const prevFixedCount = (() => {
+    try {
+      const keys = getFinanceStorageKeys(prevMonth);
+      const raw = localStorage.getItem(keys.fixed);
+      return raw ? JSON.parse(raw).length : 0;
+    } catch { return 0; }
+  })();
+
+  const prevBalance = prevData.receitas - prevData.custosFixos - prevData.custosVariaveis - prevData.dividas;
+
+  // Count bills
+  const prevBillsInfo = (() => {
+    try {
+      const keys = getFinanceStorageKeys(prevMonth);
+      const raw = localStorage.getItem(keys.dueDays);
+      if (!raw) return { total: 0, paid: 0 };
+      const days = JSON.parse(raw);
+      const allBills = days.flatMap((d: any) => d.bills || []);
+      return { total: allBills.length, paid: allBills.filter((b: any) => b.paid).length };
+    } catch { return { total: 0, paid: 0 }; }
+  })();
+
   useEffect(() => {
-    const currentKey = `${currentMonth}-${now.getFullYear()}`;
-    if (lastSeenMonth && lastSeenMonth !== currentKey) {
-      const prevData = getMonthData(prevMonth);
-      if (prevData.hasData) {
-        setShowRecap(true);
-      }
+    const currentKey = `${currentMonth}-${new Date().getFullYear()}`;
+    if (lastSeenMonth && lastSeenMonth !== currentKey && prevHasData) {
+      setShowRecap(true);
     }
     if (!lastSeenMonth || lastSeenMonth !== currentKey) {
       setLastSeenMonth(currentKey);
     }
   }, []);
 
-  const prevData = getMonthData(prevMonth);
-  const savingsRate = prevData.totalIncome > 0
-    ? ((prevData.totalIncome - prevData.totalExpenses - prevData.totalFixed) / prevData.totalIncome) * 100
+  const savingsRate = prevData.receitas > 0
+    ? ((prevData.receitas - prevData.custosVariaveis - prevData.custosFixos) / prevData.receitas) * 100
     : 0;
 
   const getMessage = () => {
-    if (prevData.balance > 0 && savingsRate >= 30) {
-      return { emoji: "🏆", text: `Incrível! Você economizou ${savingsRate.toFixed(0)}% da renda em ${prevMonth}. Continue assim!`, tone: "success" as const };
+    if (prevBalance > 0 && savingsRate >= 30) {
+      return { emoji: "🏆", text: `Incrível! Você economizou ${savingsRate.toFixed(0)}% da renda em ${prevMonth}. Continue assim!` };
     }
-    if (prevData.balance > 0) {
-      return { emoji: "✅", text: `Bom trabalho! Você fechou ${prevMonth} no positivo. Vamos manter o ritmo!`, tone: "success" as const };
+    if (prevBalance > 0) {
+      return { emoji: "✅", text: `Bom trabalho! Você fechou ${prevMonth} no positivo. Vamos manter o ritmo!` };
     }
-    if (prevData.balance === 0) {
-      return { emoji: "⚖️", text: `${prevMonth} ficou no zero a zero. Que tal traçar uma meta de economia para ${currentMonth}?`, tone: "neutral" as const };
+    if (prevBalance === 0) {
+      return { emoji: "⚖️", text: `${prevMonth} ficou no zero a zero. Que tal traçar uma meta de economia para ${currentMonth}?` };
     }
-    return { emoji: "💪", text: `${prevMonth} foi desafiador, mas você está no controle. Vamos planejar ${currentMonth} melhor!`, tone: "warning" as const };
+    return { emoji: "💪", text: `${prevMonth} foi desafiador, mas você está no controle. Vamos planejar ${currentMonth} melhor!` };
   };
 
   const message = getMessage();
@@ -133,7 +120,6 @@ export const MonthTurnover = ({ onOpenMonth }: MonthTurnoverProps) => {
     setStep("recap");
   };
 
-  // Button to manually trigger recap (for testing / re-viewing)
   const triggerRecap = () => {
     setStep("recap");
     setShowRecap(true);
@@ -141,8 +127,7 @@ export const MonthTurnover = ({ onOpenMonth }: MonthTurnoverProps) => {
 
   return (
     <>
-      {/* Recap trigger banner - shows at start of new month */}
-      {prevData.hasData && (
+      {prevHasData && (
         <button
           onClick={triggerRecap}
           className="w-full bg-card rounded-lg border border-border p-3 flex items-center gap-3 hover:bg-muted/30 transition-colors text-left"
@@ -171,7 +156,6 @@ export const MonthTurnover = ({ onOpenMonth }: MonthTurnoverProps) => {
                 exit={{ opacity: 0, y: -20 }}
                 className="p-6 space-y-5"
               >
-                {/* Header */}
                 <div className="text-center space-y-2">
                   <motion.div
                     initial={{ scale: 0 }}
@@ -185,54 +169,49 @@ export const MonthTurnover = ({ onOpenMonth }: MonthTurnoverProps) => {
                   <p className="text-xs text-muted-foreground">Aqui está seu resumo financeiro</p>
                 </div>
 
-                {/* Stats grid */}
                 <div className="grid grid-cols-2 gap-2">
                   <div className="rounded-lg p-3 bg-card-receitas border border-card-receitas-border">
                     <span className="text-[10px] text-card-receitas-text font-medium">Receitas</span>
                     <p className="text-sm font-bold text-card-receitas-text">
-                      R$ {prevData.totalIncome.toLocaleString("pt-BR")}
+                      R$ {prevData.receitas.toLocaleString("pt-BR")}
                     </p>
                   </div>
                   <div className="rounded-lg p-3 bg-card-despesas border border-card-despesas-border">
                     <span className="text-[10px] text-card-despesas-text font-medium">Despesas</span>
                     <p className="text-sm font-bold text-card-despesas-text">
-                      R$ {(prevData.totalExpenses + prevData.totalFixed).toLocaleString("pt-BR")}
+                      R$ {(prevData.custosVariaveis + prevData.custosFixos).toLocaleString("pt-BR")}
                     </p>
                   </div>
                 </div>
 
-                {/* Balance */}
                 <div className={`rounded-lg p-3 text-center border ${
-                  prevData.balance >= 0 ? "bg-success/10 border-success/30" : "bg-destructive/10 border-destructive/30"
+                  prevBalance >= 0 ? "bg-success/10 border-success/30" : "bg-destructive/10 border-destructive/30"
                 }`}>
                   <div className="flex items-center justify-center gap-2">
-                    {prevData.balance >= 0
+                    {prevBalance >= 0
                       ? <TrendingUp className="w-4 h-4 text-success" />
                       : <TrendingDown className="w-4 h-4 text-destructive" />
                     }
                     <span className="text-[10px] font-bold text-muted-foreground">SALDO</span>
                   </div>
-                  <p className={`text-xl font-bold ${prevData.balance >= 0 ? "text-success" : "text-destructive"}`}>
-                    R$ {prevData.balance.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                  <p className={`text-xl font-bold ${prevBalance >= 0 ? "text-success" : "text-destructive"}`}>
+                    R$ {prevBalance.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                   </p>
                 </div>
 
-                {/* Bills */}
-                {prevData.totalBills > 0 && (
+                {prevBillsInfo.total > 0 && (
                   <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-muted/30">
                     <span className="text-xs text-muted-foreground">Contas pagas</span>
                     <span className="text-xs font-bold">
-                      {prevData.billsPaid}/{prevData.totalBills} ({prevData.totalBills > 0 ? Math.round((prevData.billsPaid / prevData.totalBills) * 100) : 0}%)
+                      {prevBillsInfo.paid}/{prevBillsInfo.total} ({Math.round((prevBillsInfo.paid / prevBillsInfo.total) * 100)}%)
                     </span>
                   </div>
                 )}
 
-                {/* Motivational message */}
                 <div className="rounded-lg p-3 bg-primary/5 border border-primary/20">
                   <p className="text-xs text-center">{message.text}</p>
                 </div>
 
-                {/* Actions */}
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
@@ -279,7 +258,7 @@ export const MonthTurnover = ({ onOpenMonth }: MonthTurnoverProps) => {
                     <div className="flex-1">
                       <p className="text-xs font-bold">Custos Fixos</p>
                       <p className="text-[10px] text-muted-foreground">
-                        Aluguel, contas, assinaturas ({prevData.fixed.length} itens)
+                        Aluguel, contas, assinaturas ({prevFixedCount} itens)
                       </p>
                     </div>
                     <Copy className="w-4 h-4 text-muted-foreground" />
