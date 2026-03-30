@@ -23,12 +23,22 @@ interface AnnualData {
   dividas: number;
 }
 
+interface FixedExpense {
+  id: string;
+  description: string;
+  category: string;
+  value: number;
+  paymentMethod: string;
+  cardName?: string;
+}
+
 interface DashboardProps {
   totalIncome: number;
   totalExpenses: number;
   totalDebts: number;
   totalInvestments: number;
   expenses: Expense[];
+  fixedExpenses: FixedExpense[];
   dueDays: DueDay[];
   annualData: AnnualData[];
   savingsRate: number;
@@ -55,21 +65,26 @@ export const Dashboard = ({
   totalDebts,
   totalInvestments,
   expenses,
+  fixedExpenses,
   dueDays,
   annualData,
   savingsRate,
 }: DashboardProps) => {
-  // Expense by category for pie chart
+  // Expense by category for pie chart (variable + fixed)
   const expensesByCategory = useMemo(() => {
     const grouped: Record<string, number> = {};
     expenses.forEach((e) => {
       const cat = e.category || "outros";
       grouped[cat] = (grouped[cat] || 0) + e.value;
     });
+    fixedExpenses.forEach((e) => {
+      const cat = e.category || "outros";
+      grouped[cat] = (grouped[cat] || 0) + e.value;
+    });
     return Object.entries(grouped)
       .map(([name, value]) => ({ name: categoryLabels[name] || name, value }))
       .sort((a, b) => b.value - a.value);
-  }, [expenses]);
+  }, [expenses, fixedExpenses]);
 
   // Bar chart data for monthly comparison
   const monthlyBarData = useMemo(() => {
