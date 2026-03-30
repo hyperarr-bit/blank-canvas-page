@@ -179,6 +179,7 @@ const Index = () => {
             totalDebts={totalDebts}
             totalInvestments={totalInvestments}
             expenses={expenses}
+            fixedExpenses={fixedExpenses}
             dueDays={dueDays}
             annualData={annualData}
             savingsRate={savingsRate}
