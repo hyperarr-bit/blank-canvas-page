@@ -201,28 +201,6 @@ const Index = () => {
                   totalExpenses={totalExpenses}
                   totalDebts={totalDebts}
                   totalInvestments={totalInvestments}
-                  onUpdateIncome={(value) => {
-                    if (incomes.length > 0) {
-                      setIncomes(incomes.map((inc: any, idx: number) => idx === 0 ? { ...inc, value } : inc));
-                    }
-                  }}
-                  onUpdateExpenses={(value) => {
-                    if (expenses.length > 0) {
-                      setExpenses(expenses.map((exp: any, idx: number) => idx === 0 ? { ...exp, value } : exp));
-                    }
-                  }}
-                  onUpdateDebts={(value) => {
-                    if (installments.length > 0) {
-                      const firstRemaining = installments[0].totalInstallments - installments[0].paidInstallments;
-                      const newInstallmentValue = firstRemaining > 0 ? value / firstRemaining : 0;
-                      setInstallments(installments.map((inst: any, idx: number) => idx === 0 ? { ...inst, installmentValue: newInstallmentValue } : inst));
-                    }
-                  }}
-                  onUpdateInvestments={(value) => {
-                    if (investments.length > 0) {
-                      setInvestments(investments.map((inv: any, idx: number) => idx === 0 ? { ...inv, currentValue: value } : inv));
-                    }
-                  }}
                 />
                 <div className="grid lg:grid-cols-[1fr_280px] gap-4 min-w-0">
                   <div className="min-w-0">
