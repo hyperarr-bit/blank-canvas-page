@@ -96,7 +96,7 @@ export const ExpenseTable = ({ expenses, setExpenses }: ExpenseTableProps) => {
   const total = expenses.reduce((sum, e) => sum + e.value, 0);
 
   return (
-    <div className="space-y-4">
+    <div className="bg-card rounded-lg overflow-hidden border border-border animate-fade-in">
       <div className="bg-card rounded-lg overflow-hidden border border-border animate-fade-in">
         <div className="bg-income py-2 px-4">
           <span className="font-bold text-sm text-income-foreground tracking-wide">CUSTOS VARIÁVEIS</span>
