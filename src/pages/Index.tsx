@@ -240,9 +240,9 @@ const Index = () => {
         )}
 
         {activeTab === "metas" && (
-          <div className="grid lg:grid-cols-2 gap-4">
-            <FinancialGoals goals={goals} setGoals={setGoals} />
-            <div className="space-y-4">
+          <div className="space-y-4">
+            <FinancialGoals goals={goals} setGoals={setGoals} actionBlocks={actionBlocks} setActionBlocks={setActionBlocks} />
+            <div className="grid lg:grid-cols-2 gap-4">
               <Notes notes={notes} setNotes={setNotes} />
               <Calculator />
             </div>
