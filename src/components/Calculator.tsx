@@ -48,7 +48,7 @@ export const Calculator = () => {
   const btnClear = "w-10 h-9 rounded text-sm font-bold bg-foreground text-background border border-border hover:opacity-90 transition-colors";
 
   return (
-    <div className="bg-card rounded-lg border border-border p-3 animate-fade-in w-fit">
+    <div className="bg-card rounded-lg border border-border p-3 animate-fade-in w-full max-w-[280px] lg:w-fit">
       <div className="bg-foreground text-background rounded px-3 py-2 mb-3 text-right">
         <span className="text-lg font-mono">{parseFloat(display).toLocaleString("pt-BR", { maximumFractionDigits: 8 })}</span>
       </div>
