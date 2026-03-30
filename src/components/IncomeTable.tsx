@@ -124,6 +124,7 @@ export const IncomeTable = ({ incomes, setIncomes }: IncomeTableProps) => {
           </tr>
         </tfoot>
       </table>
+      </div>
     </div>
   );
 };
