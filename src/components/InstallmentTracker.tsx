@@ -101,13 +101,27 @@ export const InstallmentTracker = ({ installments, setInstallments, variableExpe
     (sum, i) => i.paidInstallments < i.totalInstallments ? sum + i.installmentValue : sum, 0
   );
 
-  // Group by card for the summary
+  // Group by card for the summary — merge installments + variable expenses
   const cardTotals = installments.reduce((acc, i) => {
     if (i.paidInstallments < i.totalInstallments) {
       acc[i.cardName] = (acc[i.cardName] || 0) + i.installmentValue;
     }
     return acc;
   }, {} as Record<string, number>);
+
+  // Add variable expense card spending
+  const variableCardSpending = variableExpenses
+    .filter((e: any) => e.cardName)
+    .reduce((acc: Record<string, number>, e: any) => {
+      acc[e.cardName] = (acc[e.cardName] || 0) + (e.value || 0);
+      return acc;
+    }, {} as Record<string, number>);
+
+  // Merge into unified card totals
+  const allCardTotals = { ...cardTotals };
+  Object.entries(variableCardSpending).forEach(([card, amount]) => {
+    allCardTotals[card] = (allCardTotals[card] || 0) + amount;
+  });
 
   return (
     <div className="space-y-4">
