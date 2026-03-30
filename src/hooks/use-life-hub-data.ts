@@ -41,16 +41,27 @@ export function useLifeHubData(): LifeHubData {
   return useMemo(() => {
     const tStr = todayStr();
 
-    // Finance
-    const incomes = get<any[]>("core-incomes", []);
-    const expenses = get<any[]>("core-expenses", []);
-    const totalIncome = incomes.reduce((s: number, i: any) => s + (Number(i.amount) || 0), 0);
-    const totalExpense = expenses.reduce((s: number, e: any) => s + (Number(e.amount) || 0), 0);
-    const monthBalance = totalIncome - totalExpense;
+    // Finance — read from the same keys used by the Finanças module
+    const incomes = get<any[]>("finance-incomes", []);
+    const variableExpenses = get<any[]>("finance-expenses", []);
+    const fixedExpenses = get<any[]>("finance-fixed-expenses", []);
+    const totalIncome = incomes.reduce((s: number, i: any) => s + (Number(i.value) || Number(i.amount) || 0), 0);
+    const totalVariableExpense = variableExpenses.reduce((s: number, e: any) => s + (Number(e.value) || Number(e.amount) || 0), 0);
+    const totalFixedExpense = fixedExpenses.reduce((s: number, e: any) => s + (Number(e.value) || Number(e.amount) || 0), 0);
+    const monthBalance = totalIncome - totalVariableExpense - totalFixedExpense;
 
-    const bills = get<any[]>("core-bills-due", []);
-    const upcoming = bills.filter((b: any) => b.date >= tStr && !b.paid).sort((a: any, b: any) => a.date.localeCompare(b.date));
-    const nextBill = upcoming[0] || null;
+    const dueDays = get<any[]>("finance-dueDays", []);
+    const today = new Date().getDate();
+    let nextBill: any = null;
+    dueDays.forEach((d: any) => {
+      const unpaid = (d.bills || []).filter((b: any) => !b.paid);
+      unpaid.forEach((b: any) => {
+        const daysUntil = d.day >= today ? d.day - today : 30 - today + d.day;
+        if (!nextBill || daysUntil < nextBill._daysUntil) {
+          nextBill = { ...b, _daysUntil: daysUntil, _day: d.day };
+        }
+      });
+    });
 
     // Workout — read from actual keys used by Treino page
     const workoutPlan = get<any>("saude-workouts-v2", {});
