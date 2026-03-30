@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { usePersistedState } from "@/hooks/use-persisted-state";
 import { useNavigate } from "react-router-dom";
 import { ModuleTip } from "@/components/ModuleTip";
@@ -23,6 +23,7 @@ import { Dashboard } from "@/components/Dashboard";
 import { Simulators } from "@/components/Simulators";
 import { Gamification } from "@/components/Gamification";
 import { Reports } from "@/components/Reports";
+import { MonthlySheet } from "@/components/MonthlySheet";
 
 const months = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 
@@ -30,6 +31,7 @@ const months = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Jul
 const Index = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [openMonth, setOpenMonth] = useState<string | null>(null);
 
   const [incomes, setIncomes] = usePersistedState("finance-incomes", [] as any[]);
 
@@ -188,55 +190,61 @@ const Index = () => {
 
         {activeTab === "financeiro" && (
           <>
-            <FinancialSummary
-              totalIncome={totalIncome}
-              totalExpenses={totalExpenses}
-              totalDebts={totalDebts}
-              totalInvestments={totalInvestments}
-              onUpdateIncome={(value) => {
-                if (incomes.length > 0) {
-                  setIncomes(incomes.map((inc: any, idx: number) => idx === 0 ? { ...inc, value } : inc));
-                }
-              }}
-              onUpdateExpenses={(value) => {
-                if (expenses.length > 0) {
-                  setExpenses(expenses.map((exp: any, idx: number) => idx === 0 ? { ...exp, value } : exp));
-                }
-              }}
-              onUpdateDebts={(value) => {
-                if (installments.length > 0) {
-                  const firstRemaining = installments[0].totalInstallments - installments[0].paidInstallments;
-                  const newInstallmentValue = firstRemaining > 0 ? value / firstRemaining : 0;
-                  setInstallments(installments.map((inst: any, idx: number) => idx === 0 ? { ...inst, installmentValue: newInstallmentValue } : inst));
-                }
-              }}
-              onUpdateInvestments={(value) => {
-                if (investments.length > 0) {
-                  setInvestments(investments.map((inv: any, idx: number) => idx === 0 ? { ...inv, currentValue: value } : inv));
-                }
-              }}
-            />
-            <div className="grid lg:grid-cols-[1fr_280px] gap-4 min-w-0">
-              <div className="min-w-0">
-                <IncomeTable incomes={incomes} setIncomes={setIncomes} />
-              </div>
-              <Calculator />
-            </div>
-            <div className="min-w-0">
-              <FixedExpensesTable expenses={fixedExpenses} setExpenses={setFixedExpenses} />
-            </div>
-            <div className="grid lg:grid-cols-[1fr_280px] gap-4 min-w-0">
-              <div className="min-w-0">
-                <ExpenseTable expenses={expenses} setExpenses={setExpenses} />
-              </div>
-              <Notes notes={notes} setNotes={setNotes} />
-            </div>
-            <BillsDueCards dueDays={dueDays} setDueDays={setDueDays} />
-            <InstallmentTracker installments={installments} setInstallments={setInstallments} />
-            <div className="grid lg:grid-cols-[1fr_200px] gap-4">
-              <AnnualBudget data={annualData} setData={setAnnualData} />
-              <MonthlyBudget budgets={monthlyBudgets} setBudgets={setMonthlyBudgets} />
-            </div>
+            {openMonth ? (
+              <MonthlySheet month={openMonth} onClose={() => setOpenMonth(null)} />
+            ) : (
+              <>
+                <FinancialSummary
+                  totalIncome={totalIncome}
+                  totalExpenses={totalExpenses}
+                  totalDebts={totalDebts}
+                  totalInvestments={totalInvestments}
+                  onUpdateIncome={(value) => {
+                    if (incomes.length > 0) {
+                      setIncomes(incomes.map((inc: any, idx: number) => idx === 0 ? { ...inc, value } : inc));
+                    }
+                  }}
+                  onUpdateExpenses={(value) => {
+                    if (expenses.length > 0) {
+                      setExpenses(expenses.map((exp: any, idx: number) => idx === 0 ? { ...exp, value } : exp));
+                    }
+                  }}
+                  onUpdateDebts={(value) => {
+                    if (installments.length > 0) {
+                      const firstRemaining = installments[0].totalInstallments - installments[0].paidInstallments;
+                      const newInstallmentValue = firstRemaining > 0 ? value / firstRemaining : 0;
+                      setInstallments(installments.map((inst: any, idx: number) => idx === 0 ? { ...inst, installmentValue: newInstallmentValue } : inst));
+                    }
+                  }}
+                  onUpdateInvestments={(value) => {
+                    if (investments.length > 0) {
+                      setInvestments(investments.map((inv: any, idx: number) => idx === 0 ? { ...inv, currentValue: value } : inv));
+                    }
+                  }}
+                />
+                <div className="grid lg:grid-cols-[1fr_280px] gap-4 min-w-0">
+                  <div className="min-w-0">
+                    <IncomeTable incomes={incomes} setIncomes={setIncomes} />
+                  </div>
+                  <Calculator />
+                </div>
+                <div className="min-w-0">
+                  <FixedExpensesTable expenses={fixedExpenses} setExpenses={setFixedExpenses} />
+                </div>
+                <div className="grid lg:grid-cols-[1fr_280px] gap-4 min-w-0">
+                  <div className="min-w-0">
+                    <ExpenseTable expenses={expenses} setExpenses={setExpenses} />
+                  </div>
+                  <Notes notes={notes} setNotes={setNotes} />
+                </div>
+                <BillsDueCards dueDays={dueDays} setDueDays={setDueDays} />
+                <InstallmentTracker installments={installments} setInstallments={setInstallments} />
+                <div className="grid lg:grid-cols-[1fr_200px] gap-4">
+                  <AnnualBudget data={annualData} setData={setAnnualData} />
+                  <MonthlyBudget budgets={monthlyBudgets} setBudgets={setMonthlyBudgets} onOpenMonth={setOpenMonth} />
+                </div>
+              </>
+            )}
           </>
         )}
 

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { usePersistedState } from "@/hooks/use-persisted-state";
 import { IncomeTable } from "@/components/IncomeTable";
 import { ExpenseTable } from "@/components/ExpenseTable";
@@ -7,17 +6,15 @@ import { BillsDueCards } from "@/components/BillsDueCards";
 import { InstallmentTracker } from "@/components/InstallmentTracker";
 import { Notes } from "@/components/Notes";
 import { Calculator } from "@/components/Calculator";
-import { FinancialSummary } from "@/components/FinancialSummary";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface MonthlySheetProps {
   month: string;
-  open: boolean;
   onClose: () => void;
 }
 
-export const MonthlySheet = ({ month, open, onClose }: MonthlySheetProps) => {
+export const MonthlySheet = ({ month, onClose }: MonthlySheetProps) => {
   const monthKey = month.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
   const [incomes, setIncomes] = usePersistedState(`finance-month-${monthKey}-incomes`, [] as any[]);
@@ -38,75 +35,76 @@ export const MonthlySheet = ({ month, open, onClose }: MonthlySheetProps) => {
   const totalDebts = installments.reduce(
     (sum: number, i: any) => sum + (i.totalInstallments - i.paidInstallments) * i.installmentValue, 0
   );
+  const balance = totalIncome - totalExpenses - totalFixed - totalDebts;
 
   return (
-    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] overflow-y-auto p-0 gap-0">
-        <DialogHeader className="sticky top-0 z-10 bg-card border-b border-border px-4 py-3">
-          <div className="flex items-center gap-3">
-            <button onClick={onClose} className="hover:bg-muted rounded-md p-1 transition-colors">
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <DialogTitle className="text-base font-bold tracking-tight">
-              📅 {month.toUpperCase()} — MEU FINANCEIRO
-            </DialogTitle>
-          </div>
-        </DialogHeader>
+    <div className="space-y-5">
+      {/* Back button */}
+      <Button
+        onClick={onClose}
+        variant="outline"
+        className="w-full py-6 text-base font-bold gap-3 border-2 border-primary/30 hover:border-primary hover:bg-primary/5"
+      >
+        <ArrowLeft className="w-5 h-5" />
+        ← VOLTAR AO FINANCEIRO GERAL
+      </Button>
 
-        <div className="px-4 py-5 space-y-5">
-          {/* Summary cards */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-lg p-3 border bg-card-receitas border-card-receitas-border">
-              <span className="text-[10px] font-bold text-card-receitas-text">RECEITAS</span>
-              <p className="text-sm font-bold text-card-receitas-text mt-1">
-                R$ {totalIncome.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-              </p>
-            </div>
-            <div className="rounded-lg p-3 border bg-card-despesas border-card-despesas-border">
-              <span className="text-[10px] font-bold text-card-despesas-text">DESPESAS</span>
-              <p className="text-sm font-bold text-card-despesas-text mt-1">
-                R$ {(totalExpenses + totalFixed).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-              </p>
-            </div>
-          </div>
+      {/* Month header */}
+      <div className="bg-card rounded-lg border border-border p-4 text-center">
+        <span className="text-xs text-muted-foreground font-medium">PLANILHA DO MÊS</span>
+        <h2 className="text-xl font-bold tracking-tight mt-1">📅 {month.toUpperCase()}</h2>
+      </div>
 
-          {/* Balanço */}
-          <div className={`rounded-lg p-3 border text-center ${
-            totalIncome - totalExpenses - totalFixed - totalDebts >= 0 
-              ? "bg-green-500/10 border-green-500/30" 
-              : "bg-red-500/10 border-red-500/30"
-          }`}>
-            <span className="text-[10px] font-bold text-muted-foreground">BALANÇO DO MÊS</span>
-            <p className={`text-lg font-bold ${
-              totalIncome - totalExpenses - totalFixed - totalDebts >= 0 
-                ? "text-green-500" 
-                : "text-destructive"
-            }`}>
-              R$ {(totalIncome - totalExpenses - totalFixed - totalDebts).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-            </p>
-          </div>
-
-          <div className="min-w-0">
-            <IncomeTable incomes={incomes} setIncomes={setIncomes} />
-          </div>
-
-          <div className="min-w-0">
-            <FixedExpensesTable expenses={fixedExpenses} setExpenses={setFixedExpenses} />
-          </div>
-
-          <div className="min-w-0">
-            <ExpenseTable expenses={expenses} setExpenses={setExpenses} />
-          </div>
-
-          <BillsDueCards dueDays={dueDays} setDueDays={setDueDays} />
-
-          <div className="min-w-0">
-            <InstallmentTracker installments={installments} setInstallments={setInstallments} />
-          </div>
-
-          <Notes notes={notes} setNotes={setNotes} />
+      {/* Summary cards */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="rounded-lg p-3 border bg-card-receitas border-card-receitas-border">
+          <span className="text-[10px] font-bold text-card-receitas-text">RECEITAS</span>
+          <p className="text-sm font-bold text-card-receitas-text mt-1">
+            R$ {totalIncome.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+          </p>
         </div>
-      </DialogContent>
-    </Dialog>
+        <div className="rounded-lg p-3 border bg-card-despesas border-card-despesas-border">
+          <span className="text-[10px] font-bold text-card-despesas-text">DESPESAS</span>
+          <p className="text-sm font-bold text-card-despesas-text mt-1">
+            R$ {(totalExpenses + totalFixed).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+          </p>
+        </div>
+      </div>
+
+      {/* Balance */}
+      <div className={`rounded-lg p-3 border text-center ${
+        balance >= 0 ? "bg-success/10 border-success/30" : "bg-destructive/10 border-destructive/30"
+      }`}>
+        <span className="text-[10px] font-bold text-muted-foreground">BALANÇO DO MÊS</span>
+        <p className={`text-lg font-bold ${balance >= 0 ? "text-success" : "text-destructive"}`}>
+          R$ {balance.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+        </p>
+      </div>
+
+      <div className="min-w-0">
+        <IncomeTable incomes={incomes} setIncomes={setIncomes} />
+      </div>
+      <div className="min-w-0">
+        <FixedExpensesTable expenses={fixedExpenses} setExpenses={setFixedExpenses} />
+      </div>
+      <div className="min-w-0">
+        <ExpenseTable expenses={expenses} setExpenses={setExpenses} />
+      </div>
+      <BillsDueCards dueDays={dueDays} setDueDays={setDueDays} />
+      <div className="min-w-0">
+        <InstallmentTracker installments={installments} setInstallments={setInstallments} />
+      </div>
+      <Notes notes={notes} setNotes={setNotes} />
+
+      {/* Bottom back button */}
+      <Button
+        onClick={onClose}
+        variant="outline"
+        className="w-full py-6 text-base font-bold gap-3 border-2 border-primary/30 hover:border-primary hover:bg-primary/5"
+      >
+        <ArrowLeft className="w-5 h-5" />
+        ← VOLTAR AO FINANCEIRO GERAL
+      </Button>
+    </div>
   );
 };
