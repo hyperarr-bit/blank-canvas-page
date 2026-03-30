@@ -50,6 +50,13 @@ const Index = () => {
   const [notes, setNotes] = usePersistedState("finance-notes", [] as any[]);
 
   const [goals, setGoals] = usePersistedState("finance-goals", [] as any[]);
+  const [actionBlocks, setActionBlocks] = usePersistedState("finance-goal-actions", [
+    { id: "1d", label: "1 DIA", items: [] },
+    { id: "1w", label: "1 SEMANA", items: [] },
+    { id: "1m", label: "1 MÊS", items: [] },
+    { id: "3m", label: "3 MESES", items: [] },
+    { id: "1y", label: "1 ANO", items: [] },
+  ] as any[]);
 
   const [installments, setInstallments] = usePersistedState("finance-installments", [] as any[]);
 
@@ -233,9 +240,9 @@ const Index = () => {
         )}
 
         {activeTab === "metas" && (
-          <div className="grid lg:grid-cols-2 gap-4">
-            <FinancialGoals goals={goals} setGoals={setGoals} />
-            <div className="space-y-4">
+          <div className="space-y-4">
+            <FinancialGoals goals={goals} setGoals={setGoals} actionBlocks={actionBlocks} setActionBlocks={setActionBlocks} />
+            <div className="grid lg:grid-cols-2 gap-4">
               <Notes notes={notes} setNotes={setNotes} />
               <Calculator />
             </div>
