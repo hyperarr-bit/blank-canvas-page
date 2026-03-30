@@ -1,63 +1,22 @@
-import { useState, useMemo } from "react";
-import { Input } from "@/components/ui/input";
-
-interface MonthData {
-  month: string;
-  receitas: number;
-  custosFixos: number;
-  custosVariaveis: number;
-  dividas: number;
-}
-
-interface AnnualBudgetProps {
-  data: MonthData[];
-  setData: (data: MonthData[]) => void;
-}
+import { useMemo } from "react";
+import { getMonthTotals, getCurrentMonthName } from "@/components/finance/storage-keys";
 
 const months = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 
-const getMonthKey = (month: string) =>
-  month.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+export const AnnualBudget = () => {
+  const currentMonth = getCurrentMonthName();
 
-const getMonthlyData = (month: string) => {
-  const key = getMonthKey(month);
-  const parse = (k: string) => {
-    try {
-      const raw = localStorage.getItem(k);
-      return raw ? JSON.parse(raw) : [];
-    } catch { return []; }
-  };
-  const incomes = parse(`finance-month-${key}-incomes`);
-  const expenses = parse(`finance-month-${key}-expenses`);
-  const fixed = parse(`finance-month-${key}-fixed`);
-  const installments = parse(`finance-month-${key}-installments`);
-
-  return {
-    receitas: incomes.reduce((s: number, i: any) => s + (i.value || 0), 0),
-    custosFixos: fixed.reduce((s: number, e: any) => s + (e.value || 0), 0),
-    custosVariaveis: expenses.reduce((s: number, e: any) => s + (e.value || 0), 0),
-    dividas: installments.reduce(
-      (s: number, i: any) => s + ((i.totalInstallments - i.paidInstallments) * i.installmentValue || 0), 0
-    ),
-  };
-};
-
-export const AnnualBudget = ({ data, setData }: AnnualBudgetProps) => {
-  // Combine: main finance data (manual) + monthly sheet data (auto)
   const computedData = useMemo(() => {
-    return data.map((row) => {
-      const monthly = getMonthlyData(row.month);
+    return months.map((month) => {
+      const totals = getMonthTotals(month);
       return {
-        month: row.month,
-        receitas: row.receitas + monthly.receitas,
-        custosFixos: row.custosFixos + monthly.custosFixos,
-        custosVariaveis: row.custosVariaveis + monthly.custosVariaveis,
-        dividas: row.dividas + monthly.dividas,
-        // Keep track of monthly sheet values for display
-        hasMonthly: monthly.receitas + monthly.custosFixos + monthly.custosVariaveis + monthly.dividas > 0,
+        month,
+        ...totals,
+        isCurrent: month === currentMonth,
+        hasData: totals.receitas + totals.custosFixos + totals.custosVariaveis + totals.dividas > 0,
       };
     });
-  }, [data]);
+  }, [currentMonth]);
 
   const sumCol = (field: "receitas" | "custosFixos" | "custosVariaveis" | "dividas") =>
     computedData.reduce((s, d) => s + d[field], 0);
@@ -81,12 +40,10 @@ export const AnnualBudget = ({ data, setData }: AnnualBudgetProps) => {
             {computedData.map((row) => {
               const balance = row.receitas - row.custosFixos - row.custosVariaveis - row.dividas;
               return (
-                <tr key={row.month} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
+                <tr key={row.month} className={`border-b border-border/50 hover:bg-muted/20 transition-colors ${row.isCurrent ? "bg-primary/5" : ""}`}>
                   <td className="px-3 py-1.5 font-medium">
                     {row.month}
-                    {row.hasMonthly && (
-                      <span className="ml-1 text-[8px] text-primary" title="Inclui dados da planilha mensal">📄</span>
-                    )}
+                    {row.isCurrent && <span className="text-[8px] ml-1 text-primary">●</span>}
                   </td>
                   <td className="px-3 py-1.5 text-right tabular-nums">
                     {row.receitas > 0 ? row.receitas.toLocaleString("pt-BR") : ""}

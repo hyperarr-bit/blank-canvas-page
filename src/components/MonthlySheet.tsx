@@ -5,9 +5,9 @@ import { FixedExpensesTable } from "@/components/FixedExpensesTable";
 import { BillsDueCards } from "@/components/BillsDueCards";
 import { InstallmentTracker } from "@/components/InstallmentTracker";
 import { Notes } from "@/components/Notes";
-import { Calculator } from "@/components/Calculator";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getFinanceStorageKeys, isCurrentMonth } from "@/components/finance/storage-keys";
 
 interface MonthlySheetProps {
   month: string;
@@ -15,19 +15,20 @@ interface MonthlySheetProps {
 }
 
 export const MonthlySheet = ({ month, onClose }: MonthlySheetProps) => {
-  const monthKey = month.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  const keys = getFinanceStorageKeys(month);
+  const isCurrent = isCurrentMonth(month);
 
-  const [incomes, setIncomes] = usePersistedState(`finance-month-${monthKey}-incomes`, [] as any[]);
-  const [expenses, setExpenses] = usePersistedState(`finance-month-${monthKey}-expenses`, [] as any[]);
-  const [fixedExpenses, setFixedExpenses] = usePersistedState(`finance-month-${monthKey}-fixed`, [] as any[]);
-  const [dueDays, setDueDays] = usePersistedState(`finance-month-${monthKey}-dueDays`, [
+  const [incomes, setIncomes] = usePersistedState(keys.incomes, [] as any[]);
+  const [expenses, setExpenses] = usePersistedState(keys.expenses, [] as any[]);
+  const [fixedExpenses, setFixedExpenses] = usePersistedState(keys.fixed, [] as any[]);
+  const [dueDays, setDueDays] = usePersistedState(keys.dueDays, [
     { day: 5, color: "yellow", bills: [] as any[] },
     { day: 10, color: "slate", bills: [] as any[] },
     { day: 20, color: "indigo", bills: [] as any[] },
     { day: 30, color: "emerald", bills: [] as any[] },
   ]);
-  const [notes, setNotes] = usePersistedState(`finance-month-${monthKey}-notes`, [] as any[]);
-  const [installments, setInstallments] = usePersistedState(`finance-month-${monthKey}-installments`, [] as any[]);
+  const [notes, setNotes] = usePersistedState(keys.notes, [] as any[]);
+  const [installments, setInstallments] = usePersistedState(keys.installments, [] as any[]);
 
   const totalIncome = incomes.reduce((sum: number, i: any) => sum + i.value, 0);
   const totalExpenses = expenses.reduce((sum: number, e: any) => sum + e.value, 0);
@@ -39,7 +40,6 @@ export const MonthlySheet = ({ month, onClose }: MonthlySheetProps) => {
 
   return (
     <div className="space-y-5">
-      {/* Back button */}
       <Button
         onClick={onClose}
         variant="outline"
@@ -49,13 +49,18 @@ export const MonthlySheet = ({ month, onClose }: MonthlySheetProps) => {
         ← VOLTAR AO FINANCEIRO GERAL
       </Button>
 
-      {/* Month header */}
       <div className="bg-card rounded-lg border border-border p-4 text-center">
-        <span className="text-xs text-muted-foreground font-medium">PLANILHA DO MÊS</span>
+        <span className="text-xs text-muted-foreground font-medium">
+          {isCurrent ? "MÊS ATUAL" : "PLANILHA DO MÊS"}
+        </span>
         <h2 className="text-xl font-bold tracking-tight mt-1">📅 {month.toUpperCase()}</h2>
+        {isCurrent && (
+          <p className="text-[10px] text-muted-foreground mt-1">
+            Os dados aqui são os mesmos do financeiro geral
+          </p>
+        )}
       </div>
 
-      {/* Summary cards */}
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-lg p-3 border bg-card-receitas border-card-receitas-border">
           <span className="text-[10px] font-bold text-card-receitas-text">RECEITAS</span>
@@ -71,7 +76,6 @@ export const MonthlySheet = ({ month, onClose }: MonthlySheetProps) => {
         </div>
       </div>
 
-      {/* Balance */}
       <div className={`rounded-lg p-3 border text-center ${
         balance >= 0 ? "bg-success/10 border-success/30" : "bg-destructive/10 border-destructive/30"
       }`}>
@@ -96,7 +100,6 @@ export const MonthlySheet = ({ month, onClose }: MonthlySheetProps) => {
       </div>
       <Notes notes={notes} setNotes={setNotes} />
 
-      {/* Bottom back button */}
       <Button
         onClick={onClose}
         variant="outline"

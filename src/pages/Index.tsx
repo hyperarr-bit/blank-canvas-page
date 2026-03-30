@@ -242,7 +242,7 @@ const Index = () => {
                 <BillsDueCards dueDays={dueDays} setDueDays={setDueDays} />
                 <InstallmentTracker installments={installments} setInstallments={setInstallments} />
                 <div className="grid lg:grid-cols-[1fr_200px] gap-4">
-                  <AnnualBudget data={annualData} setData={setAnnualData} />
+                  <AnnualBudget />
                   <MonthlyBudget budgets={monthlyBudgets} setBudgets={setMonthlyBudgets} onOpenMonth={setOpenMonth} />
                 </div>
               </>
