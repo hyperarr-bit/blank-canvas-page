@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Pencil, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -20,12 +20,16 @@ interface BillsDueCardsProps {
   setDueDays: (days: DueDay[]) => void;
 }
 
-const dayStyles: Record<number, { card: string; header: string }> = {
-  5: { card: "bg-yellow-50 border-yellow-200", header: "bg-yellow-300 text-yellow-900" },
-  10: { card: "bg-slate-50 border-slate-200", header: "bg-slate-400 text-slate-50" },
-  20: { card: "bg-indigo-50 border-indigo-200", header: "bg-indigo-400 text-indigo-50" },
-  30: { card: "bg-emerald-50 border-emerald-200", header: "bg-emerald-400 text-emerald-50" },
-};
+const colorPalette = [
+  { card: "bg-yellow-50 border-yellow-200", header: "bg-yellow-300 text-yellow-900" },
+  { card: "bg-slate-50 border-slate-200", header: "bg-slate-400 text-slate-50" },
+  { card: "bg-indigo-50 border-indigo-200", header: "bg-indigo-400 text-indigo-50" },
+  { card: "bg-emerald-50 border-emerald-200", header: "bg-emerald-400 text-emerald-50" },
+  { card: "bg-rose-50 border-rose-200", header: "bg-rose-400 text-rose-50" },
+  { card: "bg-cyan-50 border-cyan-200", header: "bg-cyan-400 text-cyan-50" },
+  { card: "bg-orange-50 border-orange-200", header: "bg-orange-400 text-orange-50" },
+  { card: "bg-purple-50 border-purple-200", header: "bg-purple-400 text-purple-50" },
+];
 
 export const BillsDueCards = ({ dueDays, setDueDays }: BillsDueCardsProps) => {
   const [newBills, setNewBills] = useState<Record<number, string>>({});
