@@ -31,8 +31,8 @@ export const MonthlyBudget = ({ budgets, setBudgets, onOpenMonth }: MonthlyBudge
   return (
     <div className="bg-card rounded-lg overflow-hidden border border-border animate-fade-in">
       <div className="bg-accent/20 border-b border-border px-4 py-2 flex items-center gap-2">
-        <span className="font-bold text-xs tracking-wide text-foreground">PLANILHAS MENSAIS</span>
-        <span>📅</span>
+        <span className="font-bold text-xs tracking-wide text-foreground">ORÇAMENTO MENSAL</span>
+        <span>💰</span>
       </div>
       <div className="divide-y divide-border/50">
         {budgets.map((b, i) => {
