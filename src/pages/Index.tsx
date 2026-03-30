@@ -31,6 +31,7 @@ const months = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Jul
 const Index = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [openMonth, setOpenMonth] = useState<string | null>(null);
 
   const [incomes, setIncomes] = usePersistedState("finance-incomes", [] as any[]);
 
