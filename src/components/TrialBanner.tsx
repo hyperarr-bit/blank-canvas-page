@@ -15,7 +15,7 @@ export const TrialBanner = () => {
     if (!user || isSubscribed) return;
 
     const fetchTrialTime = async () => {
-      const { data: profile } = await supabase
+      const { data: profile } = await (supabase as any)
         .from("profiles")
         .select("created_at")
         .eq("id", user.id)
