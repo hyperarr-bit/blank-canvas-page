@@ -26,7 +26,7 @@ export const UserDataProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const loadFromSupabase = async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("user_data")
         .select("key, value")
         .eq("user_id", user.id);
