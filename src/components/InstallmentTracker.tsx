@@ -279,7 +279,7 @@ export const InstallmentTracker = ({ installments, setInstallments, variableExpe
                     R$ {Object.values(cardTotals).reduce((a, b) => a + b, 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                   </td>
                   <td className="px-3 py-2 text-right tabular-nums text-xs font-medium">
-                    R$ {Object.values(variableCardSpending).reduce((a: number, b) => a + (b as number), 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                    R$ {(Object.values(variableCardSpending) as number[]).reduce((a, b) => a + b, 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                   </td>
                   <td className="px-3 py-2 text-right font-bold tabular-nums">
                     R$ {Object.values(allCardTotals).reduce((a, b) => a + b, 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
