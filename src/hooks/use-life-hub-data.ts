@@ -166,7 +166,7 @@ export function useLifeHubData(): LifeHubData {
 
     return {
       dayScore, streak, monthBalance,
-      nextBillName: nextBill?.name || null, nextBillDate: nextBill?.date || null,
+      nextBillName: nextBill?.name || null, nextBillDate: nextBill?._day ? `dia ${nextBill._day}` : null,
       todayWorkoutGroup: todayGroup, workoutDone, workoutTime: null,
       caloriesConsumed, caloriesGoal, mealsLogged, mealsTotal,
       waterGlasses, waterGoal, sleepHours,
