@@ -101,7 +101,7 @@ export const FixedExpensesTable = ({ expenses, setExpenses }: FixedExpensesTable
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full text-sm min-w-[600px]">
           <thead>
             <tr className="border-b border-border bg-muted/30">
               <th className="px-3 py-2 text-left font-medium text-muted-foreground text-xs">Descrição</th>
