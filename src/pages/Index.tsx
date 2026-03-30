@@ -216,13 +216,19 @@ const Index = () => {
                 }
               }}
             />
-            <div className="grid lg:grid-cols-[1fr_280px] gap-4">
-              <IncomeTable incomes={incomes} setIncomes={setIncomes} />
+            <div className="grid lg:grid-cols-[1fr_280px] gap-4 min-w-0">
+              <div className="min-w-0">
+                <IncomeTable incomes={incomes} setIncomes={setIncomes} />
+              </div>
               <Calculator />
             </div>
-            <FixedExpensesTable expenses={fixedExpenses} setExpenses={setFixedExpenses} />
-            <div className="grid lg:grid-cols-[1fr_280px] gap-4">
-              <ExpenseTable expenses={expenses} setExpenses={setExpenses} />
+            <div className="min-w-0">
+              <FixedExpensesTable expenses={fixedExpenses} setExpenses={setFixedExpenses} />
+            </div>
+            <div className="grid lg:grid-cols-[1fr_280px] gap-4 min-w-0">
+              <div className="min-w-0">
+                <ExpenseTable expenses={expenses} setExpenses={setExpenses} />
+              </div>
               <Notes notes={notes} setNotes={setNotes} />
             </div>
             <BillsDueCards dueDays={dueDays} setDueDays={setDueDays} />
