@@ -79,8 +79,8 @@ export const FinancesWidget = ({ size = "small" }: { size?: WidgetSize }) => {
         <div className="mt-2 space-y-1">
           {lastExpenses.map((exp: any) => (
             <div key={exp.id} className="flex items-center justify-between text-[10px]">
-              <span className="text-muted-foreground truncate flex-1">{exp.name}</span>
-              <span className="text-destructive font-medium ml-2">-{fmt(Number(exp.amount) || 0)}</span>
+              <span className="text-muted-foreground truncate flex-1">{exp.description || exp.name}</span>
+              <span className="text-destructive font-medium ml-2">-{fmt(Number(exp.value) || Number(exp.amount) || 0)}</span>
             </div>
           ))}
         </div>
