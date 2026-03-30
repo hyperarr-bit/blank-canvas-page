@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const checkSubscriptionStatus = async (userId: string) => {
-    const { data: sub } = await supabase
+    const { data: sub } = await (supabase as any)
       .from("subscriptions")
       .select("*")
       .eq("user_id", userId)
