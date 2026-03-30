@@ -23,12 +23,22 @@ interface AnnualData {
   dividas: number;
 }
 
+interface FixedExpense {
+  id: string;
+  description: string;
+  category: string;
+  value: number;
+  paymentMethod: string;
+  cardName?: string;
+}
+
 interface DashboardProps {
   totalIncome: number;
   totalExpenses: number;
   totalDebts: number;
   totalInvestments: number;
   expenses: Expense[];
+  fixedExpenses: FixedExpense[];
   dueDays: DueDay[];
   annualData: AnnualData[];
   savingsRate: number;
