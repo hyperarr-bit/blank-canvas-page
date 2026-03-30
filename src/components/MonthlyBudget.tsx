@@ -1,4 +1,5 @@
 import { FileText, ChevronRight } from "lucide-react";
+import { getFinanceStorageKeys, isCurrentMonth } from "@/components/finance/storage-keys";
 
 interface MonthBudget {
   month: string;
@@ -12,20 +13,17 @@ interface MonthlyBudgetProps {
   onOpenMonth?: (month: string) => void;
 }
 
-const getMonthKey = (month: string) =>
-  month.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+const currentMonthIndex = new Date().getMonth();
 
 const hasMonthData = (month: string) => {
-  const key = getMonthKey(month);
+  const keys = getFinanceStorageKeys(month);
   try {
-    const incomes = JSON.parse(localStorage.getItem(`finance-month-${key}-incomes`) || "[]");
-    const expenses = JSON.parse(localStorage.getItem(`finance-month-${key}-expenses`) || "[]");
-    const fixed = JSON.parse(localStorage.getItem(`finance-month-${key}-fixed`) || "[]");
+    const incomes = JSON.parse(localStorage.getItem(keys.incomes) || "[]");
+    const expenses = JSON.parse(localStorage.getItem(keys.expenses) || "[]");
+    const fixed = JSON.parse(localStorage.getItem(keys.fixed) || "[]");
     return incomes.length > 0 || expenses.length > 0 || fixed.length > 0;
   } catch { return false; }
 };
-
-const currentMonthIndex = new Date().getMonth();
 
 export const MonthlyBudget = ({ budgets, setBudgets, onOpenMonth }: MonthlyBudgetProps) => {
   return (
