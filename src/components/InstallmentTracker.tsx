@@ -20,6 +20,7 @@ interface Installment {
 interface InstallmentTrackerProps {
   installments: Installment[];
   setInstallments: (installments: Installment[]) => void;
+  variableExpenses?: any[];
 }
 
 const cardOptions = [
