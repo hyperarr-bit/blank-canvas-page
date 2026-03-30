@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -144,8 +144,13 @@ const Auth = () => {
           </Button>
         </form>
 
-        {/* Toggle */}
-        <div className="text-center">
+        {/* Forgot password + Toggle */}
+        <div className="text-center space-y-2">
+          {isLogin && (
+            <Link to="/reset-password" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Esqueci minha senha
+            </Link>
+          )}
           <button
             onClick={() => setIsLogin(!isLogin)}
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
