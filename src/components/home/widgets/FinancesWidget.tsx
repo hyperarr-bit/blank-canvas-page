@@ -19,22 +19,25 @@ export const FinancesWidget = ({ size = "small" }: { size?: WidgetSize }) => {
     e.preventDefault();
     e.stopPropagation();
     if (!quickName || !quickAmount) return;
-    const expenses = get<any[]>("core-expenses", []);
+    const currentExpenses = get<any[]>("finance-expenses", []);
     const newExpense = {
       id: Date.now().toString(),
-      name: quickName,
-      amount: parseFloat(quickAmount),
-      category: "Outros",
+      description: quickName,
+      category: "outros",
+      value: parseFloat(quickAmount),
       date: new Date().toISOString().slice(0, 10),
     };
-    set("core-expenses", [...expenses, newExpense]);
+    set("finance-expenses", [...currentExpenses, newExpense]);
     setQuickName("");
     setQuickAmount("");
     setShowQuickAdd(false);
   };
 
-  const expenses = get<any[]>("core-expenses", []);
-  const lastExpenses = expenses.slice(-2).reverse();
+  const allExpenses = [
+    ...get<any[]>("finance-expenses", []),
+    ...get<any[]>("finance-fixed-expenses", []),
+  ];
+  const lastExpenses = allExpenses.slice(-2).reverse();
 
   if (size === "small") {
     return (
