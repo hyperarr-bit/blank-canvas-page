@@ -3,10 +3,12 @@ import { useUserData } from "@/hooks/use-user-data";
 
 export const BudgetRemainingWidget = () => {
   const { get } = useUserData();
-  const incomes = get<any[]>("core-incomes", []);
-  const expenses = get<any[]>("core-expenses", []);
-  const totalIncome = incomes.reduce((s: number, i: any) => s + (Number(i.amount) || 0), 0);
-  const totalExpense = expenses.reduce((s: number, e: any) => s + (Number(e.amount) || 0), 0);
+  const incomes = get<any[]>("finance-incomes", []);
+  const variableExpenses = get<any[]>("finance-expenses", []);
+  const fixedExpenses = get<any[]>("finance-fixed-expenses", []);
+  const totalIncome = incomes.reduce((s: number, i: any) => s + (Number(i.value) || Number(i.amount) || 0), 0);
+  const totalExpense = variableExpenses.reduce((s: number, e: any) => s + (Number(e.value) || Number(e.amount) || 0), 0)
+    + fixedExpenses.reduce((s: number, e: any) => s + (Number(e.value) || Number(e.amount) || 0), 0);
   const remaining = totalIncome - totalExpense;
   const pct = totalIncome > 0 ? Math.min((totalExpense / totalIncome) * 100, 100) : 0;
 

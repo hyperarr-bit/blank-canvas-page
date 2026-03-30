@@ -19,22 +19,25 @@ export const FinancesWidget = ({ size = "small" }: { size?: WidgetSize }) => {
     e.preventDefault();
     e.stopPropagation();
     if (!quickName || !quickAmount) return;
-    const expenses = get<any[]>("core-expenses", []);
+    const currentExpenses = get<any[]>("finance-expenses", []);
     const newExpense = {
       id: Date.now().toString(),
-      name: quickName,
-      amount: parseFloat(quickAmount),
-      category: "Outros",
+      description: quickName,
+      category: "outros",
+      value: parseFloat(quickAmount),
       date: new Date().toISOString().slice(0, 10),
     };
-    set("core-expenses", [...expenses, newExpense]);
+    set("finance-expenses", [...currentExpenses, newExpense]);
     setQuickName("");
     setQuickAmount("");
     setShowQuickAdd(false);
   };
 
-  const expenses = get<any[]>("core-expenses", []);
-  const lastExpenses = expenses.slice(-2).reverse();
+  const allExpenses = [
+    ...get<any[]>("finance-expenses", []),
+    ...get<any[]>("finance-fixed-expenses", []),
+  ];
+  const lastExpenses = allExpenses.slice(-2).reverse();
 
   if (size === "small") {
     return (
@@ -76,8 +79,8 @@ export const FinancesWidget = ({ size = "small" }: { size?: WidgetSize }) => {
         <div className="mt-2 space-y-1">
           {lastExpenses.map((exp: any) => (
             <div key={exp.id} className="flex items-center justify-between text-[10px]">
-              <span className="text-muted-foreground truncate flex-1">{exp.name}</span>
-              <span className="text-destructive font-medium ml-2">-{fmt(Number(exp.amount) || 0)}</span>
+              <span className="text-muted-foreground truncate flex-1">{exp.description || exp.name}</span>
+              <span className="text-destructive font-medium ml-2">-{fmt(Number(exp.value) || Number(exp.amount) || 0)}</span>
             </div>
           ))}
         </div>
