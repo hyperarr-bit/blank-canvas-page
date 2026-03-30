@@ -38,6 +38,8 @@ const AnimatedRoutes = () => {
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
+        <Route path="/reset-password" element={<PageTransition><ResetPassword /></PageTransition>} />
+        <Route path="/update-password" element={<PageTransition><UpdatePassword /></PageTransition>} />
         <Route path="/planos" element={<PageTransition><Planos /></PageTransition>} />
         <Route path="/" element={<ProtectedRoute><PageTransition><><TrialBanner /><Home /></></PageTransition></ProtectedRoute>} />
         <Route path="/financas" element={<ProtectedRoute><PageTransition><><TrialBanner /><Index /></></PageTransition></ProtectedRoute>} />
