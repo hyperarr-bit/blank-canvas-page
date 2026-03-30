@@ -95,15 +95,6 @@ export const ExpenseTable = ({ expenses, setExpenses }: ExpenseTableProps) => {
 
   const total = expenses.reduce((sum, e) => sum + e.value, 0);
 
-  // Card spending summary
-  const cardSpending = expenses
-    .filter((e) => e.cardName)
-    .reduce((acc, e) => {
-      const card = e.cardName!;
-      acc[card] = (acc[card] || 0) + e.value;
-      return acc;
-    }, {} as Record<string, number>);
-
   return (
     <div className="space-y-4">
       <div className="bg-card rounded-lg overflow-hidden border border-border animate-fade-in">
