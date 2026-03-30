@@ -218,7 +218,7 @@ const Index = () => {
                   <Notes notes={notes} setNotes={setNotes} />
                 </div>
                 <BillsDueCards dueDays={dueDays} setDueDays={setDueDays} />
-                <InstallmentTracker installments={installments} setInstallments={setInstallments} />
+                <InstallmentTracker installments={installments} setInstallments={setInstallments} variableExpenses={expenses} />
                 <div className="grid lg:grid-cols-[1fr_200px] gap-4">
                   <AnnualBudget />
                   <MonthlyBudget budgets={monthlyBudgets} setBudgets={setMonthlyBudgets} onOpenMonth={setOpenMonth} />

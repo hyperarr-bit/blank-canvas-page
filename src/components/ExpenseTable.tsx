@@ -95,18 +95,8 @@ export const ExpenseTable = ({ expenses, setExpenses }: ExpenseTableProps) => {
 
   const total = expenses.reduce((sum, e) => sum + e.value, 0);
 
-  // Card spending summary
-  const cardSpending = expenses
-    .filter((e) => e.cardName)
-    .reduce((acc, e) => {
-      const card = e.cardName!;
-      acc[card] = (acc[card] || 0) + e.value;
-      return acc;
-    }, {} as Record<string, number>);
-
   return (
-    <div className="space-y-4">
-      <div className="bg-card rounded-lg overflow-hidden border border-border animate-fade-in">
+    <div className="bg-card rounded-lg overflow-hidden border border-border animate-fade-in">
         <div className="bg-income py-2 px-4">
           <span className="font-bold text-sm text-income-foreground tracking-wide">CUSTOS VARIÁVEIS</span>
         </div>
@@ -213,36 +203,6 @@ export const ExpenseTable = ({ expenses, setExpenses }: ExpenseTableProps) => {
             </tfoot>
           </table>
         </div>
-      </div>
-
-      {/* Card spending summary */}
-      {Object.keys(cardSpending).length > 0 && (
-        <div className="bg-card rounded-lg overflow-hidden border border-border animate-fade-in">
-          <div className="bg-muted/50 py-2 px-4">
-            <span className="font-bold text-sm tracking-wide">💳 GASTO POR CARTÃO</span>
-          </div>
-          <div className="p-3 grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {Object.entries(cardSpending)
-              .sort(([, a], [, b]) => b - a)
-              .map(([card, amount]) => (
-                <div key={card} className="flex items-center justify-between p-2.5 rounded-lg bg-muted/30 border border-border/50">
-                  <span className={`category-badge ${getCardStyle(card)}`}>
-                    {getCardLabel(card)}
-                  </span>
-                  <span className="text-sm font-bold tabular-nums">
-                    R$ {amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                  </span>
-                </div>
-              ))}
-            <div className="flex items-center justify-between p-2.5 rounded-lg bg-primary/10 border border-primary/20 col-span-full">
-              <span className="text-xs font-bold">TOTAL CARTÕES</span>
-              <span className="text-sm font-bold tabular-nums">
-                R$ {Object.values(cardSpending).reduce((a, b) => a + b, 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

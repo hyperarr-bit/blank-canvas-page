@@ -20,6 +20,7 @@ interface Installment {
 interface InstallmentTrackerProps {
   installments: Installment[];
   setInstallments: (installments: Installment[]) => void;
+  variableExpenses?: any[];
 }
 
 const cardOptions = [
@@ -53,7 +54,7 @@ const getCardLabel = (v: string) => cardOptions.find((c) => c.value === v)?.labe
 const getCatStyle = (v: string) => installmentCategories.find((c) => c.value === v)?.color || "bg-gray-500/15 text-gray-700";
 const getCatLabel = (v: string) => installmentCategories.find((c) => c.value === v)?.label || v;
 
-export const InstallmentTracker = ({ installments, setInstallments }: InstallmentTrackerProps) => {
+export const InstallmentTracker = ({ installments, setInstallments, variableExpenses = [] }: InstallmentTrackerProps) => {
   const [showForm, setShowForm] = useState(false);
   const [newItem, setNewItem] = useState({
     description: "", totalValue: "", totalInstallments: "", paidInstallments: "", cardName: "", category: "", date: "",
@@ -100,13 +101,27 @@ export const InstallmentTracker = ({ installments, setInstallments }: Installmen
     (sum, i) => i.paidInstallments < i.totalInstallments ? sum + i.installmentValue : sum, 0
   );
 
-  // Group by card for the summary
+  // Group by card for the summary — merge installments + variable expenses
   const cardTotals = installments.reduce((acc, i) => {
     if (i.paidInstallments < i.totalInstallments) {
       acc[i.cardName] = (acc[i.cardName] || 0) + i.installmentValue;
     }
     return acc;
   }, {} as Record<string, number>);
+
+  // Add variable expense card spending
+  const variableCardSpending = variableExpenses
+    .filter((e: any) => e.cardName)
+    .reduce((acc: Record<string, number>, e: any) => {
+      acc[e.cardName] = (acc[e.cardName] || 0) + (e.value || 0);
+      return acc;
+    }, {} as Record<string, number>);
+
+  // Merge into unified card totals
+  const allCardTotals = { ...cardTotals };
+  Object.entries(variableCardSpending).forEach(([card, amount]) => {
+    allCardTotals[card] = (allCardTotals[card] || 0) + (amount as number);
+  });
 
   return (
     <div className="space-y-4">
@@ -219,41 +234,55 @@ export const InstallmentTracker = ({ installments, setInstallments }: Installmen
         </div>
       </div>
 
-      {/* Card invoice summary - auto calculated */}
-      {Object.keys(cardTotals).length > 0 && (
+      {/* Card spending summary - parcelamentos + gastos variáveis */}
+      {Object.keys(allCardTotals).length > 0 && (
         <div className="bg-card rounded-lg overflow-hidden border border-border animate-fade-in">
           <div className="bg-muted/50 py-2 px-4">
-            <span className="font-bold text-sm tracking-wide">💳 FATURAS CARTÕES DO MÊS (automático)</span>
+            <span className="font-bold text-sm tracking-wide">💳 TOTAL POR CARTÃO NO MÊS</span>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/30">
                   <th className="px-3 py-2 text-left font-medium text-muted-foreground text-xs">Cartão</th>
-                  <th className="px-3 py-2 text-right font-medium text-muted-foreground text-xs">Valor</th>
+                  <th className="px-3 py-2 text-right font-medium text-muted-foreground text-xs">Parcelas</th>
+                  <th className="px-3 py-2 text-right font-medium text-muted-foreground text-xs">Gastos</th>
+                  <th className="px-3 py-2 text-right font-medium text-muted-foreground text-xs">Total</th>
                 </tr>
               </thead>
               <tbody>
-                {Object.entries(cardTotals)
+                {Object.entries(allCardTotals)
                   .sort(([, a], [, b]) => b - a)
-                  .map(([card, amount]) => (
+                  .map(([card, total]) => (
                     <tr key={card} className="border-b border-border/50">
                       <td className="px-3 py-2">
                         <span className={`category-badge ${getCardStyle(card)}`}>
                           {getCardLabel(card)}
                         </span>
                       </td>
-                      <td className="px-3 py-2 text-right tabular-nums font-medium">
-                        R$ {amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      <td className="px-3 py-2 text-right tabular-nums text-xs text-muted-foreground">
+                        {(cardTotals[card] || 0) > 0 ? `R$ ${(cardTotals[card] || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "—"}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums text-xs text-muted-foreground">
+                        {(variableCardSpending[card] || 0) > 0 ? `R$ ${(variableCardSpending[card] || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "—"}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums font-bold">
+                        R$ {total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                       </td>
                     </tr>
                   ))}
               </tbody>
               <tfoot>
                 <tr className="border-t border-border">
-                  <td className="px-3 py-2 text-xs font-bold">TOTAL</td>
-                  <td className="px-3 py-2 text-right font-bold tabular-nums">
+                  <td className="px-3 py-2 text-xs font-bold">TOTAL CARTÕES</td>
+                  <td className="px-3 py-2 text-right tabular-nums text-xs font-medium">
                     R$ {Object.values(cardTotals).reduce((a, b) => a + b, 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                  </td>
+                  <td className="px-3 py-2 text-right tabular-nums text-xs font-medium">
+                    R$ {(Object.values(variableCardSpending) as number[]).reduce((a, b) => a + b, 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                  </td>
+                  <td className="px-3 py-2 text-right font-bold tabular-nums">
+                    R$ {Object.values(allCardTotals).reduce((a, b) => a + b, 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                   </td>
                 </tr>
               </tfoot>
