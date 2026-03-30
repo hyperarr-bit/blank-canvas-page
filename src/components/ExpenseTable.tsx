@@ -97,7 +97,6 @@ export const ExpenseTable = ({ expenses, setExpenses }: ExpenseTableProps) => {
 
   return (
     <div className="bg-card rounded-lg overflow-hidden border border-border animate-fade-in">
-      <div className="bg-card rounded-lg overflow-hidden border border-border animate-fade-in">
         <div className="bg-income py-2 px-4">
           <span className="font-bold text-sm text-income-foreground tracking-wide">CUSTOS VARIÁVEIS</span>
         </div>
