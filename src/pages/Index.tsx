@@ -24,6 +24,7 @@ import { Simulators } from "@/components/Simulators";
 import { Gamification } from "@/components/Gamification";
 import { Reports } from "@/components/Reports";
 import { MonthlySheet } from "@/components/MonthlySheet";
+import { MonthTurnover } from "@/components/MonthTurnover";
 
 const months = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 
