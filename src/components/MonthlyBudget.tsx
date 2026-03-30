@@ -1,6 +1,4 @@
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { FileText } from "lucide-react";
+import { FileText, ChevronRight } from "lucide-react";
 
 interface MonthBudget {
   month: string;
@@ -14,40 +12,58 @@ interface MonthlyBudgetProps {
   onOpenMonth?: (month: string) => void;
 }
 
-export const MonthlyBudget = ({ budgets, setBudgets, onOpenMonth }: MonthlyBudgetProps) => {
-  const updateValue = (index: number, value: string) => {
-    const newBudgets = [...budgets];
-    newBudgets[index] = { ...newBudgets[index], value: parseFloat(value) || 0 };
-    setBudgets(newBudgets);
-  };
+const getMonthKey = (month: string) =>
+  month.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
+const hasMonthData = (month: string) => {
+  const key = getMonthKey(month);
+  try {
+    const incomes = JSON.parse(localStorage.getItem(`finance-month-${key}-incomes`) || "[]");
+    const expenses = JSON.parse(localStorage.getItem(`finance-month-${key}-expenses`) || "[]");
+    const fixed = JSON.parse(localStorage.getItem(`finance-month-${key}-fixed`) || "[]");
+    return incomes.length > 0 || expenses.length > 0 || fixed.length > 0;
+  } catch { return false; }
+};
+
+const currentMonthIndex = new Date().getMonth();
+
+export const MonthlyBudget = ({ budgets, setBudgets, onOpenMonth }: MonthlyBudgetProps) => {
   return (
     <div className="bg-card rounded-lg overflow-hidden border border-border animate-fade-in">
       <div className="bg-accent/20 border-b border-border px-4 py-2 flex items-center gap-2">
-        <span className="font-bold text-xs tracking-wide text-foreground">ORÇAMENTO MENSAL</span>
-        <span>💰</span>
+        <span className="font-bold text-xs tracking-wide text-foreground">PLANILHAS MENSAIS</span>
+        <span>📅</span>
       </div>
       <div className="divide-y divide-border/50">
-        {budgets.map((b, i) => (
-          <div key={b.month} className="flex items-center px-3 py-1.5 hover:bg-muted/20 transition-colors">
-            <span className="text-xs flex-1">{b.month}</span>
-            <span className="text-xs text-muted-foreground mr-2">→</span>
-            <Input
-              type="number"
-              value={b.value || ""}
-              onChange={(e) => updateValue(i, e.target.value)}
-              placeholder="0"
-              className="h-6 w-16 text-xs border-0 bg-transparent shadow-none px-0 text-right focus-visible:ring-0"
-            />
+        {budgets.map((b, i) => {
+          const hasData = hasMonthData(b.month);
+          const isCurrent = i === currentMonthIndex;
+          return (
             <button
+              key={b.month}
               onClick={() => onOpenMonth?.(b.month)}
-              className="ml-2 text-muted-foreground hover:text-foreground transition-colors"
-              title={`Abrir planilha de ${b.month}`}
+              className={`w-full flex items-center px-3 py-2 hover:bg-muted/30 transition-colors text-left gap-2 ${
+                isCurrent ? "bg-primary/5" : ""
+              }`}
             >
-              <FileText className="w-3 h-3" />
+              <FileText className={`w-3.5 h-3.5 flex-shrink-0 ${
+                isCurrent ? "text-primary" : "text-muted-foreground"
+              }`} />
+              <span className={`text-xs flex-1 ${
+                isCurrent ? "font-bold text-primary" : ""
+              }`}>
+                {b.month}
+                {isCurrent && <span className="text-[9px] ml-1 opacity-70">(atual)</span>}
+              </span>
+              {hasData && (
+                <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-success/15 text-success font-medium">
+                  ativo
+                </span>
+              )}
+              <ChevronRight className="w-3 h-3 text-muted-foreground flex-shrink-0" />
             </button>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
