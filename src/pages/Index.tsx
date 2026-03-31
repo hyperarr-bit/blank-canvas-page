@@ -10,7 +10,7 @@ import { FixedExpensesTable } from "@/components/FixedExpensesTable";
 import { BillsDueCards } from "@/components/BillsDueCards";
 import { Calculator } from "@/components/Calculator";
 import { Notes } from "@/components/Notes";
-import { FinancialGoals } from "@/components/FinancialGoals";
+
 import { FinancialSummary } from "@/components/FinancialSummary";
 import { InstallmentTracker } from "@/components/InstallmentTracker";
 import { AnnualBudget } from "@/components/AnnualBudget";
