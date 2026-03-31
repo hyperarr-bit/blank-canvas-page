@@ -102,7 +102,7 @@ const Index = () => {
     { id: "dashboard", label: "📊 DASHBOARD" },
     { id: "financeiro", label: "💰 MEU FINANCEIRO" },
     { id: "investimentos", label: "📈 INVESTIMENTOS" },
-    { id: "metas", label: "🎯 METAS" },
+    { id: "itens", label: "❤️ DESEJOS" },
     { id: "itens", label: "❤️ DESEJOS" },
     { id: "viagem", label: "✈️ VIAGEM" },
     { id: "simuladores", label: "🧮 SIMULADORES" },
