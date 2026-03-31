@@ -10,7 +10,7 @@ import { FixedExpensesTable } from "@/components/FixedExpensesTable";
 import { BillsDueCards } from "@/components/BillsDueCards";
 import { Calculator } from "@/components/Calculator";
 import { Notes } from "@/components/Notes";
-import { FinancialGoals } from "@/components/FinancialGoals";
+
 import { FinancialSummary } from "@/components/FinancialSummary";
 import { InstallmentTracker } from "@/components/InstallmentTracker";
 import { AnnualBudget } from "@/components/AnnualBudget";
@@ -49,14 +49,7 @@ const Index = () => {
 
   const [notes, setNotes] = usePersistedState("finance-notes", [] as any[]);
 
-  const [goals, setGoals] = usePersistedState("finance-goals", [] as any[]);
-  const [actionBlocks, setActionBlocks] = usePersistedState("finance-goal-actions", [
-    { id: "1d", label: "1 DIA", items: [] },
-    { id: "1w", label: "1 SEMANA", items: [] },
-    { id: "1m", label: "1 MÊS", items: [] },
-    { id: "3m", label: "3 MESES", items: [] },
-    { id: "1y", label: "1 ANO", items: [] },
-  ] as any[]);
+  const [goals] = usePersistedState("finance-goals", [] as any[]);
 
   const [installments, setInstallments] = usePersistedState("finance-installments", [] as any[]);
 
@@ -109,7 +102,6 @@ const Index = () => {
     { id: "dashboard", label: "📊 DASHBOARD" },
     { id: "financeiro", label: "💰 MEU FINANCEIRO" },
     { id: "investimentos", label: "📈 INVESTIMENTOS" },
-    { id: "metas", label: "🎯 METAS" },
     { id: "itens", label: "❤️ DESEJOS" },
     { id: "viagem", label: "✈️ VIAGEM" },
     { id: "simuladores", label: "🧮 SIMULADORES" },
@@ -237,10 +229,6 @@ const Index = () => {
 
         {activeTab === "investimentos" && (
           <InvestmentsTracker investments={investments} setInvestments={setInvestments} />
-        )}
-
-        {activeTab === "metas" && (
-          <FinancialGoals goals={goals} setGoals={setGoals} actionBlocks={actionBlocks} setActionBlocks={setActionBlocks} />
         )}
 
         {activeTab === "itens" && (
