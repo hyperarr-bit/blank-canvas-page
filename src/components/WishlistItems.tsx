@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Trash2, ShoppingCart, TrendingUp, Calendar, Star, Heart, AlertTriangle } from "lucide-react";
+import { Plus, Trash2, ShoppingCart, TrendingUp, Calendar, Heart, AlertTriangle, ExternalLink, ImagePlus, Link2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
@@ -12,6 +12,7 @@ interface WishlistItem {
   priority: "alta" | "media" | "baixa";
   category: string;
   link?: string;
+  imageUrl?: string;
   targetDate?: string;
 }
 
@@ -24,10 +25,10 @@ interface WishlistItemsProps {
   monthlyInstallments: number;
 }
 
-const priorityColors = {
-  alta: "bg-red-500/20 text-red-400 border-red-500/30",
-  media: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-  baixa: "bg-green-500/20 text-green-400 border-green-500/30",
+const priorityConfig = {
+  alta: { label: "Alta", color: "bg-red-500", dot: "bg-red-400" },
+  media: { label: "Média", color: "bg-amber-500", dot: "bg-amber-400" },
+  baixa: { label: "Baixa", color: "bg-emerald-500", dot: "bg-emerald-400" },
 };
 
 const categories = ["Eletrônicos", "Vestuário", "Casa", "Lazer", "Viagem", "Educação", "Saúde", "Outros"];
@@ -39,6 +40,22 @@ export const WishlistItems = ({ items, setItems, monthlyBudget, totalExpenses, t
     category: "Outros",
     savedAmount: 0,
   });
+  const [addAmounts, setAddAmounts] = useState<Record<string, string>>({});
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, isNew: boolean, itemId?: string) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const dataUrl = ev.target?.result as string;
+      if (isNew) {
+        setNewItem({ ...newItem, imageUrl: dataUrl });
+      } else if (itemId) {
+        setItems(items.map(i => i.id === itemId ? { ...i, imageUrl: dataUrl } : i));
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   const addItem = () => {
     if (!newItem.name || !newItem.price) return;
@@ -50,6 +67,7 @@ export const WishlistItems = ({ items, setItems, monthlyBudget, totalExpenses, t
       priority: newItem.priority || "media",
       category: newItem.category || "Outros",
       link: newItem.link,
+      imageUrl: newItem.imageUrl,
       targetDate: newItem.targetDate,
     };
     setItems([...items, item]);
@@ -61,21 +79,21 @@ export const WishlistItems = ({ items, setItems, monthlyBudget, totalExpenses, t
     setItems(items.filter((i) => i.id !== id));
   };
 
-  const updateSavedAmount = (id: string, amount: number) => {
-    setItems(items.map((i) => (i.id === id ? { ...i, savedAmount: Math.min(amount, i.price) } : i)));
+  const addToSaved = (id: string) => {
+    const amount = parseFloat(addAmounts[id] || "0");
+    if (amount <= 0) return;
+    setItems(items.map(i => i.id === id ? { ...i, savedAmount: Math.min(i.savedAmount + amount, i.price) } : i));
+    setAddAmounts({ ...addAmounts, [id]: "" });
   };
 
   const totalWishlistValue = items.reduce((sum, i) => sum + i.price, 0);
   const totalSaved = items.reduce((sum, i) => sum + i.savedAmount, 0);
   const remainingToSave = totalWishlistValue - totalSaved;
+  const overallProgress = totalWishlistValue > 0 ? (totalSaved / totalWishlistValue) * 100 : 0;
   
-  // Real available money = income - expenses - installments
   const realAvailable = Math.max(0, monthlyBudget - totalExpenses - monthlyInstallments);
-  const savingsForWishlist = realAvailable * 0.3; // 30% of available for wishes
+  const savingsForWishlist = realAvailable * 0.3;
   const monthsToComplete = savingsForWishlist > 0 ? Math.ceil(remainingToSave / savingsForWishlist) : 0;
-  
-  // Impact metrics
-  const budgetImpactPercent = monthlyBudget > 0 ? (totalWishlistValue / monthlyBudget) * 100 : 0;
   const canAffordWithoutDebt = realAvailable > 0;
 
   const sortedItems = [...items].sort((a, b) => {
@@ -84,139 +102,246 @@ export const WishlistItems = ({ items, setItems, monthlyBudget, totalExpenses, t
   });
 
   return (
-    <div className="space-y-4">
-      {/* Summary Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="bg-card rounded-lg border border-border p-3">
-          <div className="flex items-center gap-2 mb-1">
-            <Heart className="w-4 h-4 text-pink-400" />
-            <span className="text-xs text-muted-foreground">Total de Desejos</span>
+    <div className="space-y-5">
+      {/* Header Stats */}
+      <div className="bg-card rounded-xl border border-border p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Heart className="w-5 h-5 text-pink-400" />
+            <h2 className="font-bold text-sm">Meus Desejos</h2>
           </div>
-          <p className="text-lg font-bold">R$ {totalWishlistValue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</p>
+          <span className="text-xs text-muted-foreground">{items.length} {items.length === 1 ? "item" : "itens"}</span>
         </div>
-        <div className="bg-card rounded-lg border border-border p-3">
-          <div className="flex items-center gap-2 mb-1">
-            <TrendingUp className="w-4 h-4 text-green-400" />
-            <span className="text-xs text-muted-foreground">Já Guardado</span>
+        
+        <div className="grid grid-cols-3 gap-3">
+          <div className="text-center">
+            <p className="text-[10px] text-muted-foreground mb-0.5">Total</p>
+            <p className="text-sm font-bold">R$ {totalWishlistValue.toLocaleString("pt-BR", { minimumFractionDigits: 0 })}</p>
           </div>
-          <p className="text-lg font-bold text-green-400">R$ {totalSaved.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</p>
-        </div>
-        <div className="bg-card rounded-lg border border-border p-3">
-          <div className="flex items-center gap-2 mb-1">
-            <ShoppingCart className="w-4 h-4 text-orange-400" />
-            <span className="text-xs text-muted-foreground">Falta Guardar</span>
+          <div className="text-center">
+            <p className="text-[10px] text-muted-foreground mb-0.5">Guardado</p>
+            <p className="text-sm font-bold text-emerald-400">R$ {totalSaved.toLocaleString("pt-BR", { minimumFractionDigits: 0 })}</p>
           </div>
-          <p className="text-lg font-bold text-orange-400">R$ {remainingToSave.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</p>
-        </div>
-        <div className="bg-card rounded-lg border border-border p-3">
-          <div className="flex items-center gap-2 mb-1">
-            <Calendar className="w-4 h-4 text-blue-400" />
-            <span className="text-xs text-muted-foreground">Tempo Estimado</span>
+          <div className="text-center">
+            <p className="text-[10px] text-muted-foreground mb-0.5">Falta</p>
+            <p className="text-sm font-bold text-orange-400">R$ {remainingToSave.toLocaleString("pt-BR", { minimumFractionDigits: 0 })}</p>
           </div>
-          <p className="text-lg font-bold text-blue-400">{monthsToComplete > 0 ? `${monthsToComplete} meses` : "—"}</p>
-          <p className="text-[10px] text-muted-foreground">30% do saldo livre</p>
         </div>
+
+        {/* Overall progress */}
+        <div className="space-y-1">
+          <div className="flex justify-between text-[10px] text-muted-foreground">
+            <span>Progresso geral</span>
+            <span>{overallProgress.toFixed(0)}%</span>
+          </div>
+          <div className="h-2 bg-muted rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-pink-500 to-rose-400 transition-all duration-500"
+              style={{ width: `${overallProgress}%` }}
+            />
+          </div>
+        </div>
+
+        {monthsToComplete > 0 && (
+          <p className="text-[10px] text-muted-foreground text-center">
+            ⏱ Estimativa: <span className="font-medium text-foreground">{monthsToComplete} meses</span> (30% do saldo livre)
+          </p>
+        )}
       </div>
 
-      {/* Financial Impact Alert */}
-      <div className={`rounded-lg p-3 border ${!canAffordWithoutDebt ? "bg-red-500/10 border-red-500/30" : remainingToSave > monthlyBudget * 2 ? "bg-yellow-500/10 border-yellow-500/30" : "bg-green-500/10 border-green-500/30"}`}>
-        <div className="flex items-start gap-2">
-          <AlertTriangle className={`w-4 h-4 mt-0.5 ${!canAffordWithoutDebt ? "text-red-400" : remainingToSave > monthlyBudget * 2 ? "text-yellow-400" : "text-green-400"}`} />
-          <div className="text-xs space-y-1">
-            <p className="font-bold">
-              {!canAffordWithoutDebt 
-                ? "⚠️ Suas despesas + parcelas superam sua renda. Foque em quitar dívidas primeiro."
-                : remainingToSave > monthlyBudget * 2 
-                  ? `⚠️ Seus desejos valem ${budgetImpactPercent.toFixed(0)}% da sua renda. Priorize os itens de alta prioridade.`
-                  : "✅ Seus desejos estão compatíveis com seu orçamento!"}
-            </p>
-            <p className="text-muted-foreground">
-              Saldo livre mensal: R$ {realAvailable.toLocaleString("pt-BR", { minimumFractionDigits: 2 })} 
-              {savingsForWishlist > 0 && ` → R$ ${savingsForWishlist.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}/mês para desejos`}
-            </p>
+      {/* Financial Alert */}
+      {!canAffordWithoutDebt && (
+        <div className="rounded-lg p-3 border bg-destructive/10 border-destructive/30">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-destructive" />
+            <p className="text-xs font-medium">Suas despesas superam sua renda. Foque em quitar dívidas primeiro.</p>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Items List */}
-      <div className="bg-card rounded-lg border border-border">
-        <div className="table-header-dark flex items-center justify-between">
-          <span className="text-xs font-bold">LISTA DE DESEJOS</span>
-          <Button size="sm" variant="ghost" className="h-6 text-xs" onClick={() => setShowForm(!showForm)}>
-            <Plus className="w-3 h-3 mr-1" /> Adicionar
-          </Button>
-        </div>
+      {/* Add Button */}
+      <Button
+        onClick={() => setShowForm(!showForm)}
+        className="w-full h-10 bg-gradient-to-r from-pink-500 to-rose-400 hover:from-pink-600 hover:to-rose-500 text-white border-0"
+      >
+        <Plus className="w-4 h-4 mr-2" /> Adicionar Desejo
+      </Button>
 
-        {showForm && (
-          <div className="p-3 border-b border-border bg-muted/30 space-y-2">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+      {/* Add Form */}
+      {showForm && (
+        <div className="bg-card rounded-xl border border-border p-4 space-y-3">
+          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Novo Desejo</h3>
+          
+          {/* Image preview / upload */}
+          <div className="flex items-center gap-3">
+            {newItem.imageUrl ? (
+              <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-border flex-shrink-0">
+                <img src={newItem.imageUrl} alt="" className="w-full h-full object-cover" />
+                <button
+                  onClick={() => setNewItem({ ...newItem, imageUrl: undefined })}
+                  className="absolute top-0 right-0 bg-black/60 text-white rounded-bl p-0.5"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              </div>
+            ) : (
+              <label className="w-16 h-16 rounded-lg border-2 border-dashed border-border flex items-center justify-center cursor-pointer hover:border-pink-400 transition-colors flex-shrink-0">
+                <ImagePlus className="w-5 h-5 text-muted-foreground" />
+                <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, true)} />
+              </label>
+            )}
+            <div className="flex-1 space-y-2">
               <Input placeholder="Nome do item" value={newItem.name || ""} onChange={(e) => setNewItem({ ...newItem, name: e.target.value })} className="h-8 text-xs" />
               <Input type="number" placeholder="Preço (R$)" value={newItem.price || ""} onChange={(e) => setNewItem({ ...newItem, price: parseFloat(e.target.value) || 0 })} className="h-8 text-xs" />
-              <select value={newItem.priority} onChange={(e) => setNewItem({ ...newItem, priority: e.target.value as any })} className="h-8 text-xs rounded-md border border-input bg-background px-2">
-                <option value="alta">🔴 Alta</option>
-                <option value="media">🟡 Média</option>
-                <option value="baixa">🟢 Baixa</option>
-              </select>
-              <select value={newItem.category} onChange={(e) => setNewItem({ ...newItem, category: e.target.value })} className="h-8 text-xs rounded-md border border-input bg-background px-2">
-                {categories.map((c) => (<option key={c} value={c}>{c}</option>))}
-              </select>
             </div>
-            <div className="grid grid-cols-2 gap-2">
-              <Input placeholder="Link (opcional)" value={newItem.link || ""} onChange={(e) => setNewItem({ ...newItem, link: e.target.value })} className="h-8 text-xs" />
-              <Input type="date" placeholder="Data alvo" value={newItem.targetDate || ""} onChange={(e) => setNewItem({ ...newItem, targetDate: e.target.value })} className="h-8 text-xs" />
-            </div>
-            <Button size="sm" onClick={addItem} className="h-7 text-xs">Salvar Item</Button>
           </div>
-        )}
 
-        <div className="divide-y divide-border">
-          {sortedItems.length === 0 ? (
-            <div className="p-8 text-center">
-              <Heart className="w-8 h-8 mx-auto text-muted-foreground/50 mb-2" />
-              <p className="text-sm text-muted-foreground">Nenhum item na lista de desejos</p>
-            </div>
-          ) : (
-            sortedItems.map((item) => {
-              const progress = (item.savedAmount / item.price) * 100;
-              const remaining = item.price - item.savedAmount;
-              const monthsForItem = savingsForWishlist > 0 ? Math.ceil(remaining / savingsForWishlist) : 0;
-              return (
-                <div key={item.id} className="p-3 hover:bg-muted/30 transition-colors">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded border ${priorityColors[item.priority]}`}>{item.priority.toUpperCase()}</span>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{item.category}</span>
-                        {item.link && (<a href={item.link} target="_blank" rel="noopener noreferrer" className="text-[10px] text-blue-400 hover:underline">🔗 Link</a>)}
-                      </div>
-                      <p className="text-sm font-medium truncate">{item.name}</p>
-                      <div className="flex items-center gap-3 mt-1">
-                        <span className="text-xs text-muted-foreground">R$ {item.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
-                        {monthsForItem > 0 && <span className="text-[10px] text-blue-400">~{monthsForItem} meses</span>}
-                        {item.targetDate && (<span className="text-[10px] text-muted-foreground">📅 {new Date(item.targetDate).toLocaleDateString("pt-BR")}</span>)}
-                      </div>
-                    </div>
-                    <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive" onClick={() => deleteItem(item.id)}>
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
-                  </div>
-                  <div className="mt-2 space-y-1">
-                    <div className="flex items-center justify-between text-[10px]">
-                      <span className="text-muted-foreground">Progresso: {progress.toFixed(0)}%</span>
-                      <span className="text-green-400">Guardado: R$ {item.savedAmount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
-                    </div>
-                    <Progress value={progress} className="h-1.5" />
-                    <div className="flex items-center gap-2 mt-1">
-                      <Input type="number" placeholder="Atualizar valor guardado" className="h-6 text-[10px] flex-1" onBlur={(e) => updateSavedAmount(item.id, parseFloat(e.target.value) || 0)} defaultValue={item.savedAmount} />
-                      <span className="text-[10px] text-orange-400 whitespace-nowrap">Falta: R$ {remaining.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })
-          )}
+          <div className="grid grid-cols-2 gap-2">
+            <Input
+              placeholder="Link do produto (Amazon, etc.)"
+              value={newItem.link || ""}
+              onChange={(e) => setNewItem({ ...newItem, link: e.target.value })}
+              className="h-8 text-xs col-span-2"
+            />
+            <select value={newItem.priority} onChange={(e) => setNewItem({ ...newItem, priority: e.target.value as any })} className="h-8 text-xs rounded-md border border-input bg-background px-2">
+              <option value="alta">🔴 Alta</option>
+              <option value="media">🟡 Média</option>
+              <option value="baixa">🟢 Baixa</option>
+            </select>
+            <select value={newItem.category} onChange={(e) => setNewItem({ ...newItem, category: e.target.value })} className="h-8 text-xs rounded-md border border-input bg-background px-2">
+              {categories.map((c) => (<option key={c} value={c}>{c}</option>))}
+            </select>
+            <Input type="date" placeholder="Data alvo" value={newItem.targetDate || ""} onChange={(e) => setNewItem({ ...newItem, targetDate: e.target.value })} className="h-8 text-xs" />
+            <Input type="number" placeholder="Já guardei (R$)" value={newItem.savedAmount || ""} onChange={(e) => setNewItem({ ...newItem, savedAmount: parseFloat(e.target.value) || 0 })} className="h-8 text-xs" />
+          </div>
+
+          <div className="flex gap-2">
+            <Button size="sm" onClick={addItem} className="h-8 text-xs flex-1 bg-gradient-to-r from-pink-500 to-rose-400 hover:from-pink-600 hover:to-rose-500 text-white border-0">
+              Salvar
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => setShowForm(false)} className="h-8 text-xs">
+              Cancelar
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Items Grid */}
+      {sortedItems.length === 0 ? (
+        <div className="bg-card rounded-xl border border-border p-10 text-center">
+          <Heart className="w-10 h-10 mx-auto text-muted-foreground/30 mb-3" />
+          <p className="text-sm text-muted-foreground">Nenhum desejo na lista ainda</p>
+          <p className="text-xs text-muted-foreground/60 mt-1">Adicione algo que você quer conquistar!</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {sortedItems.map((item) => {
+            const progress = (item.savedAmount / item.price) * 100;
+            const remaining = item.price - item.savedAmount;
+            const isComplete = progress >= 100;
+            const priorityCfg = priorityConfig[item.priority];
+
+            return (
+              <div
+                key={item.id}
+                className={`bg-card rounded-xl border overflow-hidden transition-all hover:shadow-md ${
+                  isComplete ? "border-emerald-500/40" : "border-border"
+                }`}
+              >
+                {/* Image */}
+                {item.imageUrl ? (
+                  <div className="relative h-36 w-full overflow-hidden bg-muted">
+                    <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                    {isComplete && (
+                      <div className="absolute inset-0 bg-emerald-500/20 flex items-center justify-center">
+                        <span className="bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full">✓ CONQUISTADO</span>
+                      </div>
+                    )}
+                    {/* Priority dot */}
+                    <div className={`absolute top-2 left-2 w-2.5 h-2.5 rounded-full ${priorityCfg.dot} ring-2 ring-black/20`} />
+                  </div>
+                ) : (
+                  <div className="relative h-24 w-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
+                    <label className="cursor-pointer flex flex-col items-center gap-1 text-muted-foreground/50 hover:text-muted-foreground transition-colors">
+                      <ImagePlus className="w-6 h-6" />
+                      <span className="text-[9px]">Adicionar foto</span>
+                      <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, false, item.id)} />
+                    </label>
+                    {isComplete && (
+                      <div className="absolute inset-0 bg-emerald-500/20 flex items-center justify-center">
+                        <span className="bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full">✓ CONQUISTADO</span>
+                      </div>
+                    )}
+                    <div className={`absolute top-2 left-2 w-2.5 h-2.5 rounded-full ${priorityCfg.dot} ring-2 ring-black/20`} />
+                  </div>
+                )}
+
+                {/* Content */}
+                <div className="p-3 space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold truncate">{item.name}</p>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">{item.category}</span>
+                        {item.targetDate && (
+                          <span className="text-[10px] text-muted-foreground">📅 {new Date(item.targetDate).toLocaleDateString("pt-BR")}</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      {item.link && (
+                        <a href={item.link} target="_blank" rel="noopener noreferrer" className="p-1 rounded hover:bg-muted transition-colors">
+                          <ExternalLink className="w-3.5 h-3.5 text-muted-foreground" />
+                        </a>
+                      )}
+                      <button onClick={() => deleteItem(item.id)} className="p-1 rounded hover:bg-destructive/10 transition-colors">
+                        <Trash2 className="w-3.5 h-3.5 text-muted-foreground hover:text-destructive" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Price + Progress */}
+                  <div>
+                    <div className="flex items-baseline justify-between mb-1">
+                      <span className="text-base font-bold">R$ {item.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                      <span className="text-[10px] font-medium text-muted-foreground">{progress.toFixed(0)}%</span>
+                    </div>
+                    <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-500 ${
+                          isComplete ? "bg-emerald-500" : "bg-gradient-to-r from-pink-500 to-rose-400"
+                        }`}
+                        style={{ width: `${Math.min(progress, 100)}%` }}
+                      />
+                    </div>
+                    <div className="flex justify-between mt-1 text-[10px]">
+                      <span className="text-emerald-400">Guardado: R$ {item.savedAmount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                      {remaining > 0 && <span className="text-orange-400">Falta: R$ {remaining.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>}
+                    </div>
+                  </div>
+
+                  {/* Add amount */}
+                  {!isComplete && (
+                    <div className="flex gap-1.5">
+                      <Input
+                        type="number"
+                        placeholder="+ Valor"
+                        value={addAmounts[item.id] || ""}
+                        onChange={(e) => setAddAmounts({ ...addAmounts, [item.id]: e.target.value })}
+                        onKeyDown={(e) => e.key === "Enter" && addToSaved(item.id)}
+                        className="h-7 text-[11px] flex-1"
+                      />
+                      <Button size="sm" onClick={() => addToSaved(item.id)} className="h-7 text-[10px] px-2.5 bg-emerald-600 hover:bg-emerald-700 text-white border-0">
+                        Guardar
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
