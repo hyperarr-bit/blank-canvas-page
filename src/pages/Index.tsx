@@ -232,9 +232,7 @@ const Index = () => {
           <InvestmentsTracker investments={investments} setInvestments={setInvestments} />
         )}
 
-        {activeTab === "metas" && (
-          <FinancialGoals goals={goals} setGoals={setGoals} actionBlocks={actionBlocks} setActionBlocks={setActionBlocks} />
-        )}
+        {activeTab === "itens" && (
 
         {activeTab === "itens" && (
           <WishlistItems 
