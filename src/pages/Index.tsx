@@ -233,8 +233,6 @@ const Index = () => {
         )}
 
         {activeTab === "itens" && (
-
-        {activeTab === "itens" && (
           <WishlistItems 
             items={wishlistItems} 
             setItems={setWishlistItems} 
