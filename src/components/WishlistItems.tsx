@@ -172,6 +172,15 @@ export const WishlistItems = ({ items, setItems, monthlyBudget, totalExpenses, t
       {showForm && (
         <div className="bg-card rounded-xl border border-border p-4 space-y-3">
           <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Novo Desejo</h3>
+
+          {/* Import from URL */}
+          <ImportFromUrl onImport={(data) => setNewItem(prev => ({
+            ...prev,
+            name: data.title || prev.name,
+            imageUrl: data.image || prev.imageUrl,
+            price: data.price || prev.price,
+            link: data.url || prev.link,
+          }))} />
           
           {/* Image preview / upload */}
           <div className="flex items-center gap-3">
@@ -199,7 +208,7 @@ export const WishlistItems = ({ items, setItems, monthlyBudget, totalExpenses, t
 
           <div className="grid grid-cols-2 gap-2">
             <Input
-              placeholder="Link do produto (Amazon, etc.)"
+              placeholder="Link do produto (opcional)"
               value={newItem.link || ""}
               onChange={(e) => setNewItem({ ...newItem, link: e.target.value })}
               className="h-8 text-xs col-span-2"
