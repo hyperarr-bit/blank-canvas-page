@@ -34,6 +34,48 @@ const priorityConfig = {
 
 const categories = ["Eletrônicos", "Vestuário", "Casa", "Lazer", "Viagem", "Educação", "Saúde", "Outros"];
 
+// ── URL Import (same pattern as Biblioteca) ──
+const ImportFromUrl = ({ onImport }: { onImport: (data: { title: string; image: string; price: number; url: string }) => void }) => {
+  const [url, setUrl] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const fetchMetadata = async () => {
+    if (!url.trim()) return;
+    setLoading(true);
+    try {
+      const { data } = await supabase.functions.invoke('fetch-product-metadata', { body: { url: url.trim() } });
+      if (data?.success && data.data) {
+        onImport({
+          title: data.data.title || "",
+          image: data.data.image || "",
+          price: data.data.price || 0,
+          url: url.trim(),
+        });
+        setUrl("");
+      }
+    } catch (err) {
+      console.error('Failed to fetch product metadata:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="rounded-lg border-2 border-dashed border-pink-300 dark:border-pink-700 bg-pink-50/50 dark:bg-pink-950/20 p-3">
+      <p className="text-[10px] font-black uppercase tracking-wider text-pink-700 dark:text-pink-400 mb-2 flex items-center gap-1">
+        <Link className="w-3 h-3" /> IMPORTAR DE URL (AMAZON, MERCADO LIVRE...)
+      </p>
+      <div className="flex gap-1.5">
+        <Input value={url} onChange={e => setUrl(e.target.value)} placeholder="Cole o link do produto aqui..."
+          className="h-8 text-xs flex-1" onKeyDown={e => e.key === "Enter" && fetchMetadata()} />
+        <Button size="sm" className="h-8 px-3 bg-pink-500 hover:bg-pink-600 text-white" onClick={fetchMetadata} disabled={loading || !url.trim()}>
+          {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Link className="w-3 h-3" />}
+        </Button>
+      </div>
+    </div>
+  );
+};
+
 export const WishlistItems = ({ items, setItems, monthlyBudget, totalExpenses, totalDebts, monthlyInstallments }: WishlistItemsProps) => {
   const [showForm, setShowForm] = useState(false);
   const [newItem, setNewItem] = useState<Partial<WishlistItem>>({
